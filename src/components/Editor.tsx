@@ -4,7 +4,7 @@ import SelectDropdown from "./SelectDropdown";
 
 type EditorText = {
 	title: string;
-	details: string;
+	description: string;
 	priority: "" | "low" | "medium" | "high";
 	due: string;
 	tags: string[];
@@ -12,7 +12,7 @@ type EditorText = {
 
 const initData: EditorText = {
 	title: "",
-	details: "",
+	description: "",
 	priority: "",
 	due: "",
 	tags: [],
@@ -50,7 +50,7 @@ export default function Editor() {
 				const res = await fetch("/api/ticket", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(data),
+					body: JSON.stringify({ data, timestamp: Date.now() }),
 				});
 				if (res.ok) {
 					setData(initData);
@@ -80,11 +80,11 @@ export default function Editor() {
 				{/* <TagsEditor /> */}
 				<textarea
 					className="text-md"
-					name="details"
+					name="description"
 					rows={4}
-					value={data.details}
+					value={data.description}
 					onChange={(e) => handleChange(e)}
-					placeholder="Details"
+					placeholder="description"
 					required
 				/>
 				<SelectDropdown
