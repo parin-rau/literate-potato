@@ -1,6 +1,7 @@
 import { useState } from "react";
 import SelectDropdown from "./SelectDropdown";
 // import TagsEditor from "./TagsEditor";
+import { useNavigate } from "react-router-dom";
 
 type EditorText = {
 	title: string;
@@ -19,6 +20,11 @@ const initData: EditorText = {
 };
 
 export default function Editor() {
+	const navigate = useNavigate();
+	const refreshPage = () => {
+		navigate(0);
+	};
+
 	const [data, setData] = useState(initData);
 	const selectOptions = [
 		{
@@ -50,10 +56,11 @@ export default function Editor() {
 				const res = await fetch("/api/ticket", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ data, timestamp: Date.now() }),
+					body: JSON.stringify(data),
 				});
 				if (res.ok) {
 					setData(initData);
+					refreshPage();
 				}
 			} catch (err) {
 				console.error(err);
@@ -81,7 +88,7 @@ export default function Editor() {
 				<textarea
 					className="text-md"
 					name="description"
-					rows={4}
+					rows={2}
 					value={data.description}
 					onChange={(e) => handleChange(e)}
 					placeholder="description"

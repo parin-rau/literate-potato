@@ -1,12 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import TicketCard from "./TicketCard";
+import { FetchedTicketData } from "../server";
 
-type Props = {
-	children:
-		| React.JSX.Element
-		| React.JSX.Element[]
-		| (() => React.JSX.Element);
-};
+export default function CardContainer() {
+	const [cards, setCards] = useState<FetchedTicketData[]>([]);
 
-export default function CardContainer(children: Props) {
-	return <div>{children}</div>;
+	useEffect(() => {
+		async function getPosts() {
+			try {
+				const res = await fetch("/api/ticket", {
+					headers: { "Content-Type": "application/json" },
+				});
+				const data: FetchedTicketData[] = await res.json();
+				setCards(data);
+			} catch (err) {
+				console.error(err);
+			}
+		}
+		getPosts();
+	}, []);
+
+	return (
+		<div className="sm:container mx-auto flex flex-col-reverse">
+			{cards.map((card) => (
+				<TicketCard key={card._id} cardData={{ ...card }} />
+			))}
+		</div>
+	);
 }

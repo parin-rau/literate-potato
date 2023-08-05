@@ -3,17 +3,33 @@ import express from "express";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "./mongodb";
 
-type TicketData = {
+export type TicketData = {
 	title: string;
 	description: string;
 	priority: "" | "low" | "medium" | "high";
-	due: string;
+	due?: string;
 	tags?: string[];
 	comments?: {
+		_id: string;
 		timestamp: number;
 		content: string;
 	}[];
 	timestamp: number;
+};
+
+export type FetchedTicketData = {
+	title: string;
+	description: string;
+	priority: "" | "low" | "medium" | "high";
+	due?: string;
+	tags?: string[];
+	comments?: {
+		_id: string;
+		timestamp: number;
+		content: string;
+	}[];
+	timestamp: number;
+	_id: string;
 };
 
 const PORT = 3002;
@@ -39,7 +55,17 @@ app.get("/api/ticket", async (_req, res) => {
 
 app.post("/api/ticket", async (req, res) => {
 	try {
-		const newTicket: TicketData = await req.body;
+		const data: TicketData = await req.body;
+		const { title, description, priority, due, tags, comments } = data;
+		const newTicket: TicketData = {
+			title,
+			description,
+			priority,
+			due,
+			tags,
+			comments,
+			timestamp: Date.now(),
+		};
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection("posts");
