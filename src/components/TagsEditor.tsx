@@ -21,12 +21,12 @@ export default function TagsEditor(props: Props) {
 	}
 
 	function deleteTag(id: number) {
-		tags.filter((tag) => tags.indexOf(tag) !== id);
+		setTags(tags.filter((tag) => tags.indexOf(tag) !== id));
 	}
 
 	return (
-		<div>
-			<div>
+		<div className="flex flex-col space-y-1">
+			<div className="flex flex-row space-x-1">
 				<input
 					className="text-lg"
 					name="tags"
@@ -38,10 +38,10 @@ export default function TagsEditor(props: Props) {
 					+Tag
 				</button>
 			</div>
-			<div>
+			<div className="flex flex-row py-2 space-x-1">
 				{tags.map((tag, index) => (
 					<span
-						className="text-sm bg-blue-300 hover:bg-blue-500 rounded-full px-3 py-1"
+						className="text-sm bg-blue-300 hover:bg-blue-500 hover:text-white rounded-full px-3 py-1"
 						key={index}
 						onClick={() => deleteTag(index)}
 					>

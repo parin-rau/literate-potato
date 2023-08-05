@@ -1,14 +1,16 @@
 type SelectOptions = {
 	name: string;
+	value: string;
 	options: {
 		label: string;
 		value: string;
 	}[];
-	handleChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+	handleChange: (_e: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export default function SelectDropdown({
 	name,
+	value,
 	options,
 	handleChange,
 }: SelectOptions) {
@@ -16,6 +18,7 @@ export default function SelectDropdown({
 		<select
 			name={name}
 			className="text-lg max-w-xs"
+			value={value}
 			onChange={(e) => handleChange(e)}
 		>
 			{options.map((option, index) => (

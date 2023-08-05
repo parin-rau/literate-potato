@@ -8,7 +8,7 @@ const options = {
 	},
 };
 
-const MONGODB_URL = import.meta.env.LOCAL_MONGO_URL;
+const MONGODB_URL = import.meta.env.VITE_LOCAL_MONGO_URL;
 
 export async function connectToDB() {
 	if (!MONGODB_URL) {

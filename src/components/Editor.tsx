@@ -6,7 +6,7 @@ type EditorText = {
 	title: string;
 	details: string;
 	priority: "" | "low" | "medium" | "high";
-	due: Date | null;
+	due: string;
 	tags: string[];
 };
 
@@ -14,7 +14,7 @@ const initData: EditorText = {
 	title: "",
 	details: "",
 	priority: "",
-	due: null,
+	due: "",
 	tags: [],
 };
 
@@ -46,12 +46,12 @@ export default function Editor() {
 			console.log("select a priority");
 		} else {
 			try {
-				const res = await fetch("/api/ticket", {
+				console.log(data);
+				const res = await fetch("/api/test", {
 					method: "POST",
-					headers: { "Content-Type": "application" },
+					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(data),
-				}).then((resp) => resp.json());
-				console.log(res);
+				});
 				if (res.ok) {
 					setData(initData);
 				}
@@ -63,7 +63,10 @@ export default function Editor() {
 
 	return (
 		<div className="sm:container sm:mx-auto border-black border-2 rounded-lg">
-			<form className="flex flex-col px-4 space-y-2">
+			<form
+				className="flex flex-col px-4 py-4 space-y-2"
+				onSubmit={(e) => handleSubmit(e)}
+			>
 				<h1 className="text-3xl">Create New Task</h1>
 				<input
 					className="text-2xl"
@@ -86,6 +89,7 @@ export default function Editor() {
 				/>
 				<SelectDropdown
 					name="priority"
+					value={data.priority}
 					options={selectOptions}
 					handleChange={handleChange}
 				/>
@@ -93,11 +97,11 @@ export default function Editor() {
 					className="text-lg max-w-xs"
 					name="due"
 					type="date"
+					value={data.due}
 					onChange={(e) => handleChange(e)}
 				/>
 				<button
 					className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-full max-w-min"
-					onClick={(e) => handleSubmit(e)}
 					type="submit"
 				>
 					Submit
