@@ -47,7 +47,7 @@ export default function Editor() {
 		} else {
 			try {
 				console.log(data);
-				const res = await fetch("/api/test", {
+				const res = await fetch("/api/ticket", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(data),

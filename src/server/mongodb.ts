@@ -1,4 +1,6 @@
+import "dotenv/config";
 import { MongoClient, ServerApiVersion } from "mongodb";
+import * as mongoDB from "mongodb";
 
 const options = {
 	serverApi: {
@@ -8,13 +10,13 @@ const options = {
 	},
 };
 
-const MONGODB_URL = import.meta.env.VITE_LOCAL_MONGO_URL;
+const MONGODB_URL = process.env.VITE_LOCAL_MONGO_URL;
 
-export async function connectToDB() {
+export async function connectToDatabase() {
 	if (!MONGODB_URL) {
 		throw new Error("Add Mongo URI to .env.local");
 	}
 
-	const client = new MongoClient(MONGODB_URL, options);
+	const client: mongoDB.MongoClient = new MongoClient(MONGODB_URL, options);
 	return client.connect();
 }
