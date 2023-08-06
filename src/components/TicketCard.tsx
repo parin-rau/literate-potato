@@ -1,4 +1,5 @@
 import { FetchedTicketData } from "../types";
+import MenuDropdown from "./MenuDropdown";
 import timestampDisplay from "../utility/timestampDisplay";
 
 type Props = {
@@ -7,13 +8,25 @@ type Props = {
 
 export default function TicketCard(props: Props) {
 	const { title, description, priority, due, timestamp } = props.cardData;
+	const menuOptions = [
+		{ name: "Delete", function: deleteCard },
+		{ name: "Edit", function: editCard },
+	];
 
 	function deleteCard() {
-		console.log("delete me");
+		try {
+			console.log("delete me");
+		} catch (err) {
+			console.error(err);
+		}
 	}
 
 	function editCard() {
-		console.log("edit me");
+		try {
+			console.log("edit me");
+		} catch (err) {
+			console.error(err);
+		}
 	}
 
 	return (
@@ -21,8 +34,7 @@ export default function TicketCard(props: Props) {
 			<div className="flex flex-col px-4 py-4 space-y-2">
 				<div className="flex flex-row flex-grow justify-between items-center">
 					<h1 className="text-bold text-3xl">{title}</h1>
-					<button onClick={() => deleteCard()}>X</button>
-					<button onClick={() => editCard()}>Edit</button>
+					<MenuDropdown options={menuOptions} />
 				</div>
 				{description && <p className="text-lg">{description}</p>}
 				{priority && <p>Priority: {priority}</p>}
