@@ -1,9 +1,9 @@
 export type EditorData = {
-	title?: string;
-	description?: string;
-	priority?: "" | "Low" | "Medium" | "High";
-	due?: string;
-	tags?: string[];
+	title: string;
+	description: string;
+	priority: "" | "Low" | "Medium" | "High";
+	due: string;
+	tags: string[];
 };
 
 // export type UndefinedEditorData = {
@@ -16,11 +16,11 @@ export type EditorData = {
 
 export type TicketData = {
 	ticketId: string;
-	title?: string;
-	description?: string;
-	priority?: "Low" | "Medium" | "High";
-	due?: string;
-	tags?: string[];
+	title: string;
+	description: string;
+	priority: "" | "Low" | "Medium" | "High";
+	due: string;
+	tags: string[];
 	comments?: {
 		_id: string;
 		timestamp: number;

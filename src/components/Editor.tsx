@@ -60,19 +60,8 @@ export default function Editor(props: Props) {
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		try {
-			const editorCopy: EditorData = editor;
-
-			(Object.keys(editor) as (keyof typeof editor)[]).forEach((key) => {
-				editorCopy[key] = editorCopy[key] || undefined;
-				// if (editor[key] === "") {
-				// 	editorCopy[key] = undefined;
-				// } else {
-				// 	editorCopy[key] = editor[key];
-				// }
-			});
-
 			const newTicket: TicketData = {
-				...editorCopy,
+				...editor,
 				timestamp: Date.now(),
 				ticketId: uuidv4(),
 			};
