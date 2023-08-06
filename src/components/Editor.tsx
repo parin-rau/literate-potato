@@ -1,31 +1,42 @@
-import { useState } from "react";
+// import { useState } from "react";
 import SelectDropdown from "./SelectDropdown";
-// import TagsEditor from "./TagsEditor";
-import { useNavigate } from "react-router-dom";
+// import Tagseditor from "./Tagseditor";
+// import { useNavigate } from "react-router-dom";
+import { EditorData, FetchedTicketData, TicketData } from "../types";
+import { v4 as uuidv4 } from "uuid";
 
-type EditorText = {
+/* type editorText = {
 	title: string;
 	description: string;
-	priority: "" | "low" | "medium" | "high";
+	priority: "" | "Low" | "Medium" | "High";
 	due: string;
 	tags: string[];
 };
 
-const initData: EditorText = {
+const initeditor: editorText = {
 	title: "",
 	description: "",
 	priority: "",
 	due: "",
 	tags: [],
+}; */
+
+type Props = {
+	editor: EditorData;
+	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
+	initEditor: EditorData;
+	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 };
 
-export default function Editor() {
-	const navigate = useNavigate();
+export default function Editor(props: Props) {
+	const { editor, setEditor, initEditor, setCards } = props;
+
+	/* const navigate = useNavigate();
 	const refreshPage = () => {
 		navigate(0);
-	};
+	}; */
 
-	const [data, setData] = useState(initData);
+	// const [editor, setEditor] = useState(initEditor);
 	const selectOptions = [
 		{
 			label: "Select task priority",
@@ -43,28 +54,41 @@ export default function Editor() {
 			| React.ChangeEvent<HTMLSelectElement>
 	) {
 		const { value, name } = e.target;
-		setData({ ...data, [name]: value });
+		setEditor({ ...editor, [name]: value });
 	}
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		if (data.priority === "") {
-			console.log("select a priority");
-		} else {
-			try {
-				console.log(data);
-				const res = await fetch("/api/ticket", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(data),
-				});
-				if (res.ok) {
-					setData(initData);
-					refreshPage();
-				}
-			} catch (err) {
-				console.error(err);
+		try {
+			const editorCopy: EditorData = editor;
+
+			(Object.keys(editor) as (keyof typeof editor)[]).forEach((key) => {
+				editorCopy[key] = editorCopy[key] || undefined;
+				// if (editor[key] === "") {
+				// 	editorCopy[key] = undefined;
+				// } else {
+				// 	editorCopy[key] = editor[key];
+				// }
+			});
+
+			const newTicket: TicketData = {
+				...editorCopy,
+				timestamp: Date.now(),
+				ticketId: uuidv4(),
+			};
+			console.log(newTicket);
+			const res = await fetch("/api/ticket", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(newTicket),
+			});
+			if (res.ok) {
+				setCards((prevCards) => [newTicket, ...prevCards]);
+				setEditor(initEditor);
+				// refreshPage();
 			}
+		} catch (err) {
+			console.error(err);
 		}
 	}
 
@@ -78,25 +102,24 @@ export default function Editor() {
 				<input
 					className="text-2xl"
 					name="title"
-					value={data.title}
+					value={editor.title}
 					onChange={(e) => handleChange(e)}
 					placeholder="Title"
 					autoFocus
 					required
 				/>
-				{/* <TagsEditor /> */}
+				{/* <Tagseditor /> */}
 				<textarea
 					className="text-md"
 					name="description"
 					rows={2}
-					value={data.description}
+					value={editor.description}
 					onChange={(e) => handleChange(e)}
 					placeholder="description"
-					required
 				/>
 				<SelectDropdown
 					name="priority"
-					value={data.priority}
+					value={editor.priority}
 					options={selectOptions}
 					handleChange={handleChange}
 				/>
@@ -104,7 +127,7 @@ export default function Editor() {
 					className="text-lg max-w-xs"
 					name="due"
 					type="date"
-					value={data.due}
+					value={editor.due}
 					onChange={(e) => handleChange(e)}
 				/>
 				<button

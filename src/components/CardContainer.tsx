@@ -1,9 +1,15 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import TicketCard from "./TicketCard";
-import { FetchedTicketData } from "../server";
+import { FetchedTicketData } from "../types";
 
-export default function CardContainer() {
-	const [cards, setCards] = useState<FetchedTicketData[]>([]);
+type Props = {
+	cards: FetchedTicketData[];
+	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	containerTitle: string;
+};
+
+export default function CardContainer(props: Props) {
+	const { cards, setCards, containerTitle } = props;
 
 	useEffect(() => {
 		async function getPosts() {
@@ -18,12 +24,16 @@ export default function CardContainer() {
 			}
 		}
 		getPosts();
-	}, []);
+	}, [setCards]);
 
 	return (
-		<div className="sm:container mx-auto flex flex-col-reverse">
+		<div className="sm:container mx-auto flex flex-col">
+			<div className="flex flex-row justify-between">
+				<h1 className="text-bold text-3xl my-4">{containerTitle}</h1>
+				<button onClick={() => console.log("sorting")}>Sort</button>
+			</div>
 			{cards.map((card) => (
-				<TicketCard key={card._id} cardData={{ ...card }} />
+				<TicketCard key={card.ticketId} cardData={{ ...card }} />
 			))}
 		</div>
 	);

@@ -1,6 +1,6 @@
 type SelectOptions = {
 	name: string;
-	value: string;
+	value?: string;
 	options: {
 		label: string;
 		value: string;
