@@ -33,6 +33,12 @@ export default function Editor(props: Props) {
 		setEditor({ ...editor, [name]: value });
 	}
 
+	function handleKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
+		if (e.code === "Enter" && e.shiftKey === false) {
+			e.preventDefault();
+		}
+	}
+
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		try {
@@ -60,27 +66,28 @@ export default function Editor(props: Props) {
 		<div className="sm:container sm:mx-auto border-black border-2 rounded-lg">
 			<form
 				className="flex flex-col px-4 py-4 space-y-2"
-				onSubmit={(e) => handleSubmit(e)}
+				onSubmit={handleSubmit}
+				onKeyDown={handleKeyDown}
 			>
 				<h1 className="text-3xl">Create New Task</h1>
 				<input
 					className="text-2xl"
 					name="title"
 					value={editor.title}
-					onChange={(e) => handleChange(e)}
+					onChange={handleChange}
 					placeholder="Title"
 					autoFocus
 					required
 				/>
-				<TagsEditor editor={editor} setEditor={setEditor} />
 				<textarea
 					className="text-md"
 					name="description"
 					rows={2}
 					value={editor.description}
-					onChange={(e) => handleChange(e)}
-					placeholder="description"
+					onChange={handleChange}
+					placeholder="Description"
 				/>
+				<TagsEditor editor={editor} setEditor={setEditor} />
 				<SelectDropdown
 					name="priority"
 					value={editor.priority}
@@ -92,7 +99,7 @@ export default function Editor(props: Props) {
 					name="due"
 					type="date"
 					value={editor.due}
-					onChange={(e) => handleChange(e)}
+					onChange={handleChange}
 				/>
 				<button
 					className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-full max-w-min"
