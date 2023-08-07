@@ -47,7 +47,7 @@ export default function ProjectTaskPage() {
 				setCards={setCards}
 				containerTitle="Tasks"
 			/>
-			<CardContainer
+			{/* <CardContainer
 				cards={cards}
 				setCards={setCards}
 				containerTitle="In Progress"
@@ -56,7 +56,7 @@ export default function ProjectTaskPage() {
 				cards={cards}
 				setCards={setCards}
 				containerTitle="Completed"
-			/>
+			/> */}
 		</div>
 	);
 }

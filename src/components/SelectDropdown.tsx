@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 type Props = {
 	name: string;
 	value: string | number;
@@ -13,16 +15,25 @@ type Props = {
 export default function SelectDropdown(props: Props) {
 	const { name, value, options, handleChange } = props;
 	const lookupByValue = options.find((option) => option.value === value);
-	const colors = lookupByValue
-		? `${lookupByValue.bgColor} ${lookupByValue.textColor}`
-		: "bg-slate-100 text-black";
+	const [colors, setColors] = useState(
+		lookupByValue
+			? `${lookupByValue.bgColor} ${lookupByValue.textColor}`
+			: "bg-slate-100 text-black"
+	);
 
 	return (
 		<select
 			name={name}
 			className={"text-lg max-w-xs px-2 py-1 rounded-md " + colors}
 			value={value}
-			onChange={handleChange}
+			onChange={(e) => {
+				handleChange(e);
+				setColors(
+					lookupByValue
+						? `${lookupByValue.bgColor} ${lookupByValue.textColor}`
+						: "bg-slate-100 text-black"
+				);
+			}}
 		>
 			{options.map((option, index) => (
 				<option

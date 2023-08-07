@@ -1,4 +1,4 @@
-import { FetchedTicketData } from "../types";
+import { FetchedTicketData, TicketData } from "../types";
 import MenuDropdown from "./MenuDropdown";
 import timestampDisplay from "../utility/timestampDisplay";
 import TagsDisplay from "./TagsDisplay";
@@ -21,7 +21,7 @@ export default function TicketCard(props: Props) {
 		taskStatus,
 		lastModified,
 	} = props.cardData;
-	//const { setCards } = props;
+	const { setCards } = props;
 	const moreOptions = [
 		{ name: "Delete", function: deleteCard },
 		{ name: "Edit", function: editCard },
@@ -72,14 +72,14 @@ export default function TicketCard(props: Props) {
 				body: JSON.stringify({ taskStatus: newTaskStatus }),
 			});
 			if (res.ok) {
-				console.log("Patched ticket");
-				// setCards((prevCards) =>
-				// 	prevCards.find((card) =>
-				// 		card.ticketId === ticketId
-				// 			? { ...card, taskStatus: newTaskStatus }
-				// 			: card
-				// 	)
-				// );
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				setCards((prevCards: any) =>
+					prevCards.map((card: TicketData) =>
+						card.ticketId === ticketId
+							? { ...card, taskStatus: newTaskStatus }
+							: card
+					)
+				);
 			}
 		} catch (err) {
 			console.error(err);
@@ -91,13 +91,15 @@ export default function TicketCard(props: Props) {
 			<div className="flex flex-col px-4 py-4 space-y-2">
 				<div className="flex flex-row flex-grow justify-between items-center">
 					<h1 className="text-bold text-3xl">{title}</h1>
-					<SelectDropdown
-						name="taskStatus"
-						value={taskStatus}
-						options={statusOptions}
-						handleChange={changeStatus}
-					/>
-					<MenuDropdown options={moreOptions} />
+					<div className="flex flex-row space-y-2">
+						<SelectDropdown
+							name="taskStatus"
+							value={taskStatus}
+							options={statusOptions}
+							handleChange={changeStatus}
+						/>
+						<MenuDropdown options={moreOptions} />
+					</div>
 				</div>
 				{description && <p className="text-lg">{description}</p>}
 				{priority && <p>Priority: {priority}</p>}
