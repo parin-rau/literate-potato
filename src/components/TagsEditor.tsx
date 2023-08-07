@@ -1,12 +1,16 @@
 import { useState } from "react";
+import TagsDisplay from "./TagsDisplay";
+import { EditorData } from "../types";
 
 type Props = {
-	tags: string[];
+	editor: EditorData;
+	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
 };
 
 export default function TagsEditor(props: Props) {
 	const [text, setText] = useState("");
-	const [tags, setTags] = useState<string[]>([]);
+	const { editor, setEditor } = props;
+	const { tags } = editor;
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const { value } = e.target;
@@ -14,18 +18,21 @@ export default function TagsEditor(props: Props) {
 	}
 
 	function addTag(tag: string) {
-		if (tag !== "") {
-			setTags([...tags, tag]);
+		if (tag) {
+			setEditor({ ...editor, tags: [...tags, tag] });
 			setText("");
 		}
 	}
 
 	function deleteTag(id: number) {
-		setTags(tags.filter((tag) => tags.indexOf(tag) !== id));
+		setEditor({
+			...editor,
+			tags: tags.filter((tag) => tags.indexOf(tag) !== id),
+		});
 	}
 
 	return (
-		<div className="flex flex-col space-y-1">
+		<div className="flex flex-col">
 			<div className="flex flex-row space-x-1">
 				<input
 					className="text-lg"
@@ -38,7 +45,8 @@ export default function TagsEditor(props: Props) {
 					+Tag
 				</button>
 			</div>
-			<div className="flex flex-row py-2 space-x-1">
+			{tags && <TagsDisplay tags={tags} deleteTag={deleteTag} />}
+			{/* <div className="flex flex-row py-2 space-x-1">
 				{tags.map((tag, index) => (
 					<span
 						className="text-sm bg-blue-300 hover:bg-blue-500 hover:text-white rounded-full px-3 py-1"
@@ -48,7 +56,7 @@ export default function TagsEditor(props: Props) {
 						{tag}
 					</span>
 				))}
-			</div>
+			</div> */}
 		</div>
 	);
 }

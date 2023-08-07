@@ -1,25 +1,7 @@
-// import { useState } from "react";
 import SelectDropdown from "./SelectDropdown";
-// import Tagseditor from "./Tagseditor";
-// import { useNavigate } from "react-router-dom";
+import TagsEditor from "./TagsEditor";
 import { EditorData, FetchedTicketData, TicketData } from "../types";
 import { v4 as uuidv4 } from "uuid";
-
-/* type editorText = {
-	title: string;
-	description: string;
-	priority: "" | "Low" | "Medium" | "High";
-	due: string;
-	tags: string[];
-};
-
-const initeditor: editorText = {
-	title: "",
-	description: "",
-	priority: "",
-	due: "",
-	tags: [],
-}; */
 
 type Props = {
 	editor: EditorData;
@@ -31,12 +13,6 @@ type Props = {
 export default function Editor(props: Props) {
 	const { editor, setEditor, initEditor, setCards } = props;
 
-	/* const navigate = useNavigate();
-	const refreshPage = () => {
-		navigate(0);
-	}; */
-
-	// const [editor, setEditor] = useState(initEditor);
 	const selectOptions = [
 		{
 			label: "Select task priority",
@@ -74,7 +50,6 @@ export default function Editor(props: Props) {
 			if (res.ok) {
 				setCards((prevCards) => [newTicket, ...prevCards]);
 				setEditor(initEditor);
-				// refreshPage();
 			}
 		} catch (err) {
 			console.error(err);
@@ -97,7 +72,7 @@ export default function Editor(props: Props) {
 					autoFocus
 					required
 				/>
-				{/* <Tagseditor /> */}
+				<TagsEditor editor={editor} setEditor={setEditor} />
 				<textarea
 					className="text-md"
 					name="description"
