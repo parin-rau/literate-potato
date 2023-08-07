@@ -28,7 +28,7 @@ const initEditor: InitData = {
 	tags: [],
 };
 
-export default function HomePage() {
+export default function ProjectTaskPage() {
 	const [editor, setEditor] = useState<EditorData>(initEditor);
 	const [cards, setCards] = useState<FetchedTicketData[]>([]);
 
@@ -45,7 +45,17 @@ export default function HomePage() {
 			<CardContainer
 				cards={cards}
 				setCards={setCards}
-				containerTitle="Active Tickets"
+				containerTitle="Tasks"
+			/>
+			<CardContainer
+				cards={cards}
+				setCards={setCards}
+				containerTitle="In Progress"
+			/>
+			<CardContainer
+				cards={cards}
+				setCards={setCards}
+				containerTitle="Completed"
 			/>
 		</div>
 	);

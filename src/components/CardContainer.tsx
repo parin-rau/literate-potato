@@ -33,7 +33,11 @@ export default function CardContainer(props: Props) {
 				<button onClick={() => console.log("sorting")}>Sort</button>
 			</div>
 			{cards.map((card) => (
-				<TicketCard key={card.ticketId} cardData={{ ...card }} />
+				<TicketCard
+					key={card.ticketId}
+					cardData={{ ...card }}
+					setCards={setCards}
+				/>
 			))}
 		</div>
 	);

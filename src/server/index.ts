@@ -35,7 +35,7 @@ import { TicketData } from "../types";
 
 const PORT = 3002;
 
-// const localPosts: string = process.env.VITE_LOCAL_POSTS;
+const localPosts: string = process.env.VITE_LOCAL_POSTS ?? "posts";
 
 const app = express();
 
@@ -45,7 +45,7 @@ app.get("/api/ticket", async (_req, res) => {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection("posts");
+		const coll: mongoDB.Collection = db.collection(localPosts);
 		const tickets = await coll.find().limit(50).toArray();
 		await client.close();
 		res.status(200).send(tickets);
@@ -57,23 +57,22 @@ app.get("/api/ticket", async (_req, res) => {
 app.post("/api/ticket", async (req, res) => {
 	try {
 		const newTicket: TicketData = await req.body;
-		console.log(req.body);
-		// const { title, description, priority, due, tags, comments } = data;
-		// const newTicket: TicketData = {
-		// 	title,
-		// 	description,
-		// 	priority,
-		// 	due,
-		// 	tags,
-		// 	comments,
-		// 	timestamp: Date.now(),
-		// };
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection("posts");
+		const coll: mongoDB.Collection = db.collection(localPosts);
 		const tickets = await coll.insertOne(newTicket);
 		await client.close();
 		res.status(200).send(tickets);
+	} catch (err) {
+		console.error(err);
+	}
+});
+
+app.patch("/api/ticket/:id", async (req, _res) => {
+	try {
+		const id = req.params.id;
+		const data = await req.body;
+		console.log(id, data);
 	} catch (err) {
 		console.error(err);
 	}

@@ -46,6 +46,7 @@ export default function Editor(props: Props) {
 				...editor,
 				timestamp: Date.now(),
 				ticketId: uuidv4(),
+				taskStatus: 0,
 			};
 			console.log(newTicket);
 			const res = await fetch("/api/ticket", {
@@ -95,18 +96,21 @@ export default function Editor(props: Props) {
 					handleChange={handleChange}
 				/>
 				<input
-					className="text-lg max-w-xs"
+					className="text-lg max-w-xs px-1"
 					name="due"
 					type="date"
 					value={editor.due}
 					onChange={handleChange}
 				/>
-				<button
-					className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-full max-w-min"
-					type="submit"
-				>
-					Submit
-				</button>
+				<div className="space-x-2">
+					<button
+						className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-full max-w-min"
+						type="submit"
+					>
+						Submit
+					</button>
+					<i className="text-sm">Shift + Enter</i>
+				</div>
 			</form>
 		</div>
 	);

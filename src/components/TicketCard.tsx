@@ -2,17 +2,48 @@ import { FetchedTicketData } from "../types";
 import MenuDropdown from "./MenuDropdown";
 import timestampDisplay from "../utility/timestampDisplay";
 import TagsDisplay from "./TagsDisplay";
+import SelectDropdown from "./SelectDropdown";
 
 type Props = {
 	cardData: FetchedTicketData;
+	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 };
 
 export default function TicketCard(props: Props) {
-	const { title, description, priority, due, timestamp, tags } =
-		props.cardData;
-	const menuOptions = [
+	const {
+		title,
+		description,
+		priority,
+		due,
+		timestamp,
+		tags,
+		ticketId,
+		taskStatus,
+	} = props.cardData;
+	//const { setCards } = props;
+	const moreOptions = [
 		{ name: "Delete", function: deleteCard },
 		{ name: "Edit", function: editCard },
+	];
+	const statusOptions = [
+		{
+			label: "Not Started",
+			value: 0,
+			bgColor: "bg-red-500",
+			textColor: "text-white",
+		},
+		{
+			label: "In Progress",
+			value: 1,
+			bgColor: "bg-yellow-500",
+			textColor: "text-white",
+		},
+		{
+			label: "Completed",
+			value: 2,
+			bgColor: "bg-green-500",
+			textColor: "text-white",
+		},
 	];
 
 	function deleteCard() {
@@ -31,18 +62,48 @@ export default function TicketCard(props: Props) {
 		}
 	}
 
+	async function changeStatus(e: React.ChangeEvent<HTMLSelectElement>) {
+		const newTaskStatus = e.target.value;
+		try {
+			const res = await fetch(`/api/ticket/${ticketId}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ taskStatus: newTaskStatus }),
+			});
+			if (res.ok) {
+				console.log("Patched ticket");
+				// setCards((prevCards) =>
+				// 	prevCards.find((card) =>
+				// 		card.ticketId === ticketId
+				// 			? { ...card, taskStatus: newTaskStatus }
+				// 			: card
+				// 	)
+				// );
+			}
+		} catch (err) {
+			console.error(err);
+		}
+	}
+
 	return (
 		<div className="sm:container sm:mx-auto my-1 border-black border-2 rounded-lg">
 			<div className="flex flex-col px-4 py-4 space-y-2">
 				<div className="flex flex-row flex-grow justify-between items-center">
 					<h1 className="text-bold text-3xl">{title}</h1>
-					<MenuDropdown options={menuOptions} />
+					<SelectDropdown
+						name="taskStatus"
+						value={taskStatus}
+						options={statusOptions}
+						handleChange={changeStatus}
+					/>
+					<MenuDropdown options={moreOptions} />
 				</div>
 				{description && <p className="text-lg">{description}</p>}
 				{priority && <p>Priority: {priority}</p>}
 				{due && <p>Due: {due}</p>}
 				{tags.length > 0 && <TagsDisplay tags={tags} />}
-				<p>Created: {timestampDisplay(timestamp)}</p>
+				<p>{timestampDisplay(timestamp)}</p>
+				<p>{ticketId}</p>
 			</div>
 		</div>
 	);
