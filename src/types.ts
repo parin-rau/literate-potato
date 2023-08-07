@@ -28,6 +28,7 @@ export type TicketData = {
 	}[];
 	timestamp: number;
 	taskStatus: number;
+	lastModified?: number;
 };
 
 // export type TicketData = EditorData & {

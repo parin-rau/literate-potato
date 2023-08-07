@@ -68,11 +68,19 @@ app.post("/api/ticket", async (req, res) => {
 	}
 });
 
-app.patch("/api/ticket/:id", async (req, _res) => {
+app.patch("/api/ticket/:id", async (req, res) => {
 	try {
 		const id = req.params.id;
 		const data = await req.body;
-		console.log(id, data);
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localPosts);
+		const tickets = await coll.updateOne(
+			{ ticketId: id },
+			{ $set: { ...data, lastModified: Date.now() } }
+		);
+		await client.close();
+		res.status(200).send(tickets);
 	} catch (err) {
 		console.error(err);
 	}

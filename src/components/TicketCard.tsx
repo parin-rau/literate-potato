@@ -19,6 +19,7 @@ export default function TicketCard(props: Props) {
 		tags,
 		ticketId,
 		taskStatus,
+		lastModified,
 	} = props.cardData;
 	//const { setCards } = props;
 	const moreOptions = [
@@ -102,7 +103,10 @@ export default function TicketCard(props: Props) {
 				{priority && <p>Priority: {priority}</p>}
 				{due && <p>Due: {due}</p>}
 				{tags.length > 0 && <TagsDisplay tags={tags} />}
-				<p>{timestampDisplay(timestamp)}</p>
+				<p>Created: {timestampDisplay(timestamp)}</p>
+				{lastModified && (
+					<p>Last Modified: {timestampDisplay(lastModified)}</p>
+				)}
 				<p>{ticketId}</p>
 			</div>
 		</div>
