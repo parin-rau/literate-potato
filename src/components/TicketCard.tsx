@@ -1,13 +1,15 @@
 import { FetchedTicketData } from "../types";
 import MenuDropdown from "./MenuDropdown";
 import timestampDisplay from "../utility/timestampDisplay";
+import TagsDisplay from "./TagsDisplay";
 
 type Props = {
 	cardData: FetchedTicketData;
 };
 
 export default function TicketCard(props: Props) {
-	const { title, description, priority, due, timestamp } = props.cardData;
+	const { title, description, priority, due, timestamp, tags } =
+		props.cardData;
 	const menuOptions = [
 		{ name: "Delete", function: deleteCard },
 		{ name: "Edit", function: editCard },
@@ -39,6 +41,7 @@ export default function TicketCard(props: Props) {
 				{description && <p className="text-lg">{description}</p>}
 				{priority && <p>Priority: {priority}</p>}
 				{due && <p>Due: {due}</p>}
+				{tags.length > 0 && <TagsDisplay tags={tags} />}
 				<p>Created: {timestampDisplay(timestamp)}</p>
 			</div>
 		</div>
