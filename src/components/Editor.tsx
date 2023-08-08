@@ -1,17 +1,25 @@
+import { useState } from "react";
 import SelectDropdown from "./SelectDropdown";
 import TagsEditor from "./TagsEditor";
 import { EditorData, FetchedTicketData, TicketData } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
 type Props = {
-	editor: EditorData;
-	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
-	initEditor: EditorData;
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 };
 
+const initEditor: EditorData = {
+	title: "",
+	description: "",
+	priority: "",
+	due: "",
+	tags: [],
+	subtasks: [],
+};
+
 export default function Editor(props: Props) {
-	const { editor, setEditor, initEditor, setCards } = props;
+	const { setCards } = props;
+	const [editor, setEditor] = useState(initEditor);
 
 	const selectOptions = [
 		{
@@ -48,6 +56,7 @@ export default function Editor(props: Props) {
 				timestamp: Date.now(),
 				ticketId: uuidv4(),
 				taskStatus: "Not Started",
+				subtasks: [],
 			};
 			console.log(newTicket);
 			const res = await fetch("/api/ticket", {

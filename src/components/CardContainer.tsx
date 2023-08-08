@@ -36,7 +36,6 @@ export default function CardContainer(props: Props) {
 				<TicketCard
 					key={card.ticketId}
 					cardData={{ ...card }}
-					cards={cards}
 					setCards={setCards}
 				/>
 			))}

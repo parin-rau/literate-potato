@@ -1,18 +1,16 @@
+export type Project = (TicketData & { owner: string })[];
+
 export type EditorData = {
 	title: string;
 	description: string;
 	priority: "" | "Low" | "Medium" | "High";
 	due: string;
 	tags: string[];
+	subtasks: {
+		description: string;
+		completed: boolean;
+	}[];
 };
-
-// export type UndefinedEditorData = {
-// 	title?: string;
-// 	description?: string;
-// 	priority?: "" | "Low" | "Medium" | "High";
-// 	due?: string;
-// 	tags?: string[];
-// };
 
 export type TicketData = {
 	ticketId: string;
@@ -21,6 +19,10 @@ export type TicketData = {
 	priority: "" | "Low" | "Medium" | "High";
 	due: string;
 	tags: string[];
+	subtasks: {
+		title: string;
+		completed: boolean;
+	}[];
 	comments?: {
 		_id: string;
 		timestamp: number;
