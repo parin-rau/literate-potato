@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { FetchedTicketData, TicketData } from "../types";
 import MenuDropdown from "./MenuDropdown";
 import timestampDisplay from "../utility/timestampDisplay";
@@ -29,23 +30,41 @@ export default function TicketCard(props: Props) {
 	const statusOptions = [
 		{
 			label: "Not Started",
-			value: 0,
+			value: "Not Started",
+			sortValue: 0,
 			bgColor: "bg-red-500",
 			textColor: "text-white",
 		},
 		{
 			label: "In Progress",
-			value: 1,
+			value: "In Progress",
+			sortValue: 1,
 			bgColor: "bg-yellow-500",
 			textColor: "text-white",
 		},
 		{
 			label: "Completed",
-			value: 2,
+			value: "Completed",
+			sortValue: 2,
 			bgColor: "bg-green-500",
 			textColor: "text-white",
 		},
 	];
+
+	const [statusColors, setStatusColors] = useState(
+		statusColorsLookup(taskStatus)
+	);
+
+	function statusColorsLookup(currentStatus: string) {
+		const currentOption = statusOptions.find(
+			(option) => option.value === currentStatus
+		);
+		const optionColors =
+			currentOption?.bgColor && currentOption?.textColor
+				? `${currentOption.bgColor} ${currentOption.textColor}`
+				: "bg-slate-100 text-black";
+		return optionColors;
+	}
 
 	function deleteCard() {
 		try {
@@ -63,8 +82,11 @@ export default function TicketCard(props: Props) {
 		}
 	}
 
+	useEffect(() => {}, [statusColors]);
+
 	async function changeStatus(e: React.ChangeEvent<HTMLSelectElement>) {
 		const newTaskStatus = e.target.value;
+		const newStatusColor = statusColorsLookup(newTaskStatus);
 		try {
 			const res = await fetch(`/api/ticket/${ticketId}`, {
 				method: "PATCH",
@@ -80,6 +102,7 @@ export default function TicketCard(props: Props) {
 							: card
 					)
 				);
+				setStatusColors(newStatusColor);
 			}
 		} catch (err) {
 			console.error(err);
@@ -97,6 +120,7 @@ export default function TicketCard(props: Props) {
 							value={taskStatus}
 							options={statusOptions}
 							handleChange={changeStatus}
+							colors={statusColors}
 						/>
 						<MenuDropdown options={moreOptions} />
 					</div>

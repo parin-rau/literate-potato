@@ -27,7 +27,7 @@ export type TicketData = {
 		content: string;
 	}[];
 	timestamp: number;
-	taskStatus: number;
+	taskStatus: string;
 	lastModified?: number;
 };
 

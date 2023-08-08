@@ -17,10 +17,11 @@ export default function Editor(props: Props) {
 		{
 			label: "Select task priority",
 			value: "",
+			sortValue: 3,
 		},
-		{ label: "Low", value: "low" },
-		{ label: "Medium", value: "medium" },
-		{ label: "High", value: "high" },
+		{ label: "Low", value: "low", sortValue: 2 },
+		{ label: "Medium", value: "medium", sortValue: 1 },
+		{ label: "High", value: "high", sortValue: 0 },
 	];
 
 	function handleChange(
@@ -46,7 +47,7 @@ export default function Editor(props: Props) {
 				...editor,
 				timestamp: Date.now(),
 				ticketId: uuidv4(),
-				taskStatus: 0,
+				taskStatus: "Not Started",
 			};
 			console.log(newTicket);
 			const res = await fetch("/api/ticket", {

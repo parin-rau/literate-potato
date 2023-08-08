@@ -37,7 +37,7 @@ export default function TagsEditor(props: Props) {
 
 	return (
 		<div className="flex flex-col">
-			<div className="flex flex-row space-x-1">
+			<div className="flex flex-row space-x-2 items-center">
 				<input
 					className="text-lg"
 					name="tags"
@@ -53,6 +53,7 @@ export default function TagsEditor(props: Props) {
 				>
 					Add Tag
 				</button>
+				<i className="text-sm">Enter</i>
 			</div>
 			{tags && <TagsDisplay tags={tags} deleteTag={deleteTag} />}
 		</div>
