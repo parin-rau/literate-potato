@@ -55,7 +55,9 @@ export default function TagsEditor(props: Props) {
 				</button>
 				<i className="text-sm">Enter</i>
 			</div>
-			{tags && <TagsDisplay tags={tags} deleteTag={deleteTag} />}
+			{tags.length > 0 && (
+				<TagsDisplay tags={tags} deleteTag={deleteTag} />
+			)}
 		</div>
 	);
 }

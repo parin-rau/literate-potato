@@ -3,6 +3,7 @@ import SelectDropdown from "./SelectDropdown";
 import TagsEditor from "./TagsEditor";
 import { EditorData, FetchedTicketData, TicketData } from "../types";
 import { v4 as uuidv4 } from "uuid";
+import SubtaskEditor from "./SubtaskEditor";
 
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
@@ -98,6 +99,7 @@ export default function Editor(props: Props) {
 					onChange={handleChange}
 					placeholder="Description"
 				/>
+				<SubtaskEditor editor={editor} setEditor={setEditor} />
 				<TagsEditor editor={editor} setEditor={setEditor} />
 				<SelectDropdown
 					name="priority"
