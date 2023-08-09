@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { EditorData } from "../types";
 import SubtaskDisplay from "./SubtaskDisplay";
+import { v4 as uuidv4 } from "uuid";
 
 type Props = {
 	editor: EditorData;
@@ -27,30 +28,24 @@ export default function SubtaskEditor(props: Props) {
 				...editor,
 				subtasks: [
 					...subtasks,
-					{ description: subtaskDesc, completed: false },
+					{
+						description: subtaskDesc,
+						completed: false,
+						subtaskId: uuidv4(),
+					},
 				],
 			});
 			setText("");
 		}
 	}
 
-	function deleteSubtask(id: number) {
+	function deleteSubtask(id: string) {
+		const deleteTargetId = subtasks.find(
+			(item) => item.subtaskId === id
+		)?.subtaskId;
 		setEditor({
 			...editor,
-			subtasks: subtasks.filter(
-				(subtask) => subtasks.indexOf(subtask) !== id
-			),
-		});
-	}
-
-	function completeSubtask(id: number) {
-		setEditor({
-			...editor,
-			subtasks: subtasks.map((subtask) =>
-				subtasks.indexOf(subtask) === id
-					? { ...subtask, completed: !subtask.completed }
-					: subtask
-			),
+			subtasks: subtasks.filter(() => deleteTargetId !== id),
 		});
 	}
 
@@ -78,7 +73,6 @@ export default function SubtaskEditor(props: Props) {
 				<SubtaskDisplay
 					subtasks={subtasks}
 					deleteSubtask={deleteSubtask}
-					completeSubtask={completeSubtask}
 				/>
 			)}
 		</div>

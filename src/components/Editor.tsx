@@ -28,9 +28,9 @@ export default function Editor(props: Props) {
 			value: "",
 			sortValue: 3,
 		},
-		{ label: "Low", value: "low", sortValue: 2 },
-		{ label: "Medium", value: "medium", sortValue: 1 },
-		{ label: "High", value: "high", sortValue: 0 },
+		{ label: "Low", value: "Low", sortValue: 2 },
+		{ label: "Medium", value: "Medium", sortValue: 1 },
+		{ label: "High", value: "High", sortValue: 0 },
 	];
 
 	function handleChange(
@@ -57,7 +57,6 @@ export default function Editor(props: Props) {
 				timestamp: Date.now(),
 				ticketId: uuidv4(),
 				taskStatus: "Not Started",
-				subtasks: [],
 			};
 			console.log(newTicket);
 			const res = await fetch("/api/ticket", {

@@ -4,6 +4,7 @@ import MenuDropdown from "./MenuDropdown";
 import timestampDisplay from "../utility/timestampDisplay";
 import TagsDisplay from "./TagsDisplay";
 import SelectDropdown from "./SelectDropdown";
+import SubtaskDisplay from "./SubtaskDisplay";
 
 type Props = {
 	cardData: FetchedTicketData;
@@ -21,6 +22,7 @@ export default function TicketCard(props: Props) {
 		ticketId,
 		taskStatus,
 		lastModified,
+		subtasks,
 	} = props.cardData;
 	const { setCards } = props;
 	const moreOptions = [
@@ -109,12 +111,53 @@ export default function TicketCard(props: Props) {
 		}
 	}
 
+	async function completeSubtask(id: string) {
+		if (subtasks) {
+			const updatedCompletion = !subtasks.find(
+				(subtask) => subtask.subtaskId === id
+			)?.completed;
+			const updatedSubtasks = subtasks.map((subtask) =>
+				subtask.subtaskId === id
+					? { ...subtask, completed: updatedCompletion }
+					: subtask
+			);
+			// const updated = {
+			// 	...editor,
+			// 	subtasks: subtasks.map((subtask) =>
+			// 		subtasks.indexOf(subtask) === id
+			// 			? { ...subtask, completed: !subtask.completed }
+			// 			: subtask
+			// 	),
+			// }
+			try {
+				const res = await fetch(`/api/ticket/${ticketId}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ subtasks: updatedSubtasks }),
+				});
+				if (res.ok) {
+					setCards((prevCards) =>
+						prevCards.map((card) =>
+							card.ticketId === ticketId
+								? { ...card, subtasks: updatedSubtasks }
+								: card
+						)
+					);
+				}
+			} catch (e) {
+				console.error(e);
+			}
+		}
+	}
+
 	return (
 		<div className="sm:container sm:mx-auto my-1 border-black border-2 rounded-lg">
 			<div className="flex flex-col px-4 py-4 space-y-2">
-				<div className="flex flex-row flex-grow justify-between items-center">
-					<h1 className="text-bold text-3xl">{title}</h1>
-					<div className="flex flex-row space-y-2">
+				<div className="flex flex-row flex-grow justify-between items-start">
+					<div className="flex flex-row items-start space-x-6">
+						<h1 className="text-bold text-3xl">{title}</h1>
+					</div>
+					<div className="flex flex-row space-y-2 items-center">
 						<SelectDropdown
 							name="taskStatus"
 							value={taskStatus}
@@ -128,11 +171,19 @@ export default function TicketCard(props: Props) {
 				{description && <p className="text-lg">{description}</p>}
 				{priority && <p>Priority: {priority}</p>}
 				{due && <p>Due: {due}</p>}
-				{tags.length > 0 && <TagsDisplay tags={tags} />}
-				<p>Created: {timestampDisplay(timestamp)}</p>
-				{lastModified && (
-					<p>Last Modified: {timestampDisplay(lastModified)}</p>
+				{subtasks && subtasks.length > 0 && (
+					<SubtaskDisplay
+						subtasks={subtasks}
+						completeSubtask={completeSubtask}
+					/>
 				)}
+				{tags.length > 0 && <TagsDisplay tags={tags} />}
+				<div className="flex flex-col">
+					<span>Created: {timestampDisplay(timestamp)}</span>
+					{lastModified && (
+						<i>Modified: {timestampDisplay(lastModified)}</i>
+					)}
+				</div>
 				<p>{ticketId}</p>
 			</div>
 		</div>

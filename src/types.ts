@@ -7,6 +7,7 @@ export type EditorData = {
 	due: string;
 	tags: string[];
 	subtasks: {
+		subtaskId: string;
 		description: string;
 		completed: boolean;
 	}[];
@@ -19,8 +20,9 @@ export type TicketData = {
 	priority: "" | "Low" | "Medium" | "High";
 	due: string;
 	tags: string[];
-	subtasks: {
-		title: string;
+	subtasks?: {
+		subtaskId: string;
+		description: string;
 		completed: boolean;
 	}[];
 	comments?: {
