@@ -150,12 +150,30 @@ export default function TicketCard(props: Props) {
 		}
 	}
 
+	function countCompletedSubs() {
+		if (subtasks) {
+			const isCompleted: number[] = subtasks.map((subtask) =>
+				subtask.completed ? 1 : 0
+			);
+			const totalCompleted = isCompleted.reduce((a, b) => a + b, 0);
+			return totalCompleted;
+		} else {
+			return 0;
+		}
+	}
+
 	return (
 		<div className="sm:container sm:mx-auto my-1 border-black border-2 rounded-lg">
 			<div className="flex flex-col px-4 py-4 space-y-2">
 				<div className="flex flex-row flex-grow justify-between items-start">
-					<div className="flex flex-row items-start space-x-6">
+					<div className="flex flex-row items-center space-x-6">
 						<h1 className="text-bold text-3xl">{title}</h1>
+						{subtasks && subtasks.length > 0 && (
+							<span>
+								{countCompletedSubs()}/{subtasks.length}{" "}
+								subtasks
+							</span>
+						)}
 					</div>
 					<div className="flex flex-row space-y-2 items-center">
 						<SelectDropdown

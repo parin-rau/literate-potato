@@ -16,15 +16,12 @@ export default function SubtaskDisplay(props: Props) {
 						(completeSubtask &&
 							" hover:cursor-pointer hover:bg-slate-400 hover:text-white")
 					}
+					onClick={() =>
+						completeSubtask && completeSubtask(subtask.subtaskId)
+					}
 					key={subtask.subtaskId}
 				>
-					<div
-						onClick={() =>
-							completeSubtask &&
-							completeSubtask(subtask.subtaskId)
-						}
-						className="px-2 py-1"
-					>
+					<div className="px-2 py-1">
 						{subtask.completed ? (
 							<s className="text-base">{subtask.description}</s>
 						) : (
