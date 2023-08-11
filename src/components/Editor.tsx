@@ -23,8 +23,6 @@ export default function Editor(props: Props) {
 	const { setCards } = props;
 	const [editor, setEditor] = useState(initEditor);
 
-	const { priorityOptions } = optionLookup;
-
 	function handleChange(
 		e:
 			| React.ChangeEvent<HTMLInputElement>
@@ -95,7 +93,7 @@ export default function Editor(props: Props) {
 				<SelectDropdown
 					name="priority"
 					value={editor.priority}
-					options={priorityOptions}
+					options={optionLookup.priority}
 					handleChange={handleChange}
 				/>
 				<input

@@ -11,12 +11,13 @@ export function sortData(
 	if (key === "timestamp") {
 		const sortedData = dataArr.sort((a, b) => a.timestamp - b.timestamp);
 		return sortedData;
-	} else if (key === "priority") {
+	} else if (key === "priority" || key === "taskStatus") {
+		const lookupProperty = key;
 		const lookup = dataArr.map((data) => ({
 			...data,
 			sortValue: parseSortValue(
-				data.priority,
-				optionLookup.priorityOptions
+				data[lookupProperty],
+				optionLookup[lookupProperty]
 			),
 		}));
 		const sortedIntermediate = lookup.sort(
@@ -27,22 +28,22 @@ export function sortData(
 			({ sortValue, ...data }) => data
 		); // sortedIntermediate.forEach(data => delete data.sortValue)
 		return sortedData;
-	} else if (key === "taskStatus") {
-		const lookup = dataArr.map((data) => ({
-			...data,
-			sortValue: parseSortValue(
-				data.taskStatus,
-				optionLookup.statusOptions
-			),
-		}));
-		const sortedIntermediate = lookup.sort(
-			(a, b) => a.sortValue - b.sortValue
-		);
-		const sortedData = sortedIntermediate.map(
-			// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-			({ sortValue, ...data }) => data
-		); // sortedIntermediate.forEach(data => delete data.sortValue)
-		return sortedData;
+		// } else if (key === "taskStatus") {
+		// 	const lookup = dataArr.map((data) => ({
+		// 		...data,
+		// 		sortValue: parseSortValue(
+		// 			data.taskStatus,
+		// 			optionLookup.statusOptions
+		// 		),
+		// 	}));
+		// 	const sortedIntermediate = lookup.sort(
+		// 		(a, b) => a.sortValue - b.sortValue
+		// 	);
+		// 	const sortedData = sortedIntermediate.map(
+		// 		// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+		// 		({ sortValue, ...data }) => data
+		// 	); // sortedIntermediate.forEach(data => delete data.sortValue)
+		// 	return sortedData;
 	}
 }
 
@@ -51,6 +52,16 @@ function parseSortValue(stringValue: string, lookup: OptionsTable) {
 	const outValue =
 		lookup.find((obj) => obj.value === stringValue)?.sortValue ?? 0;
 	return outValue;
+}
+
+function sortOrder(array, sortProp, direction: "asc" | "desc") {
+	if (direction === "asc") {
+		const sorted = array.sort((a, b) => b[sortProp] - a[sortProp]);
+		return sorted;
+	} else if (direction === "desc") {
+		const sorted = array.sort((a, b) => a[sortProp] - b[sortProp]);
+		return sorted;
+	}
 }
 // 	} else if (typeof inValue === "number") {
 // 		const outValue: string = lookup.find(
@@ -67,7 +78,7 @@ function parseSortValue(stringValue: string, lookup: OptionsTable) {
 // }
 
 export const optionLookup = {
-	priorityOptions: [
+	priority: [
 		{
 			label: "Select task priority",
 			value: "",
@@ -77,7 +88,7 @@ export const optionLookup = {
 		{ label: "Medium", value: "Medium", sortValue: 1 },
 		{ label: "High", value: "High", sortValue: 0 },
 	],
-	statusOptions: [
+	taskStatus: [
 		{
 			label: "Not Started",
 			value: "Not Started",

@@ -30,7 +30,7 @@ export default function TicketCard(props: Props) {
 		{ name: "Delete", function: deleteCard },
 		{ name: "Edit", function: editCard },
 	];
-	const { statusOptions } = optionLookup;
+
 	// const statusOptions = [
 	// 	{
 	// 		label: "Not Started",
@@ -60,7 +60,7 @@ export default function TicketCard(props: Props) {
 	);
 
 	function statusColorsLookup(currentStatus: string) {
-		const currentOption = statusOptions.find(
+		const currentOption = optionLookup.taskStatus.find(
 			(option) => option.value === currentStatus
 		);
 		const optionColors =
@@ -181,7 +181,7 @@ export default function TicketCard(props: Props) {
 						<SelectDropdown
 							name="taskStatus"
 							value={taskStatus}
-							options={statusOptions}
+							options={optionLookup.taskStatus}
 							handleChange={changeStatus}
 							colors={statusColors}
 						/>
