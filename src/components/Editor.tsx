@@ -4,6 +4,7 @@ import TagsEditor from "./TagsEditor";
 import { EditorData, FetchedTicketData, TicketData } from "../types";
 import { v4 as uuidv4 } from "uuid";
 import SubtaskEditor from "./SubtaskEditor";
+import { optionLookup } from "../utility/optionLookup";
 
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
@@ -22,16 +23,7 @@ export default function Editor(props: Props) {
 	const { setCards } = props;
 	const [editor, setEditor] = useState(initEditor);
 
-	const selectOptions = [
-		{
-			label: "Select task priority",
-			value: "",
-			sortValue: 3,
-		},
-		{ label: "Low", value: "Low", sortValue: 2 },
-		{ label: "Medium", value: "Medium", sortValue: 1 },
-		{ label: "High", value: "High", sortValue: 0 },
-	];
+	const { priorityOptions } = optionLookup;
 
 	function handleChange(
 		e:
@@ -103,7 +95,7 @@ export default function Editor(props: Props) {
 				<SelectDropdown
 					name="priority"
 					value={editor.priority}
-					options={selectOptions}
+					options={priorityOptions}
 					handleChange={handleChange}
 				/>
 				<input

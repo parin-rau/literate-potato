@@ -5,6 +5,7 @@ import timestampDisplay from "../utility/timestampDisplay";
 import TagsDisplay from "./TagsDisplay";
 import SelectDropdown from "./SelectDropdown";
 import SubtaskDisplay from "./SubtaskDisplay";
+import { optionLookup } from "../utility/optionLookup";
 
 type Props = {
 	cardData: FetchedTicketData;
@@ -29,29 +30,30 @@ export default function TicketCard(props: Props) {
 		{ name: "Delete", function: deleteCard },
 		{ name: "Edit", function: editCard },
 	];
-	const statusOptions = [
-		{
-			label: "Not Started",
-			value: "Not Started",
-			sortValue: 0,
-			bgColor: "bg-red-500",
-			textColor: "text-white",
-		},
-		{
-			label: "In Progress",
-			value: "In Progress",
-			sortValue: 1,
-			bgColor: "bg-yellow-500",
-			textColor: "text-white",
-		},
-		{
-			label: "Completed",
-			value: "Completed",
-			sortValue: 2,
-			bgColor: "bg-green-500",
-			textColor: "text-white",
-		},
-	];
+	const { statusOptions } = optionLookup;
+	// const statusOptions = [
+	// 	{
+	// 		label: "Not Started",
+	// 		value: "Not Started",
+	// 		sortValue: 0,
+	// 		bgColor: "bg-red-500",
+	// 		textColor: "text-white",
+	// 	},
+	// 	{
+	// 		label: "In Progress",
+	// 		value: "In Progress",
+	// 		sortValue: 1,
+	// 		bgColor: "bg-yellow-500",
+	// 		textColor: "text-white",
+	// 	},
+	// 	{
+	// 		label: "Completed",
+	// 		value: "Completed",
+	// 		sortValue: 2,
+	// 		bgColor: "bg-green-500",
+	// 		textColor: "text-white",
+	// 	},
+	// ];
 
 	const [statusColors, setStatusColors] = useState(
 		statusColorsLookup(taskStatus)
@@ -187,7 +189,11 @@ export default function TicketCard(props: Props) {
 					</div>
 				</div>
 				{description && <p className="text-lg">{description}</p>}
-				{priority && <p>Priority: {priority}</p>}
+				{priority && (
+					<p>
+						<strong>Priority: {priority}</strong>
+					</p>
+				)}
 				{due && <p>Due: {due}</p>}
 				{subtasks && subtasks.length > 0 && (
 					<SubtaskDisplay
