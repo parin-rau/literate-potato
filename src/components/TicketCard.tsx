@@ -31,30 +31,6 @@ export default function TicketCard(props: Props) {
 		{ name: "Edit", function: editCard },
 	];
 
-	// const statusOptions = [
-	// 	{
-	// 		label: "Not Started",
-	// 		value: "Not Started",
-	// 		sortValue: 0,
-	// 		bgColor: "bg-red-500",
-	// 		textColor: "text-white",
-	// 	},
-	// 	{
-	// 		label: "In Progress",
-	// 		value: "In Progress",
-	// 		sortValue: 1,
-	// 		bgColor: "bg-yellow-500",
-	// 		textColor: "text-white",
-	// 	},
-	// 	{
-	// 		label: "Completed",
-	// 		value: "Completed",
-	// 		sortValue: 2,
-	// 		bgColor: "bg-green-500",
-	// 		textColor: "text-white",
-	// 	},
-	// ];
-
 	const [statusColors, setStatusColors] = useState(
 		statusColorsLookup(taskStatus)
 	);
@@ -123,14 +99,7 @@ export default function TicketCard(props: Props) {
 					? { ...subtask, completed: updatedCompletion }
 					: subtask
 			);
-			// const updated = {
-			// 	...editor,
-			// 	subtasks: subtasks.map((subtask) =>
-			// 		subtasks.indexOf(subtask) === id
-			// 			? { ...subtask, completed: !subtask.completed }
-			// 			: subtask
-			// 	),
-			// }
+
 			try {
 				const res = await fetch(`/api/ticket/${ticketId}`, {
 					method: "PATCH",
