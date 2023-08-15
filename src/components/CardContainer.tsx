@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import TicketCard from "./TicketCard";
 import { sortData } from "../utility/optionLookup";
 import { FetchedTicketData } from "../types";
-import DirectionalArrow from "./DirectionalArrow";
 import MenuDropdown from "./MenuDropdown";
 
 type Props = {
@@ -40,6 +39,16 @@ export default function CardContainer(props: Props) {
 			arrowDirection: "down",
 			function: () => handleSort("taskStatus", "desc"),
 		},
+		{
+			name: "Recent",
+			arrowDirection: "up",
+			function: () => handleSort("timestamp", "asc"),
+		},
+		{
+			name: "Recent",
+			arrowDirection: "down",
+			function: () => handleSort("timestamp", "desc"),
+		},
 	];
 
 	useEffect(() => {
@@ -70,29 +79,6 @@ export default function CardContainer(props: Props) {
 			<div className="flex flex-row justify-between items-center">
 				<h1 className="text-bold text-3xl my-4">{containerTitle}</h1>
 				<MenuDropdown menuTitle="Sort" options={sortMenu} />
-				<div className="flex flex-col">
-					<div
-						className="hover:bg-slate-200 px-2 py-1 rounded-full flex-row flex space-x-2 hover:cursor-pointer"
-						onClick={() => handleSort("priority", "desc")}
-					>
-						<span>Priority</span>
-						<DirectionalArrow arrowDirection="down" />
-					</div>
-					<div
-						className="hover:bg-slate-200 px-2 py-1 rounded-full"
-						onClick={() => handleSort("taskStatus", "asc")}
-					>
-						Sort by Progress
-					</div>
-					<div
-						className="hover:bg-slate-200 px-2 py-1 rounded-full"
-						onClick={() => {
-							handleSort("timestamp", "desc");
-						}}
-					>
-						Sort by Recent
-					</div>
-				</div>
 			</div>
 			{cards.map((card) => (
 				<TicketCard
