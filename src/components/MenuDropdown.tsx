@@ -5,7 +5,8 @@ type Props = {
 	options: {
 		name: string;
 		arrowDirection?: "up" | "down";
-		function: () => void;
+		function: (id?) => void;
+		ticketId?: string;
 	}[];
 	menuTitle?: string;
 	menuTitleFont?: string;
@@ -68,7 +69,7 @@ export default function MenuDropdown(props: Props) {
 							className="hover:cursor-pointer hover:bg-slate-300 px-3 rounded-full flex flex-row space-x-2 py-1"
 							key={index}
 							onClick={() => {
-								option.function();
+								option.function(option.ticketId);
 								setMenu(false);
 							}}
 						>

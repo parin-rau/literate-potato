@@ -86,6 +86,20 @@ app.patch("/api/ticket/:id", async (req, res) => {
 	}
 });
 
+app.delete("/api/ticket/:id", async (req, res) => {
+	try {
+		const id = req.params.id;
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localPosts);
+		const tickets = await coll.deleteOne({ ticketId: id });
+		await client.close();
+		res.status(200).send(tickets);
+	} catch (err) {
+		console.error(err);
+	}
+});
+
 app.get("/api/test", (_req, res) => {
 	try {
 		res.send({ bongo: "bingo" });

@@ -27,8 +27,8 @@ export default function TicketCard(props: Props) {
 	} = props.cardData;
 	const { setCards } = props;
 	const moreOptions = [
-		{ name: "Delete", function: deleteCard },
-		{ name: "Edit", function: editCard },
+		{ name: "Delete", function: deleteCard, ticketId: ticketId },
+		{ name: "Edit", function: editCard, ticketId: ticketId },
 	];
 
 	const [statusColors, setStatusColors] = useState(
@@ -46,9 +46,16 @@ export default function TicketCard(props: Props) {
 		return optionColors;
 	}
 
-	function deleteCard() {
+	async function deleteCard(id: string) {
 		try {
-			console.log("delete me");
+			const res = await fetch(`/api/ticket/${ticketId}`, {
+				method: "DELETE",
+			});
+			if (res.ok) {
+				setCards((prevCards) =>
+					prevCards.filter((card) => card.ticketId !== id)
+				);
+			}
 		} catch (err) {
 			console.error(err);
 		}
