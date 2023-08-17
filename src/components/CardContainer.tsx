@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import TicketCard from "./TicketCard";
 import { sortData } from "../utility/optionLookup";
 import { FetchedTicketData } from "../types";
@@ -17,6 +17,9 @@ type SortMenu = {
 }[];
 
 export default function CardContainer(props: Props) {
+	const [sortKind, setSortKind] = useState<
+		{ property: string; categories: string[] } | undefined
+	>();
 	const { cards, setCards, containerTitle } = props;
 	const sortMenu: SortMenu = [
 		{
@@ -70,8 +73,23 @@ export default function CardContainer(props: Props) {
 		sortKind: "priority" | "taskStatus" | "timestamp",
 		direction: "asc" | "desc"
 	) {
-		const sorted = sortData(cards, sortKind, direction)!;
-		setCards(sorted);
+		const { sortedData, sortCategories } = sortData(
+			cards,
+			sortKind,
+			direction
+		)!;
+		setCards(sortedData);
+		setSortKind(sortCategories);
+	}
+
+	function getSortLabel(cardData: FetchedTicketData) {
+		if (sortKind) {
+			const target = cardData[sortKind?.property];
+			const sortLabel = sortKind?.categories.find(
+				(category) => category === target
+			);
+			return sortLabel;
+		}
 	}
 
 	return (
@@ -81,11 +99,14 @@ export default function CardContainer(props: Props) {
 				<MenuDropdown menuTitle="Sort" options={sortMenu} />
 			</div>
 			{cards.map((card) => (
-				<TicketCard
-					key={card.ticketId}
-					cardData={{ ...card }}
-					setCards={setCards}
-				/>
+				<>
+					<span>{getSortLabel(card)}</span>
+					<TicketCard
+						key={card.ticketId}
+						cardData={{ ...card }}
+						setCards={setCards}
+					/>
+				</>
 			))}
 		</div>
 	);

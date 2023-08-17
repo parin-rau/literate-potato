@@ -13,8 +13,9 @@ export function sortData(
 		const sortedData = [...dataArr].sort(
 			(a, b) => a.timestamp - b.timestamp
 		);
-		return sortedData;
+		return { sortedData };
 	} else if (key === "priority" || key === "taskStatus") {
+		//Object.prototype.hasOwnProperty.call(optionLookup, key)
 		const lookupProperty = key;
 		const lookup = [...dataArr].map((data) => ({
 			...data,
@@ -30,8 +31,15 @@ export function sortData(
 			const sortedData = sortedIntermediate.map(
 				// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 				({ sortValue, ...data }) => data
-			); // sortedIntermediate.forEach(data => delete data.sortValue)
-			return sortedData;
+			);
+			const sortCategories = {
+				property: lookupProperty,
+				categories: optionLookup[lookupProperty].map(
+					(kind) => kind.label
+				),
+			};
+
+			return { sortedData, sortCategories };
 		} else if (direction === "desc") {
 			const sortedIntermediate = [...lookup].sort(
 				(a, b) => b.sortValue - a.sortValue
@@ -40,7 +48,13 @@ export function sortData(
 				// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 				({ sortValue, ...data }) => data
 			);
-			return sortedData;
+			const sortCategories = {
+				property: lookupProperty,
+				categories: optionLookup[lookupProperty].map(
+					(kind) => kind.label
+				),
+			};
+			return { sortedData, sortCategories };
 		}
 
 		// } else if (key === "taskStatus") {
