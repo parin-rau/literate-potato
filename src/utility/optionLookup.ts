@@ -10,10 +10,17 @@ export function sortData(
 	direction: "asc" | "desc"
 ) {
 	if (key === "timestamp") {
-		const sortedData = [...dataArr].sort(
-			(a, b) => a.timestamp - b.timestamp
-		);
-		return { sortedData };
+		if (direction === "asc") {
+			const sortedData = [...dataArr].sort(
+				(a, b) => a.timestamp - b.timestamp
+			);
+			return { sortedData };
+		} else if (direction === "desc") {
+			const sortedData = [...dataArr].sort(
+				(a, b) => b.timestamp - a.timestamp
+			);
+			return { sortedData };
+		}
 	} else if (key === "priority" || key === "taskStatus") {
 		//Object.prototype.hasOwnProperty.call(optionLookup, key)
 		const lookupProperty = key;
@@ -35,7 +42,7 @@ export function sortData(
 			const sortCategories = {
 				property: lookupProperty,
 				categories: optionLookup[lookupProperty].map(
-					(kind) => kind.label
+					(item) => item.label
 				),
 			};
 
@@ -51,7 +58,7 @@ export function sortData(
 			const sortCategories = {
 				property: lookupProperty,
 				categories: optionLookup[lookupProperty].map(
-					(kind) => kind.label
+					(item) => item.label
 				),
 			};
 			return { sortedData, sortCategories };

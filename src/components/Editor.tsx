@@ -22,6 +22,7 @@ const initEditor: EditorData = {
 export default function Editor(props: Props) {
 	const { setCards } = props;
 	const [editor, setEditor] = useState(initEditor);
+	const [expand, setExpand] = useState(false);
 
 	function handleChange(
 		e:
@@ -63,6 +64,14 @@ export default function Editor(props: Props) {
 		}
 	}
 
+	function handleExpand() {
+		setExpand(!expand);
+	}
+
+	function handleReset() {
+		setEditor(initEditor);
+	}
+
 	return (
 		<div className="sm:container sm:mx-auto border-black border-2 rounded-lg">
 			<form
@@ -70,48 +79,75 @@ export default function Editor(props: Props) {
 				onSubmit={handleSubmit}
 				onKeyDown={handleKeyDown}
 			>
-				<h1 className="text-3xl">Create New Task</h1>
-				<input
-					className="text-2xl"
-					name="title"
-					value={editor.title}
-					onChange={handleChange}
-					placeholder="Title"
-					autoFocus
-					required
-				/>
-				<textarea
-					className="text-md"
-					name="description"
-					rows={2}
-					value={editor.description}
-					onChange={handleChange}
-					placeholder="Description"
-				/>
-				<SubtaskEditor editor={editor} setEditor={setEditor} />
-				<TagsEditor editor={editor} setEditor={setEditor} />
-				<SelectDropdown
-					name="priority"
-					value={editor.priority}
-					options={optionLookup.priority}
-					handleChange={handleChange}
-				/>
-				<input
-					className="text-lg max-w-xs px-1"
-					name="due"
-					type="date"
-					value={editor.due}
-					onChange={handleChange}
-				/>
-				<div className="space-x-2">
-					<button
-						className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-full max-w-min"
-						type="submit"
+				<div className="flex flex-row justify-between">
+					<h1
+						className={
+							"text-3xl " + (!expand && "hover:cursor-pointer")
+						}
+						onClick={() => {
+							if (!expand) {
+								setExpand(true);
+							}
+						}}
 					>
-						Submit
-					</button>
-					<i className="text-sm">Shift + Enter</i>
+						Create New Task
+					</h1>
+					{expand && (
+						<div className="flex space-x-4">
+							<button type="button" onClick={handleReset}>
+								Reset Form
+							</button>
+							<button type="button" onClick={handleExpand}>
+								Hide Editor
+							</button>
+						</div>
+					)}
 				</div>
+				{expand && (
+					<>
+						<input
+							className="text-2xl"
+							name="title"
+							value={editor.title}
+							onChange={handleChange}
+							placeholder="Title"
+							autoFocus
+							required
+						/>
+						<textarea
+							className="text-md"
+							name="description"
+							rows={2}
+							value={editor.description}
+							onChange={handleChange}
+							placeholder="Description"
+						/>
+						<SubtaskEditor editor={editor} setEditor={setEditor} />
+						<TagsEditor editor={editor} setEditor={setEditor} />
+						<SelectDropdown
+							name="priority"
+							value={editor.priority}
+							options={optionLookup.priority}
+							handleChange={handleChange}
+						/>
+						<input
+							className="text-lg max-w-xs px-1"
+							name="due"
+							type="date"
+							value={editor.due}
+							onChange={handleChange}
+						/>
+						<div className="space-x-2">
+							<button
+								className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-full max-w-min"
+								type="submit"
+							>
+								Submit
+							</button>
+							<i className="text-sm">Shift + Enter</i>
+						</div>
+					</>
+				)}
 			</form>
 		</div>
 	);

@@ -8,12 +8,13 @@ type Props = {
 		function: () => void;
 	}[];
 	menuTitle?: string;
+	menuTitleFont?: string;
 };
 
 export default function MenuDropdown(props: Props) {
 	const [isMenu, setMenu] = useState(false);
 	const menuRef = useRef();
-	const { options, menuTitle } = props;
+	const { options, menuTitle, menuTitleFont } = props;
 
 	const closeOpenMenu = useCallback(
 		(e: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -35,7 +36,10 @@ export default function MenuDropdown(props: Props) {
 	return (
 		<div className="relative">
 			<button
-				className="hover:bg-slate-300 px-2 py-1 my-1 rounded-full"
+				className={
+					"hover:bg-slate-300 px-2 py-1 my-1 rounded-full " +
+					menuTitleFont
+				}
 				onClick={() => setMenu(!isMenu)}
 			>
 				{menuTitle ? (

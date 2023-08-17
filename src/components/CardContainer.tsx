@@ -17,7 +17,7 @@ type SortMenu = {
 }[];
 
 export default function CardContainer(props: Props) {
-	const [sortKind, setSortKind] = useState<
+	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
 	const { cards, setCards, containerTitle } = props;
@@ -79,16 +79,20 @@ export default function CardContainer(props: Props) {
 			direction
 		)!;
 		setCards(sortedData);
-		setSortKind(sortCategories);
+		setSortMeta(sortCategories);
 	}
 
-	function getSortLabel(cardData: FetchedTicketData) {
-		if (sortKind) {
-			const target = cardData[sortKind?.property];
-			const sortLabel = sortKind?.categories.find(
-				(category) => category === target
-			);
-			return sortLabel;
+	function getSortLabel(cardDataArr: FetchedTicketData[]) {
+		if (sortMeta) {
+			const labels = cardDataArr.map((cardData) => {
+				const targetProperty = cardData[sortMeta.property];
+				const sortLabel =
+					sortMeta.categories.find(
+						(category) => category === targetProperty
+					) || "Uncategorized";
+				return sortLabel;
+			});
+			return labels;
 		}
 	}
 
@@ -96,17 +100,19 @@ export default function CardContainer(props: Props) {
 		<div className="sm:container mx-auto flex flex-col">
 			<div className="flex flex-row justify-between items-center">
 				<h1 className="text-bold text-3xl my-4">{containerTitle}</h1>
-				<MenuDropdown menuTitle="Sort" options={sortMenu} />
+				<MenuDropdown
+					menuTitle="Sort"
+					menuTitleFont="text-xl"
+					options={sortMenu}
+				/>
 			</div>
+			<span>{getSortLabel(cards)}</span>
 			{cards.map((card) => (
-				<>
-					<span>{getSortLabel(card)}</span>
-					<TicketCard
-						key={card.ticketId}
-						cardData={{ ...card }}
-						setCards={setCards}
-					/>
-				</>
+				<TicketCard
+					key={card.ticketId}
+					cardData={{ ...card }}
+					setCards={setCards}
+				/>
 			))}
 		</div>
 	);
