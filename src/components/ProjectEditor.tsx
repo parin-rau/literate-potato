@@ -1,34 +1,24 @@
 import { useState } from "react";
-import SelectDropdown from "./SelectDropdown";
-import TagsEditor from "./TagsEditor";
-import { EditorData, FetchedTicketData, TicketData } from "../types";
 import { v4 as uuidv4 } from "uuid";
-import SubtaskEditor from "./SubtaskEditor";
-import { optionLookup } from "../utility/optionLookup";
+import { Project } from "../types";
 
 type Props = {
-	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	setCards: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
-const initEditor: EditorData = {
+const initEditor = {
 	title: "",
 	description: "",
-	priority: "",
-	due: "",
-	tags: [],
-	subtasks: [],
+	owner: "",
 };
 
-export default function Editor(props: Props) {
+export default function ProjectEditor(props: Props) {
 	const { setCards } = props;
 	const [editor, setEditor] = useState(initEditor);
 	const [expand, setExpand] = useState(false);
 
 	function handleChange(
-		e:
-			| React.ChangeEvent<HTMLInputElement>
-			| React.ChangeEvent<HTMLTextAreaElement>
-			| React.ChangeEvent<HTMLSelectElement>
+		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) {
 		const { value, name } = e.target;
 		setEditor({ ...editor, [name]: value });
@@ -43,20 +33,19 @@ export default function Editor(props: Props) {
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		try {
-			const newTicket: TicketData = {
+			const newCard = {
 				...editor,
 				timestamp: Date.now(),
-				ticketId: uuidv4(),
-				taskStatus: "Not Started",
+				projectId: uuidv4(),
 			};
-			console.log(newTicket);
-			const res = await fetch("/api/ticket", {
+			console.log(newCard);
+			const res = await fetch("/api/project", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(newTicket),
+				body: JSON.stringify(newCard),
 			});
 			if (res.ok) {
-				setCards((prevCards) => [newTicket, ...prevCards]);
+				setCards((prevCards) => [newCard, ...prevCards]);
 				setEditor(initEditor);
 			}
 		} catch (err) {
@@ -122,20 +111,12 @@ export default function Editor(props: Props) {
 							onChange={handleChange}
 							placeholder="Description"
 						/>
-						<SubtaskEditor editor={editor} setEditor={setEditor} />
-						<TagsEditor editor={editor} setEditor={setEditor} />
-						<SelectDropdown
-							name="priority"
-							value={editor.priority}
-							options={optionLookup.priority}
-							handleChange={handleChange}
-						/>
 						<input
-							className="text-lg max-w-xs px-1"
-							name="due"
-							type="date"
-							value={editor.due}
+							className="text-md"
+							name="owner"
+							value={editor.owner}
 							onChange={handleChange}
+							placeholder="Owner"
 						/>
 						<div className="space-x-2">
 							<button

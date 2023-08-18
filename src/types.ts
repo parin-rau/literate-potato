@@ -1,4 +1,11 @@
-export type Project = (TicketData & { owner: string })[];
+export interface Project {
+	title: string;
+	description: string;
+	owner: string;
+	timestamp: number;
+	projectId: string;
+	[key: string]: string | number;
+}
 
 export type EditorData = {
 	title: string;

@@ -1,15 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import ProjectTaskPage from "./pages/ProjectTaskPage.tsx";
+import ProjectHomePage from "./pages/ProjectHomePage.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./pages/error-page.tsx";
 import "./index.css";
+import TicketPage from "./pages/TicketPage.tsx";
 
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <ProjectTaskPage />,
+		element: <ProjectHomePage />,
 		errorElement: <ErrorPage />,
+		children: [
+			{ path: "project/:id", element: <ProjectTaskPage /> },
+			{ path: "tickets/:id", element: <TicketPage /> },
+		],
 	},
 ]);
 
