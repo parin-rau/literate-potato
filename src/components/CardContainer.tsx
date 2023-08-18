@@ -7,9 +7,11 @@ import ProjectCard from "./ProjectCard";
 
 type Props = {
 	cards: FetchedTicketData[] | Project[];
-	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	setCards:
+		| React.Dispatch<React.SetStateAction<FetchedTicketData[]>>
+		| React.Dispatch<React.SetStateAction<Project[]>>;
 	containerTitle: string;
-	dataKind: string;
+	dataKind: "ticket" | "project";
 };
 
 type SortMenu = {
@@ -59,17 +61,18 @@ export default function CardContainer(props: Props) {
 	useEffect(() => {
 		async function getPosts() {
 			try {
-				const res = await fetch(`api/${dataKind}`, {
+				const res = await fetch(`/api/${dataKind}`, {
 					headers: { "Content-Type": "application/json" },
 				});
-				const data: FetchedTicketData[] = await res.json();
+				const data = await res.json();
 				setCards(data);
 			} catch (err) {
 				console.error(err);
 			}
 		}
 		getPosts();
-	}, [setCards, dataKind]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dataKind]);
 
 	function handleSort(
 		sortKind: "priority" | "taskStatus" | "timestamp",
@@ -86,20 +89,20 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
-	function getSortLabel(cardDataArr: FetchedTicketData[]) {
-		if (sortMeta) {
-			const labels = cardDataArr.map((cardData) => {
-				const targetProperty =
-					cardData[sortMeta.property as keyof FetchedTicketData];
-				const sortLabel =
-					sortMeta.categories.find(
-						(category) => category === targetProperty
-					) || "Uncategorized";
-				return sortLabel;
-			});
-			return labels;
-		}
-	}
+	// function getSortLabel(cardDataArr: FetchedTicketData[]) {
+	// 	if (sortMeta) {
+	// 		const labels = cardDataArr.map((cardData) => {
+	// 			const targetProperty =
+	// 				cardData[sortMeta.property as keyof FetchedTicketData];
+	// 			const sortLabel =
+	// 				sortMeta.categories.find(
+	// 					(category) => category === targetProperty
+	// 				) || "Uncategorized";
+	// 			return sortLabel;
+	// 		});
+	// 		return labels;
+	// 	}
+	// }
 
 	function cardSelector(
 		dataKind: string,
@@ -110,7 +113,11 @@ export default function CardContainer(props: Props) {
 				<TicketCard
 					key={card.ticketId}
 					cardData={{ ...card }}
-					setCards={setCards}
+					setCards={
+						setCards as React.Dispatch<
+							React.SetStateAction<FetchedTicketData[]>
+						>
+					}
 				/>
 			));
 		}

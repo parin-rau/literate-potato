@@ -39,6 +39,7 @@ export type TicketData = {
 	}[];
 	timestamp: number;
 	taskStatus: string;
+	projectId: string;
 	lastModified?: number;
 };
 

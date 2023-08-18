@@ -35,7 +35,7 @@ import { TicketData } from "../types";
 
 const PORT = 3002;
 
-const localTickets: string = process.env.VITE_LOCAL_TICKETS ?? "tickets";
+const localTickets = process.env.LOCAL_TICKETS ?? "tickets";
 const localProjects = process.env.LOCAL_PROJECTS ?? "projects";
 
 const app = express();

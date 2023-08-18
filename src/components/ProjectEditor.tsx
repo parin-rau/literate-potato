@@ -79,7 +79,7 @@ export default function ProjectEditor(props: Props) {
 							}
 						}}
 					>
-						Create New Task
+						Create New Project
 					</h1>
 					{expand && (
 						<div className="flex space-x-4">

@@ -7,13 +7,13 @@ import { useParams } from "react-router-dom";
 
 export default function ProjectTaskPage() {
 	const [cards, setCards] = useState<FetchedTicketData[]>([]);
-	const projectId = useParams().id;
+	const projectId = useParams().id || "";
 
 	return (
 		<div className="flex flex-col space-y-4">
 			<Nav />
 			<h1 className="text-bold text-4xl px-6 py-2">{projectId}</h1>
-			<TicketEditor setCards={setCards} />
+			<TicketEditor setCards={setCards} projectId={projectId} />
 			<CardContainer
 				dataKind="ticket"
 				cards={cards}

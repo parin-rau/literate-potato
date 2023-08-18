@@ -8,6 +8,7 @@ import { optionLookup } from "../utility/optionLookup";
 
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	projectId: string;
 };
 
 const initEditor: EditorData = {
@@ -20,7 +21,7 @@ const initEditor: EditorData = {
 };
 
 export default function TicketEditor(props: Props) {
-	const { setCards } = props;
+	const { setCards, projectId } = props;
 	const [editor, setEditor] = useState(initEditor);
 	const [expand, setExpand] = useState(false);
 
@@ -45,6 +46,7 @@ export default function TicketEditor(props: Props) {
 		try {
 			const newTicket: TicketData = {
 				...editor,
+				projectId: projectId,
 				timestamp: Date.now(),
 				ticketId: uuidv4(),
 				taskStatus: "Not Started",
