@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import TicketCard from "./TicketCard";
 import { sortData } from "../utility/optionLookup";
-import { FetchedTicketData } from "../types";
+import { FetchedTicketData, Project } from "../types";
 import MenuDropdown from "./MenuDropdown";
+import ProjectCard from "./ProjectCard";
 
 type Props = {
-	cards: FetchedTicketData[];
+	cards: FetchedTicketData[] | Project[];
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	containerTitle: string;
+	dataKind: string;
 };
 
 type SortMenu = {
@@ -20,7 +22,7 @@ export default function CardContainer(props: Props) {
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
-	const { cards, setCards, containerTitle } = props;
+	const { cards, setCards, containerTitle, dataKind } = props;
 	const sortMenu: SortMenu = [
 		{
 			name: "Priority",
@@ -57,7 +59,7 @@ export default function CardContainer(props: Props) {
 	useEffect(() => {
 		async function getPosts() {
 			try {
-				const res = await fetch("/api/ticket", {
+				const res = await fetch(`api/${dataKind}`, {
 					headers: { "Content-Type": "application/json" },
 				});
 				const data: FetchedTicketData[] = await res.json();
@@ -67,25 +69,28 @@ export default function CardContainer(props: Props) {
 			}
 		}
 		getPosts();
-	}, [setCards]);
+	}, [setCards, dataKind]);
 
 	function handleSort(
 		sortKind: "priority" | "taskStatus" | "timestamp",
 		direction: "asc" | "desc"
 	) {
-		const { sortedData, sortCategories } = sortData(
-			cards,
-			sortKind,
-			direction
-		)!;
-		setCards(sortedData);
-		setSortMeta(sortCategories);
+		if (dataKind === "ticket") {
+			const { sortedData, sortCategories } = sortData(
+				cards as FetchedTicketData[],
+				sortKind,
+				direction
+			)!;
+			setCards(sortedData);
+			setSortMeta(sortCategories);
+		}
 	}
 
 	function getSortLabel(cardDataArr: FetchedTicketData[]) {
 		if (sortMeta) {
 			const labels = cardDataArr.map((cardData) => {
-				const targetProperty = cardData[sortMeta.property];
+				const targetProperty =
+					cardData[sortMeta.property as keyof FetchedTicketData];
 				const sortLabel =
 					sortMeta.categories.find(
 						(category) => category === targetProperty
@@ -93,6 +98,26 @@ export default function CardContainer(props: Props) {
 				return sortLabel;
 			});
 			return labels;
+		}
+	}
+
+	function cardSelector(
+		dataKind: string,
+		cards: FetchedTicketData[] | Project[]
+	) {
+		if (dataKind === "ticket") {
+			return (cards as FetchedTicketData[]).map((card) => (
+				<TicketCard
+					key={card.ticketId}
+					cardData={{ ...card }}
+					setCards={setCards}
+				/>
+			));
+		}
+		if (dataKind === "project") {
+			return (cards as Project[]).map((card) => (
+				<ProjectCard key={card.projectId} cardData={{ ...card }} />
+			));
 		}
 	}
 
@@ -106,14 +131,17 @@ export default function CardContainer(props: Props) {
 					options={sortMenu}
 				/>
 			</div>
-			<span>{getSortLabel(cards)}</span>
-			{cards.map((card) => (
+			{/* <span>{getSortLabel(cards)}</span> */}
+			{
+				cardSelector(dataKind, cards)
+				/* {cards.map((card) => (
 				<TicketCard
 					key={card.ticketId}
 					cardData={{ ...card }}
 					setCards={setCards}
 				/>
-			))}
+			))} */
+			}
 		</div>
 	);
 }
