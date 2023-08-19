@@ -13,7 +13,11 @@ export default function ProjectTaskPage() {
 		<div className="flex flex-col space-y-4">
 			<Nav />
 			<h1 className="text-bold text-4xl px-6 py-2">{projectId}</h1>
-			<TicketEditor setCards={setCards} projectId={projectId} />
+			<TicketEditor
+				setCards={setCards}
+				projectId={projectId}
+				cardCount={cards.length}
+			/>
 			<CardContainer
 				dataKind="ticket"
 				cards={cards}

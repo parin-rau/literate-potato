@@ -88,10 +88,15 @@ app.get("/api/ticket", async (_req, res) => {
 
 app.post("/api/ticket", async (req, res) => {
 	try {
-		const newTicket: TicketData = await req.body;
+		const partialNewTicket: TicketData = await req.body;
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localTickets);
+		const ticketNumber =
+			(await coll.countDocuments({
+				projectId: partialNewTicket.projectId,
+			})) + 1;
+		const newTicket = { ...partialNewTicket, ticketNumber: ticketNumber };
 		const tickets = await coll.insertOne(newTicket);
 		await client.close();
 		res.status(200).send(tickets);

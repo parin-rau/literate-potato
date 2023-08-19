@@ -25,6 +25,7 @@ export default function TicketCard(props: Props) {
 		lastModified,
 		subtasks,
 		projectId,
+		ticketNumber,
 	} = props.cardData;
 	const { setCards } = props;
 	const moreOptions = [
@@ -147,6 +148,7 @@ export default function TicketCard(props: Props) {
 				<div className="flex flex-row flex-grow justify-between items-start">
 					<div className="flex flex-row items-center space-x-6">
 						<h1 className="text-bold text-3xl">{title}</h1>
+						<h2>{ticketNumber && `#${ticketNumber}`}</h2>
 						{subtasks && subtasks.length > 0 && (
 							<span>
 								{countCompletedSubs()}/{subtasks.length}{" "}

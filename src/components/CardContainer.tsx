@@ -89,20 +89,20 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
-	// function getSortLabel(cardDataArr: FetchedTicketData[]) {
-	// 	if (sortMeta) {
-	// 		const labels = cardDataArr.map((cardData) => {
-	// 			const targetProperty =
-	// 				cardData[sortMeta.property as keyof FetchedTicketData];
-	// 			const sortLabel =
-	// 				sortMeta.categories.find(
-	// 					(category) => category === targetProperty
-	// 				) || "Uncategorized";
-	// 			return sortLabel;
-	// 		});
-	// 		return labels;
-	// 	}
-	// }
+	function getSortLabel(cardDataArr: FetchedTicketData[]) {
+		if (sortMeta) {
+			const labels = cardDataArr.map((cardData) => {
+				const targetProperty =
+					cardData[sortMeta.property as keyof FetchedTicketData];
+				const sortLabel =
+					sortMeta.categories.find(
+						(category) => category === targetProperty
+					) || "Uncategorized";
+				return sortLabel;
+			});
+			return labels;
+		}
+	}
 
 	function cardSelector(
 		dataKind: string,
@@ -138,7 +138,7 @@ export default function CardContainer(props: Props) {
 					options={sortMenu}
 				/>
 			</div>
-			{/* <span>{getSortLabel(cards)}</span> */}
+			<span>{sortMeta && getSortLabel(cards)}</span>
 			{
 				cardSelector(dataKind, cards)
 				/* {cards.map((card) => (

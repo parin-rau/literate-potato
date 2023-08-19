@@ -20,7 +20,7 @@ export type EditorData = {
 	}[];
 };
 
-export type TicketData = {
+export interface TicketData {
 	ticketId: string;
 	title: string;
 	description: string;
@@ -41,7 +41,8 @@ export type TicketData = {
 	taskStatus: string;
 	projectId: string;
 	lastModified?: number;
-};
+	ticketNumber?: number;
+}
 
 // export type TicketData = EditorData & {
 // 	_id?: string;
@@ -54,7 +55,7 @@ export type TicketData = {
 // 	timestamp: number;
 // };
 
-export type FetchedTicketData = TicketData & {
+export interface FetchedTicketData extends TicketData {
 	_id?: string;
 	// ticketId: string;
 	// title: string;
@@ -68,4 +69,4 @@ export type FetchedTicketData = TicketData & {
 	// 	content: string;
 	// }[];
 	// timestamp: number;
-};
+}

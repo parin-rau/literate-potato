@@ -9,6 +9,7 @@ import { optionLookup } from "../utility/optionLookup";
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	projectId: string;
+	cardCount: number;
 };
 
 const initEditor: EditorData = {
@@ -21,7 +22,7 @@ const initEditor: EditorData = {
 };
 
 export default function TicketEditor(props: Props) {
-	const { setCards, projectId } = props;
+	const { setCards, projectId, cardCount } = props;
 	const [editor, setEditor] = useState(initEditor);
 	const [expand, setExpand] = useState(false);
 
@@ -50,6 +51,7 @@ export default function TicketEditor(props: Props) {
 				timestamp: Date.now(),
 				ticketId: uuidv4(),
 				taskStatus: "Not Started",
+				ticketNumber: cardCount + 1,
 			};
 			console.log(newTicket);
 			const res = await fetch("/api/ticket", {
