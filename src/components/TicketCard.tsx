@@ -6,6 +6,7 @@ import TagsDisplay from "./TagsDisplay";
 import SelectDropdown from "./SelectDropdown";
 import SubtaskDisplay from "./SubtaskDisplay";
 import { optionLookup } from "../utility/optionLookup";
+import { Link } from "react-router-dom";
 
 type Props = {
 	cardData: FetchedTicketData;
@@ -147,7 +148,9 @@ export default function TicketCard(props: Props) {
 			<div className="flex flex-col px-4 py-4 space-y-2">
 				<div className="flex flex-row flex-grow justify-between items-start">
 					<div className="flex flex-row items-center space-x-6">
-						<h1 className="text-bold text-3xl">{title}</h1>
+						<Link to={`/ticket/${ticketId}`}>
+							<h1 className="text-bold text-3xl">{title}</h1>
+						</Link>
 						<h2>{ticketNumber && `#${ticketNumber}`}</h2>
 						{subtasks && subtasks.length > 0 && (
 							<span>

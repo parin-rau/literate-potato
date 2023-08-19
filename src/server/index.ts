@@ -57,6 +57,20 @@ app.get("/api/project", async (_req, res) => {
 	}
 });
 
+app.get("/api/project/:id", async (req, res) => {
+	try {
+		const id = req.params.id;
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localProjects);
+		const project = await coll.findOne({ projectId: id });
+		await client.close();
+		res.status(200).send(project);
+	} catch (err) {
+		console.error(err);
+	}
+});
+
 app.post("/api/project", async (req, res) => {
 	try {
 		const newProject = await req.body;
@@ -106,9 +120,9 @@ app.get("/api/ticket/:id", async (req, res) => {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localTickets);
-		const tickets = await coll.findOne({ ticketId: id });
+		const ticket = await coll.findOne({ ticketId: id });
 		await client.close();
-		res.status(200).send(tickets);
+		res.status(200).send(ticket);
 	} catch (err) {
 		console.error(err);
 	}

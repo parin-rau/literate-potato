@@ -19,7 +19,7 @@ const router = createBrowserRouter([
 		errorElement: <ErrorPage />,
 	},
 	{
-		path: "tickets/:id",
+		path: "ticket/:id",
 		element: <TicketPage />,
 		errorElement: <ErrorPage />,
 	},
