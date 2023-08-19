@@ -23,6 +23,7 @@ export default function ProjectTaskPage() {
 				cards={cards}
 				setCards={setCards}
 				containerTitle="Tasks"
+				projectId={projectId}
 			/>
 			{/* <CardContainer
 				cards={cards}

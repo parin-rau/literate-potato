@@ -71,6 +71,20 @@ app.post("/api/project", async (req, res) => {
 	}
 });
 
+app.get("/api/project/:id/ticket", async (req, res) => {
+	try {
+		const id = req.params.id;
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localTickets);
+		const tickets = await coll.find({ projectId: id }).limit(50).toArray();
+		await client.close();
+		res.status(200).send(tickets);
+	} catch (err) {
+		console.error(err);
+	}
+});
+
 // TICKETS
 
 app.get("/api/ticket", async (_req, res) => {
@@ -79,6 +93,20 @@ app.get("/api/ticket", async (_req, res) => {
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localTickets);
 		const tickets = await coll.find().limit(50).toArray();
+		await client.close();
+		res.status(200).send(tickets);
+	} catch (err) {
+		console.error(err);
+	}
+});
+
+app.get("/api/ticket/:id", async (req, res) => {
+	try {
+		const id = req.params.id;
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localTickets);
+		const tickets = await coll.findOne({ ticketId: id });
 		await client.close();
 		res.status(200).send(tickets);
 	} catch (err) {

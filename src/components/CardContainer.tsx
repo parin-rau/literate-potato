@@ -12,6 +12,7 @@ type Props = {
 		| React.Dispatch<React.SetStateAction<Project[]>>;
 	containerTitle: string;
 	dataKind: "ticket" | "project";
+	projectId?: string;
 };
 
 type SortMenu = {
@@ -24,7 +25,7 @@ export default function CardContainer(props: Props) {
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
-	const { cards, setCards, containerTitle, dataKind } = props;
+	const { cards, setCards, containerTitle, dataKind, projectId } = props;
 	const sortMenu: SortMenu = [
 		{
 			name: "Priority",
@@ -61,7 +62,11 @@ export default function CardContainer(props: Props) {
 	useEffect(() => {
 		async function getPosts() {
 			try {
-				const res = await fetch(`/api/${dataKind}`, {
+				const endpoint =
+					dataKind === "ticket"
+						? `/api/project/${projectId}/ticket`
+						: `/api/project`;
+				const res = await fetch(endpoint, {
 					headers: { "Content-Type": "application/json" },
 				});
 				const data = await res.json();
