@@ -64,7 +64,9 @@ export default function CardContainer(props: Props) {
 			try {
 				const endpoint =
 					dataKind === "ticket"
-						? `/api/project/${projectId}/ticket`
+						? projectId
+							? `/api/project/${projectId}/ticket`
+							: "/api/ticket"
 						: `/api/project`;
 				const res = await fetch(endpoint, {
 					headers: { "Content-Type": "application/json" },
@@ -144,16 +146,9 @@ export default function CardContainer(props: Props) {
 				/>
 			</div>
 			<span>{sortMeta && getSortLabel(cards)}</span>
-			{
-				cardSelector(dataKind, cards)
-				/* {cards.map((card) => (
-				<TicketCard
-					key={card.ticketId}
-					cardData={{ ...card }}
-					setCards={setCards}
-				/>
-			))} */
-			}
+			<div className="flex flex-row flex-wrap flex-grow items-start sm:container sm:mx-auto ">
+				{cardSelector(dataKind, cards)}
+			</div>
 		</div>
 	);
 }

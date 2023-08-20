@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FetchedTicketData } from "../types";
+import Nav from "../components/Nav";
 
 export default function TicketPage() {
 	const ticketId = useParams().id || "";
@@ -21,5 +22,13 @@ export default function TicketPage() {
 		getTicket();
 	}, [ticketId]);
 
-	return <div>{card?.title}</div>;
+	return (
+		<div>
+			<Nav />
+			<div>
+				<h1>{card?.title}</h1>
+				<p>{card?.description}</p>
+			</div>
+		</div>
+	);
 }

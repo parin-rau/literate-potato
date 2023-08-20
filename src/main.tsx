@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import ProjectTaskPage from "./pages/ProjectTaskPage.tsx";
-import ProjectHomePage from "./pages/ProjectHomePage.tsx";
+import HomePage from "./pages/HomePage.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./pages/error-page.tsx";
 import "./index.css";
@@ -10,7 +10,7 @@ import TicketPage from "./pages/TicketPage.tsx";
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <ProjectHomePage />,
+		element: <HomePage />,
 		errorElement: <ErrorPage />,
 	},
 	{

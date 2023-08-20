@@ -2,8 +2,8 @@ export interface Project {
 	title: string;
 	description: string;
 	owner: string;
-	//timestamp: number;
-	//projectId: string;
+	timestamp: number;
+	projectId: string;
 	[key: string]: string | number;
 }
 

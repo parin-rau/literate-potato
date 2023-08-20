@@ -144,14 +144,16 @@ export default function TicketCard(props: Props) {
 	}
 
 	return (
-		<div className="sm:container sm:mx-auto my-1 border-black border-2 rounded-lg">
+		<div className=" my-1 mx-1 min-w-min border-black border-2 rounded-lg">
 			<div className="flex flex-col px-4 py-4 space-y-2">
-				<div className="flex flex-row flex-grow justify-between items-start">
+				<div className="flex flex-row flex-grow justify-between items-center space-x-10">
 					<div className="flex flex-row items-center space-x-6">
 						<Link to={`/ticket/${ticketId}`}>
 							<h1 className="text-bold text-3xl">{title}</h1>
 						</Link>
-						<h2>{ticketNumber && `#${ticketNumber}`}</h2>
+						<h2 className="text-bold text-lg">
+							{ticketNumber && `#${ticketNumber}`}
+						</h2>
 						{subtasks && subtasks.length > 0 && (
 							<span>
 								{countCompletedSubs()}/{subtasks.length}{" "}
@@ -159,7 +161,7 @@ export default function TicketCard(props: Props) {
 							</span>
 						)}
 					</div>
-					<div className="flex flex-row space-y-2 items-center">
+					<div className="flex flex-row space-x-2 items-center">
 						<SelectDropdown
 							name="taskStatus"
 							value={taskStatus}
