@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import TicketCard from "./TicketCard";
 import { sortData } from "../utility/optionLookup";
-import { FetchedTicketData, Project } from "../types";
+import { EditorData, FetchedTicketData, Project } from "../types";
 import MenuDropdown from "./MenuDropdown";
 import ProjectCard from "./ProjectCard";
 
@@ -13,6 +13,7 @@ type Props = {
 	containerTitle: string;
 	dataKind: "ticket" | "project";
 	projectId?: string;
+	setEditor?: React.Dispatch<React.SetStateAction<EditorData>>;
 };
 
 type SortMenu = {
@@ -25,7 +26,8 @@ export default function CardContainer(props: Props) {
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
-	const { cards, setCards, containerTitle, dataKind, projectId } = props;
+	const { cards, setCards, containerTitle, dataKind, projectId, setEditor } =
+		props;
 	const sortMenu: SortMenu = [
 		{
 			name: "Priority",
@@ -87,7 +89,7 @@ export default function CardContainer(props: Props) {
 	) {
 		if (dataKind === "ticket") {
 			const { sortedData, sortCategories } = sortData(
-				cards as FetchedTicketData[],
+				cards,
 				sortKind,
 				direction
 			)!;
@@ -120,6 +122,7 @@ export default function CardContainer(props: Props) {
 				<TicketCard
 					key={card.ticketId}
 					cardData={{ ...card }}
+					setEditor={setEditor}
 					setCards={
 						setCards as React.Dispatch<
 							React.SetStateAction<FetchedTicketData[]>
@@ -146,7 +149,7 @@ export default function CardContainer(props: Props) {
 				/>
 			</div>
 			<span>{sortMeta && getSortLabel(cards)}</span>
-			<div className="flex flex-row flex-wrap flex-grow items-start sm:container sm:mx-auto ">
+			<div className="flex flex-row flex-wrap flex-grow items-stretch sm:container sm:mx-auto ">
 				{cardSelector(dataKind, cards)}
 			</div>
 		</div>

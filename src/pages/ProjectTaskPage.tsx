@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import CardContainer from "../components/CardContainer";
 import TicketEditor from "../components/TicketEditor";
 import Nav from "../components/Nav";
-import { FetchedTicketData, Project } from "../types";
+import { EditorData, FetchedTicketData, Project, initEditor } from "../types";
 import { useParams } from "react-router-dom";
 
 export default function ProjectTaskPage() {
 	const [cards, setCards] = useState<FetchedTicketData[]>([]);
-	const projectId = useParams().id || "";
+	const [editor, setEditor] = useState<EditorData>(initEditor);
 	const [project, setProject] = useState<Project>();
+	const projectId = useParams().id || "";
 
 	useEffect(() => {
 		async function getProjectTitle() {
@@ -34,9 +35,10 @@ export default function ProjectTaskPage() {
 				{project?.title || "Project"}
 			</h1>
 			<TicketEditor
+				editor={editor}
+				setEditor={setEditor}
 				setCards={setCards}
 				projectId={projectId}
-				// cardCount={cards.length}
 			/>
 			<CardContainer
 				dataKind="ticket"
@@ -44,6 +46,7 @@ export default function ProjectTaskPage() {
 				setCards={setCards}
 				containerTitle="Tasks"
 				projectId={projectId}
+				setEditor={setEditor}
 			/>
 		</div>
 	);

@@ -147,6 +147,8 @@ app.delete("/api/ticket/:id", async (req, res) => {
 	}
 });
 
+// USER
+
 // TEXT
 
 app.get("/api/test", (_req, res) => {

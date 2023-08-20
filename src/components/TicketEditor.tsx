@@ -1,29 +1,26 @@
 import { useState } from "react";
 import SelectDropdown from "./SelectDropdown";
 import TagsEditor from "./TagsEditor";
-import { EditorData, FetchedTicketData, TicketData } from "../types";
+import {
+	initEditor,
+	FetchedTicketData,
+	TicketData,
+	EditorData,
+} from "../types";
 import { v4 as uuidv4 } from "uuid";
 import SubtaskEditor from "./SubtaskEditor";
 import { optionLookup } from "../utility/optionLookup";
 
 type Props = {
+	editor: EditorData;
+	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	projectId: string;
-	// cardCount: number;
-};
-
-const initEditor: EditorData = {
-	title: "",
-	description: "",
-	priority: "",
-	due: "",
-	tags: [],
-	subtasks: [],
 };
 
 export default function TicketEditor(props: Props) {
-	const { setCards, projectId } = props;
-	const [editor, setEditor] = useState(initEditor);
+	const { setCards, projectId, editor, setEditor } = props;
+	//const [editor, setEditor] = useState(initEditor);
 	const [expand, setExpand] = useState(false);
 
 	function handleChange(
@@ -51,7 +48,6 @@ export default function TicketEditor(props: Props) {
 				timestamp: Date.now(),
 				ticketId: uuidv4(),
 				taskStatus: "Not Started",
-				//ticketNumber: cardCount + 1,
 			};
 			const res = await fetch("/api/ticket", {
 				method: "POST",

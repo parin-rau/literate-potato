@@ -67,6 +67,10 @@ export default function TicketCard(props: Props) {
 
 	function editCard() {
 		try {
+			const editorData: EditorData = {
+				...props.cardData,
+			};
+			setEditor(editorData);
 			console.log("edit me");
 		} catch (err) {
 			console.error(err);

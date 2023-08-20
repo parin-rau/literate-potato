@@ -70,3 +70,12 @@ export interface FetchedTicketData extends TicketData {
 	// }[];
 	// timestamp: number;
 }
+
+export const initEditor: EditorData = {
+	title: "",
+	description: "",
+	priority: "",
+	due: "",
+	tags: [],
+	subtasks: [],
+};
