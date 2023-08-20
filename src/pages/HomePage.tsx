@@ -35,22 +35,19 @@ export default function HomePage() {
 				<ProjectEditor setCards={setProjects} />
 
 				<div className="grid grid-cols-2 grid-rows-1 sm:container sm:mx-auto place-items-start gap-4">
-					{projects.length > 0 && (
-						<CardContainer
-							setCards={setProjects}
-							cards={projects}
-							containerTitle="Projects"
-							dataKind="project"
-						/>
-					)}
-					{tasks.length > 0 && (
-						<CardContainer
-							cards={tasks}
-							setCards={setTasks}
-							containerTitle="Upcoming Tasks"
-							dataKind="ticket"
-						/>
-					)}
+					<CardContainer
+						setCards={setProjects}
+						cards={projects}
+						containerTitle="Projects"
+						dataKind="project"
+					/>
+
+					<CardContainer
+						cards={tasks}
+						setCards={setTasks}
+						containerTitle="Upcoming Tasks"
+						dataKind="ticket"
+					/>
 				</div>
 			</div>
 		</div>

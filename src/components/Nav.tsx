@@ -54,12 +54,12 @@ export default function Nav() {
 				<button onClick={() => console.log(localStorage.theme)}>
 					Local Storage Theme
 				</button>
-				<button
-					onClick={() => console.log("sign in")}
-					className="text-lg rounded-lg bg-blue-600 hover:bg-blue-500 text-white px-4 py-1"
+				<Link
+					to={"login"}
+					className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg "
 				>
 					Sign In
-				</button>
+				</Link>
 			</div>
 		</div>
 	);

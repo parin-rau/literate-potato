@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { FetchedTicketData, TicketData } from "../types";
+import { useState } from "react";
+import { EditorData, FetchedTicketData, TicketData } from "../types";
 import MenuDropdown from "./MenuDropdown";
 import timestampDisplay from "../utility/timestampDisplay";
 import TagsDisplay from "./TagsDisplay";
@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 type Props = {
 	cardData: FetchedTicketData;
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	setEditor?: React.Dispatch<React.SetStateAction<EditorData>>;
 };
 
 export default function TicketCard(props: Props) {
@@ -28,7 +29,7 @@ export default function TicketCard(props: Props) {
 		projectId,
 		ticketNumber,
 	} = props.cardData;
-	const { setCards } = props;
+	const { setCards, setEditor } = props;
 	const moreOptions = [
 		{ name: "Delete", function: deleteCard, ticketId: ticketId },
 		{ name: "Edit", function: editCard, ticketId: ticketId },
@@ -71,8 +72,6 @@ export default function TicketCard(props: Props) {
 			console.error(err);
 		}
 	}
-
-	useEffect(() => {}, [statusColors]);
 
 	async function changeStatus(e: React.ChangeEvent<HTMLSelectElement>) {
 		const newTaskStatus = e.target.value;

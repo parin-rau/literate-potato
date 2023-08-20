@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./pages/error-page.tsx";
 import "./index.css";
 import TicketPage from "./pages/TicketPage.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
 
 const router = createBrowserRouter([
 	{
@@ -21,6 +22,11 @@ const router = createBrowserRouter([
 	{
 		path: "ticket/:id",
 		element: <TicketPage />,
+		errorElement: <ErrorPage />,
+	},
+	{
+		path: "login",
+		element: <LoginPage />,
 		errorElement: <ErrorPage />,
 	},
 ]);

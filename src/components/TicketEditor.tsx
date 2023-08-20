@@ -146,7 +146,7 @@ export default function TicketEditor(props: Props) {
 						/>
 						<div className="space-x-2">
 							<button
-								className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-full max-w-min"
+								className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg max-w-min"
 								type="submit"
 							>
 								Submit
