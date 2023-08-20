@@ -144,7 +144,7 @@ export default function TicketCard(props: Props) {
 	}
 
 	return (
-		<div className=" my-1 mx-1 min-w-min border-black border-2 rounded-lg">
+		<div className=" my-1 mx-1 min-w-min border-black border-2 rounded-lg bg-white">
 			<div className="flex flex-col px-4 py-4 space-y-2">
 				<div className="flex flex-row flex-grow justify-between items-center space-x-10">
 					<div className="flex flex-row items-center space-x-6">

@@ -10,7 +10,7 @@ export default function ProjectCard(props: Props) {
 	const { title, description, owner, projectId, timestamp } = props.cardData;
 
 	return (
-		<div className="flex flex-col mx-1 my-1 px-4 py-4 space-y-2 border-black border-2 rounded-lg">
+		<div className="flex flex-col mx-1 my-1 px-4 py-4 space-y-2 border-black border-2 rounded-lg bg-white">
 			<Link to={`project/${projectId}`}>
 				<h1 className="text-2xl">{title}</h1>
 			</Link>

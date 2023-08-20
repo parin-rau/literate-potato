@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import SearchBar from "./SearchBar";
 
 export default function Nav() {
 	const [darkMode, setDarkMode] = useState(true);
@@ -9,10 +10,13 @@ export default function Nav() {
 	}
 
 	return (
-		<div className="flex justify-between space-x-6 px-4 py-2">
+		<div className="flex justify-between space-x-6 px-4 py-2 bg-slate-100 items-center">
 			<div>
-				<Link to={`/`}>Home</Link>
+				<Link to={`/`}>
+					<h2 className="text-bold text-xl">Home</h2>
+				</Link>
 			</div>
+			<SearchBar />
 			<div className="flex space-x-4">
 				<button className="" onClick={handleToggle} type="button">
 					{darkMode ? (
@@ -49,6 +53,12 @@ export default function Nav() {
 				</button>
 				<button onClick={() => console.log(localStorage.theme)}>
 					Local Storage Theme
+				</button>
+				<button
+					onClick={() => console.log("sign in")}
+					className="text-lg rounded-lg bg-blue-600 hover:bg-blue-500 text-white px-4 py-1"
+				>
+					Sign In
 				</button>
 			</div>
 		</div>

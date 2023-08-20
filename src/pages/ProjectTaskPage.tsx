@@ -36,7 +36,7 @@ export default function ProjectTaskPage() {
 			<TicketEditor
 				setCards={setCards}
 				projectId={projectId}
-				cardCount={cards.length}
+				// cardCount={cards.length}
 			/>
 			<CardContainer
 				dataKind="ticket"

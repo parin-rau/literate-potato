@@ -9,7 +9,7 @@ import { optionLookup } from "../utility/optionLookup";
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	projectId: string;
-	cardCount: number;
+	// cardCount: number;
 };
 
 const initEditor: EditorData = {
@@ -22,7 +22,7 @@ const initEditor: EditorData = {
 };
 
 export default function TicketEditor(props: Props) {
-	const { setCards, projectId, cardCount } = props;
+	const { setCards, projectId } = props;
 	const [editor, setEditor] = useState(initEditor);
 	const [expand, setExpand] = useState(false);
 
@@ -51,16 +51,19 @@ export default function TicketEditor(props: Props) {
 				timestamp: Date.now(),
 				ticketId: uuidv4(),
 				taskStatus: "Not Started",
-				ticketNumber: cardCount + 1,
+				//ticketNumber: cardCount + 1,
 			};
-			console.log(newTicket);
 			const res = await fetch("/api/ticket", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(newTicket),
 			});
 			if (res.ok) {
-				setCards((prevCards) => [newTicket, ...prevCards]);
+				const response = await res.json();
+				setCards((prevCards) => [
+					{ ...newTicket, ticketNumber: response.ticketNumber },
+					...prevCards,
+				]);
 				setEditor(initEditor);
 			}
 		} catch (err) {

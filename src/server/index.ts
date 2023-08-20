@@ -4,35 +4,6 @@ import * as mongoDB from "mongodb";
 import { connectToDatabase } from "./mongodb";
 import { TicketData } from "../types";
 
-// export type TicketData = {
-// 	title: string;
-// 	description: string;
-// 	priority: "" | "low" | "medium" | "high";
-// 	due?: string;
-// 	tags?: string[];
-// 	comments?: {
-// 		_id: string;
-// 		timestamp: number;
-// 		content: string;
-// 	}[];
-// 	timestamp: number;
-// };
-
-// export type FetchedTicketData = {
-// 	title: string;
-// 	description: string;
-// 	priority: "" | "low" | "medium" | "high";
-// 	due?: string;
-// 	tags?: string[];
-// 	comments?: {
-// 		_id: string;
-// 		timestamp: number;
-// 		content: string;
-// 	}[];
-// 	timestamp: number;
-// 	_id: string;
-// };
-
 const PORT = 3002;
 
 const localTickets = process.env.LOCAL_TICKETS ?? "tickets";
@@ -134,14 +105,11 @@ app.post("/api/ticket", async (req, res) => {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localTickets);
-		const ticketNumber =
-			(await coll.countDocuments({
-				projectId: partialNewTicket.projectId,
-			})) + 1;
+		const ticketNumber = (await coll.countDocuments({})) + 1;
 		const newTicket = { ...partialNewTicket, ticketNumber: ticketNumber };
-		const tickets = await coll.insertOne(newTicket);
+		const result = await coll.insertOne(newTicket);
 		await client.close();
-		res.status(200).send(tickets);
+		res.status(200).send({ result, ticketNumber });
 	} catch (err) {
 		console.error(err);
 	}
@@ -171,9 +139,9 @@ app.delete("/api/ticket/:id", async (req, res) => {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localTickets);
-		const tickets = await coll.deleteOne({ ticketId: id });
+		const result = await coll.deleteOne({ ticketId: id });
 		await client.close();
-		res.status(200).send(tickets);
+		res.status(200).send(result);
 	} catch (err) {
 		console.error(err);
 	}

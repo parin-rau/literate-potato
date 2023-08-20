@@ -63,7 +63,7 @@ export default function MenuDropdown(props: Props) {
 				)}
 			</button>
 			{isMenu && (
-				<div className="absolute right-0 bg-slate-100 px-1 py-1 rounded-md z-10">
+				<div className="absolute right-0 bg-slate-200 px-1 py-1 rounded-md z-10 border-black border">
 					{options.map((option, index: number) => (
 						<div
 							className="hover:cursor-pointer hover:bg-slate-300 px-3 rounded-full flex flex-row space-x-2 py-1"
