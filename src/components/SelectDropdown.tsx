@@ -19,7 +19,7 @@ export default function SelectDropdown(props: Props) {
 		<div>
 			<select
 				name={name}
-				className={"text-lg max-w-xs px-2 py-1 rounded-md " + colors}
+				className={"text-lg max-w-xs px-2 py-1 rounded-lg " + colors}
 				value={value}
 				onChange={(e) => {
 					handleChange(e);

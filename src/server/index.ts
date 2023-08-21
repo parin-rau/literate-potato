@@ -149,7 +149,7 @@ app.delete("/api/ticket/:id", async (req, res) => {
 
 // USER
 
-// TEXT
+// TEST
 
 app.get("/api/test", (_req, res) => {
 	try {

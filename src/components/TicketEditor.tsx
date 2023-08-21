@@ -1,7 +1,12 @@
 import { useState } from "react";
 import SelectDropdown from "./SelectDropdown";
 import TagsEditor from "./TagsEditor";
-import { initEditor, FetchedTicketData, TicketData } from "../types";
+import {
+	initEditor,
+	FetchedTicketData,
+	TicketData,
+	EditorData,
+} from "../types";
 import { v4 as uuidv4 } from "uuid";
 import SubtaskEditor from "./SubtaskEditor";
 import { optionLookup } from "../utility/optionLookup";
@@ -23,9 +28,9 @@ type Props = {
 
 export default function TicketEditor(props: Props) {
 	const { setCards, projectId, previousData, setEditing } = props;
-	const mode = handleMode();
-	const [editor, setEditor] = useState(initEditor);
-	const [expand, setExpand] = useState(mode.defaultExpand);
+	const init = handleInit();
+	const [editor, setEditor] = useState(init.initState);
+	const [expand, setExpand] = useState(init.defaultExpand);
 
 	function handleChange(
 		e:
@@ -43,17 +48,33 @@ export default function TicketEditor(props: Props) {
 		}
 	}
 
-	function handleMode() {
+	function handleInit() {
 		if (previousData) {
+			const {
+				title,
+				description,
+				due,
+				tags,
+				subtasks,
+				priority,
+				_id,
+				...unusedPrevData
+			} = previousData;
 			return {
-				timestamp: previousData.timestamp,
-				initState: previousData,
+				initState: {
+					title,
+					description,
+					priority,
+					due,
+					subtasks,
+					tags,
+				},
+				unusedPrevData,
 				defaultExpand: true,
 				editorHeading: "Edit Task",
 			};
 		} else {
 			return {
-				timestamp: Date.now(),
 				initState: initEditor,
 				defaultExpand: false,
 				editorHeading: "Create New Task",
@@ -64,18 +85,27 @@ export default function TicketEditor(props: Props) {
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		try {
-			const newTicket: TicketData = {
-				...editor,
-				projectId: projectId,
-				timestamp: Date.now(),
-				ticketId: uuidv4(),
-				taskStatus: "Not Started",
-			};
-			const res = await fetch("/api/ticket", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(newTicket),
-			});
+			const newTicket: TicketData = previousData // get rid of mongo assigned id
+				? { ...editor, ...init.unusedPrevData }
+				: {
+						...editor,
+						projectId: projectId,
+						timestamp: Date.now(),
+						ticketId: uuidv4(),
+						taskStatus: "Not Started",
+				  };
+			console.log(newTicket);
+			const res = previousData
+				? await fetch(`/api/ticket/${previousData.ticketId}`, {
+						method: "PATCH",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(newTicket),
+				  })
+				: await fetch("/api/ticket", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(newTicket),
+				  });
 			if (res.ok) {
 				const response = await res.json();
 				setCards((prevCards) => [
@@ -126,7 +156,7 @@ export default function TicketEditor(props: Props) {
 							}
 						}}
 					>
-						{mode.editorHeading}
+						{init.editorHeading}
 					</h1>
 					{expand && (
 						<div className="flex space-x-4">
@@ -151,7 +181,7 @@ export default function TicketEditor(props: Props) {
 				{expand && (
 					<>
 						<input
-							className="text-2xl"
+							className="text-xl sm:text-2xl bg-slate-100 rounded-lg px-2"
 							name="title"
 							value={editor.title}
 							onChange={handleChange}
@@ -160,23 +190,38 @@ export default function TicketEditor(props: Props) {
 							required
 						/>
 						<textarea
-							className="text-md"
+							className="text-md rounded-lg bg-slate-100 px-2"
 							name="description"
 							rows={2}
 							value={editor.description}
 							onChange={handleChange}
 							placeholder="Description"
 						/>
-						<SubtaskEditor editor={editor} setEditor={setEditor} />
-						<TagsEditor editor={editor} setEditor={setEditor} />
+						<SubtaskEditor
+							editor={editor as EditorData}
+							setEditor={
+								setEditor as React.Dispatch<
+									React.SetStateAction<EditorData>
+								>
+							}
+						/>
+						<TagsEditor
+							editor={editor as EditorData}
+							setEditor={
+								setEditor as React.Dispatch<
+									React.SetStateAction<EditorData>
+								>
+							}
+						/>
 						<SelectDropdown
 							name="priority"
 							value={editor.priority}
 							options={optionLookup.priority}
 							handleChange={handleChange}
+							colors="bg-slate-100"
 						/>
 						<input
-							className="text-lg max-w-xs px-1"
+							className="text-lg max-w-xs px-1 rounded-lg bg-slate-100"
 							name="due"
 							type="date"
 							value={editor.due}
@@ -184,7 +229,7 @@ export default function TicketEditor(props: Props) {
 						/>
 						<div className="space-x-2">
 							<button
-								className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg max-w-min"
+								className="mt-2 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg max-w-min"
 								type="submit"
 							>
 								Submit

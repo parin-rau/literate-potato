@@ -50,24 +50,24 @@ export default function SubtaskEditor(props: Props) {
 	}
 
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col rounded-lg border pt-2">
 			<div className="flex flex-row space-x-2 items-center">
 				<input
-					className="text-lg"
+					className="text-lg bg-slate-100 p-1 flex-grow mx-1 rounded-md"
 					name="subtasks"
 					value={text}
 					onChange={handleChange}
 					onKeyDown={handleKeyDown}
-					placeholder="Subtask"
+					placeholder="Enter New Subtask"
 				/>
-				<button
-					className="bg-slate-300 hover:bg-slate-400 rounded-full px-3 py-2"
+				{/* <button
+					className="bg-slate-500 hover:bg-blue-400 rounded-lg px-3 py-2 text-bold text-white"
 					type="button"
 					onClick={() => addSubtask(text)}
 				>
 					Add Subtask
-				</button>
-				<i className="text-sm">Enter</i>
+				</button> */}
+				{/* <i className="text-sm">Enter</i> */}
 			</div>
 			{subtasks.length > 0 && (
 				<SubtaskDisplay
