@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EditorData, FetchedTicketData, TicketData } from "../types";
+import { FetchedTicketData, TicketData } from "../types";
 import MenuDropdown from "./MenuDropdown";
 import timestampDisplay from "../utility/timestampDisplay";
 import TagsDisplay from "./TagsDisplay";
@@ -7,11 +7,11 @@ import SelectDropdown from "./SelectDropdown";
 import SubtaskDisplay from "./SubtaskDisplay";
 import { optionLookup } from "../utility/optionLookup";
 import { Link } from "react-router-dom";
+import TicketEditor from "./TicketEditor";
 
 type Props = {
 	cardData: FetchedTicketData;
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	setEditor?: React.Dispatch<React.SetStateAction<EditorData>>;
 };
 
 export default function TicketCard(props: Props) {
@@ -29,7 +29,7 @@ export default function TicketCard(props: Props) {
 		projectId,
 		ticketNumber,
 	} = props.cardData;
-	const { setCards, setEditor } = props;
+	const { setCards } = props;
 	const moreOptions = [
 		{ name: "Delete", function: deleteCard, ticketId: ticketId },
 		{ name: "Edit", function: editCard, ticketId: ticketId },
@@ -38,6 +38,7 @@ export default function TicketCard(props: Props) {
 	const [statusColors, setStatusColors] = useState(
 		statusColorsLookup(taskStatus)
 	);
+	const [isEditing, setEditing] = useState(false);
 
 	function statusColorsLookup(currentStatus: string) {
 		const currentOption = optionLookup.taskStatus.find(
@@ -67,11 +68,11 @@ export default function TicketCard(props: Props) {
 
 	function editCard() {
 		try {
-			const editorData: EditorData = {
+			const editorData = {
 				...props.cardData,
 			};
-			setEditor(editorData);
-			console.log("edit me");
+			setEditing(true);
+			console.log("edit me", editorData);
 		} catch (err) {
 			console.error(err);
 		}
@@ -87,8 +88,7 @@ export default function TicketCard(props: Props) {
 				body: JSON.stringify({ taskStatus: newTaskStatus }),
 			});
 			if (res.ok) {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				setCards((prevCards: any) =>
+				setCards((prevCards) =>
 					prevCards.map((card: TicketData) =>
 						card.ticketId === ticketId
 							? { ...card, taskStatus: newTaskStatus }
@@ -146,11 +146,11 @@ export default function TicketCard(props: Props) {
 		}
 	}
 
-	return (
-		<div className=" my-1 mx-1 min-w-min border-black border-2 rounded-lg bg-white">
+	function CardDisplay() {
+		return (
 			<div className="flex flex-col px-4 py-4 space-y-2">
 				<div className="flex flex-row flex-grow justify-between items-center space-x-10">
-					<div className="flex flex-row items-center space-x-6">
+					<div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-x-6">
 						<Link to={`/ticket/${ticketId}`}>
 							<h1 className="text-bold text-3xl">{title}</h1>
 						</Link>
@@ -198,6 +198,19 @@ export default function TicketCard(props: Props) {
 				<p>ticket: {ticketId}</p>
 				<p>project: {projectId}</p>
 			</div>
+		);
+	}
+
+	return (
+		<div className="my-1 mx-1 min-w-min border-black border-2 rounded-lg bg-white">
+			{!isEditing && <CardDisplay />}
+			{isEditing && (
+				<TicketEditor
+					setCards={setCards}
+					setEditing={setEditing}
+					previousData={{ ...props.cardData }}
+				/>
+			)}
 		</div>
 	);
 }

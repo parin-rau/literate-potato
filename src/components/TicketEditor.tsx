@@ -1,27 +1,31 @@
 import { useState } from "react";
 import SelectDropdown from "./SelectDropdown";
 import TagsEditor from "./TagsEditor";
-import {
-	initEditor,
-	FetchedTicketData,
-	TicketData,
-	EditorData,
-} from "../types";
+import { initEditor, FetchedTicketData, TicketData } from "../types";
 import { v4 as uuidv4 } from "uuid";
 import SubtaskEditor from "./SubtaskEditor";
 import { optionLookup } from "../utility/optionLookup";
 
 type Props = {
-	editor: EditorData;
-	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	projectId: string;
-};
+} & (
+	| {
+			projectId: string;
+			previousData?: never;
+			setEditing?: never;
+	  }
+	| {
+			projectId?: never;
+			previousData: FetchedTicketData;
+			setEditing: React.Dispatch<React.SetStateAction<boolean>>;
+	  }
+);
 
 export default function TicketEditor(props: Props) {
-	const { setCards, projectId, editor, setEditor } = props;
-	//const [editor, setEditor] = useState(initEditor);
-	const [expand, setExpand] = useState(false);
+	const { setCards, projectId, previousData, setEditing } = props;
+	const mode = handleMode();
+	const [editor, setEditor] = useState(initEditor);
+	const [expand, setExpand] = useState(mode.defaultExpand);
 
 	function handleChange(
 		e:
@@ -36,6 +40,24 @@ export default function TicketEditor(props: Props) {
 	function handleKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
 		if (e.code === "Enter" && e.shiftKey === false) {
 			e.preventDefault();
+		}
+	}
+
+	function handleMode() {
+		if (previousData) {
+			return {
+				timestamp: previousData.timestamp,
+				initState: previousData,
+				defaultExpand: true,
+				editorHeading: "Edit Task",
+			};
+		} else {
+			return {
+				timestamp: Date.now(),
+				initState: initEditor,
+				defaultExpand: false,
+				editorHeading: "Create New Task",
+			};
 		}
 	}
 
@@ -75,8 +97,19 @@ export default function TicketEditor(props: Props) {
 		setEditor(initEditor);
 	}
 
+	function handleEditCancel() {
+		if (previousData) {
+			setEditing(false);
+		}
+	}
+
 	return (
-		<div className="sm:container sm:mx-auto border-black border-2 rounded-lg">
+		<div
+			className={
+				"container mx-auto  " +
+				(!previousData && "border-black border-2 rounded-lg")
+			}
+		>
 			<form
 				className="flex flex-col px-4 py-4 space-y-2"
 				onSubmit={handleSubmit}
@@ -93,16 +126,25 @@ export default function TicketEditor(props: Props) {
 							}
 						}}
 					>
-						Create New Task
+						{mode.editorHeading}
 					</h1>
 					{expand && (
 						<div className="flex space-x-4">
 							<button type="button" onClick={handleReset}>
 								Reset Form
 							</button>
-							<button type="button" onClick={handleExpand}>
-								Hide Editor
-							</button>
+							{previousData ? (
+								<button
+									type="button"
+									onClick={handleEditCancel}
+								>
+									Cancel Edit
+								</button>
+							) : (
+								<button type="button" onClick={handleExpand}>
+									Hide Editor
+								</button>
+							)}
 						</div>
 					)}
 				</div>

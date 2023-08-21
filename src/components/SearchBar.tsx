@@ -9,9 +9,9 @@ export default function SearchBar() {
 	}
 
 	return (
-		<div className="flex flex-row flex-grow rounded-md bg-slate-200 items-center">
+		<div className="flex flex-row flex-grow rounded-md bg-slate-200 items-center w-full">
 			<input
-				className="bg-transparent flex-grow px-4 py-1 rounded-md"
+				className="bg-transparent w-full flex-grow px-4 py-1 rounded-md"
 				value={search}
 				onChange={handleChange}
 				placeholder="Search..."

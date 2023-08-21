@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import TicketCard from "./TicketCard";
 import { sortData } from "../utility/optionLookup";
-import { EditorData, FetchedTicketData, Project } from "../types";
+import { FetchedTicketData, Project } from "../types";
 import MenuDropdown from "./MenuDropdown";
 import ProjectCard from "./ProjectCard";
 
@@ -13,7 +13,6 @@ type Props = {
 	containerTitle: string;
 	dataKind: "ticket" | "project";
 	projectId?: string;
-	setEditor?: React.Dispatch<React.SetStateAction<EditorData>>;
 };
 
 type SortMenu = {
@@ -26,8 +25,7 @@ export default function CardContainer(props: Props) {
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
-	const { cards, setCards, containerTitle, dataKind, projectId, setEditor } =
-		props;
+	const { cards, setCards, containerTitle, dataKind, projectId } = props;
 	const sortMenu: SortMenu = [
 		{
 			name: "Priority",
@@ -113,7 +111,7 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
-	function cardSelector(
+	function CardSelector(
 		dataKind: string,
 		cards: FetchedTicketData[] | Project[]
 	) {
@@ -122,7 +120,6 @@ export default function CardContainer(props: Props) {
 				<TicketCard
 					key={card.ticketId}
 					cardData={{ ...card }}
-					setEditor={setEditor}
 					setCards={
 						setCards as React.Dispatch<
 							React.SetStateAction<FetchedTicketData[]>
@@ -139,7 +136,7 @@ export default function CardContainer(props: Props) {
 	}
 
 	return (
-		<div className="sm:container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg">
+		<div className="@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg">
 			<div className="flex flex-row justify-between items-center">
 				<h1 className="text-bold text-3xl my-4">{containerTitle}</h1>
 				<MenuDropdown
@@ -149,8 +146,8 @@ export default function CardContainer(props: Props) {
 				/>
 			</div>
 			<span>{sortMeta && getSortLabel(cards)}</span>
-			<div className="flex flex-row flex-wrap flex-grow items-stretch sm:container sm:mx-auto ">
-				{cardSelector(dataKind, cards)}
+			<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch-stretch items-stretch sm:container mx-auto ">
+				{CardSelector(dataKind, cards)}
 			</div>
 		</div>
 	);

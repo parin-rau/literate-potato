@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import CardContainer from "../components/CardContainer";
 import TicketEditor from "../components/TicketEditor";
 import Nav from "../components/Nav";
-import { EditorData, FetchedTicketData, Project, initEditor } from "../types";
+import { FetchedTicketData, Project } from "../types";
 import { useParams } from "react-router-dom";
 
 export default function ProjectTaskPage() {
 	const [cards, setCards] = useState<FetchedTicketData[]>([]);
-	const [editor, setEditor] = useState<EditorData>(initEditor);
 	const [project, setProject] = useState<Project>();
 	const projectId = useParams().id || "";
 
@@ -29,25 +28,23 @@ export default function ProjectTaskPage() {
 	}, [projectId]);
 
 	return (
-		<div className="flex flex-col space-y-4">
+		<>
 			<Nav />
-			<h1 className="text-bold text-4xl px-6 py-2">
-				{project?.title || "Project"}
-			</h1>
-			<TicketEditor
-				editor={editor}
-				setEditor={setEditor}
-				setCards={setCards}
-				projectId={projectId}
-			/>
-			<CardContainer
-				dataKind="ticket"
-				cards={cards}
-				setCards={setCards}
-				containerTitle="Tasks"
-				projectId={projectId}
-				setEditor={setEditor}
-			/>
-		</div>
+			<div className="flex flex-col space-y-4 pt-16">
+				<div className="sm:container sm:mx-auto flex flex-col space-y-6">
+					<h1 className="text-bold text-4xl">
+						{project?.title || "Project"}
+					</h1>
+					<TicketEditor setCards={setCards} projectId={projectId} />
+					<CardContainer
+						dataKind="ticket"
+						cards={cards}
+						setCards={setCards}
+						containerTitle="Tasks"
+						projectId={projectId}
+					/>
+				</div>
+			</div>
+		</>
 	);
 }

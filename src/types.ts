@@ -13,6 +13,7 @@ export type EditorData = {
 	priority: "" | "Low" | "Medium" | "High";
 	due: string;
 	tags: string[];
+	timestamp?: number;
 	subtasks: {
 		subtaskId: string;
 		description: string;
