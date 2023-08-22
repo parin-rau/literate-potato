@@ -26,13 +26,13 @@ export default function TicketCard(props: Props) {
 		taskStatus,
 		lastModified,
 		subtasks,
-		projectId,
+		//projectId,
 		ticketNumber,
 	} = props.cardData;
 	const { setCards } = props;
 	const moreOptions = [
-		{ name: "Delete", function: deleteCard, ticketId: ticketId },
-		{ name: "Edit", function: editCard, ticketId: ticketId },
+		{ name: "Delete", fn: deleteCard, ticketId: ticketId },
+		{ name: "Edit", fn: editCard, ticketId: ticketId },
 	];
 
 	const [statusColors, setStatusColors] = useState(
@@ -168,7 +168,7 @@ export default function TicketCard(props: Props) {
 							handleChange={changeStatus}
 							colors={statusColors}
 						/>
-						<MenuDropdown options={moreOptions} />
+						<MenuDropdown options={moreOptions} cardId={ticketId} />
 					</div>
 				</div>
 				{description && <p className="text-lg">{description}</p>}
@@ -188,11 +188,11 @@ export default function TicketCard(props: Props) {
 				<div className="flex flex-col">
 					<span>Created: {timestampDisplay(timestamp)}</span>
 					{lastModified && (
-						<i>Modified: {timestampDisplay(lastModified)}</i>
+						<i>Last Activity: {timestampDisplay(lastModified)}</i>
 					)}
 				</div>
-				<p>ticket: {ticketId}</p>
-				<p>project: {projectId}</p>
+				{/* <p>ticket: {ticketId}</p>
+				<p>project: {projectId}</p> */}
 			</div>
 		);
 	}

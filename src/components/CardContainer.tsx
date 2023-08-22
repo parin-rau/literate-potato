@@ -5,20 +5,26 @@ import { FetchedTicketData, Project } from "../types";
 import MenuDropdown from "./MenuDropdown";
 import ProjectCard from "./ProjectCard";
 
-type Props = {
-	cards: FetchedTicketData[] | Project[];
-	setCards:
-		| React.Dispatch<React.SetStateAction<FetchedTicketData[]>>
-		| React.Dispatch<React.SetStateAction<Project[]>>;
-	containerTitle: string;
-	dataKind: "ticket" | "project";
-	projectId?: string;
-};
+type Props =
+	| {
+			cards: FetchedTicketData[];
+			setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+			containerTitle: string;
+			dataKind: "ticket";
+			projectId?: string;
+	  }
+	| {
+			cards: Project[];
+			setCards: React.Dispatch<React.SetStateAction<Project[]>>;
+			containerTitle: string;
+			dataKind: "project";
+			projectId?: string;
+	  };
 
 type SortMenu = {
 	name: string;
 	arrowDirection: "up" | "down";
-	function: () => void;
+	fn: () => void;
 }[];
 
 export default function CardContainer(props: Props) {
@@ -30,32 +36,32 @@ export default function CardContainer(props: Props) {
 		{
 			name: "Priority",
 			arrowDirection: "up",
-			function: () => handleSort("priority", "asc"),
+			fn: () => handleSort("priority", "asc"),
 		},
 		{
 			name: "Priority",
 			arrowDirection: "down",
-			function: () => handleSort("priority", "desc"),
+			fn: () => handleSort("priority", "desc"),
 		},
 		{
 			name: "Progress",
 			arrowDirection: "up",
-			function: () => handleSort("taskStatus", "asc"),
+			fn: () => handleSort("taskStatus", "asc"),
 		},
 		{
 			name: "Progress",
 			arrowDirection: "down",
-			function: () => handleSort("taskStatus", "desc"),
+			fn: () => handleSort("taskStatus", "desc"),
 		},
 		{
 			name: "Recent",
 			arrowDirection: "up",
-			function: () => handleSort("timestamp", "asc"),
+			fn: () => handleSort("timestamp", "asc"),
 		},
 		{
 			name: "Recent",
 			arrowDirection: "down",
-			function: () => handleSort("timestamp", "desc"),
+			fn: () => handleSort("timestamp", "desc"),
 		},
 	];
 
@@ -71,7 +77,7 @@ export default function CardContainer(props: Props) {
 				const res = await fetch(endpoint, {
 					headers: { "Content-Type": "application/json" },
 				});
-				const data: Project[] | FetchedTicketData[] = await res.json();
+				const data = await res.json();
 				setCards(data);
 			} catch (err) {
 				console.error(err);
@@ -87,7 +93,7 @@ export default function CardContainer(props: Props) {
 	) {
 		if (dataKind === "ticket") {
 			const { sortedData, sortCategories } = sortData(
-				cards,
+				cards as FetchedTicketData[],
 				sortKind,
 				direction
 			)!;
@@ -96,7 +102,7 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
-	function getSortLabel(cardDataArr: FetchedTicketData[]) {
+	function getSortLabel(cardDataArr: typeof cards) {
 		if (sortMeta) {
 			const labels = cardDataArr.map((cardData) => {
 				const targetProperty =

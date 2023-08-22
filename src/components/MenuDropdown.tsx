@@ -1,21 +1,32 @@
 import { useRef, useState, useEffect } from "react";
 import DirectionalArrow from "./DirectionalArrow";
 
-type Props = {
-	options: {
-		name: string;
-		arrowDirection?: "up" | "down";
-		function: (_id?: string) => void;
-		ticketId?: string;
-	}[];
-	menuTitle?: string;
-	menuTitleFont?: string;
-};
+type Props =
+	| {
+			options: {
+				name: string;
+				arrowDirection: "up" | "down";
+				fn: () => void;
+			}[];
+			cardId?: never;
+			menuTitle?: string;
+			menuTitleFont?: string;
+	  }
+	| {
+			options: {
+				name: string;
+				arrowDirection?: never;
+				fn: (_id: string) => void;
+			}[];
+			cardId: string;
+			menuTitle?: string;
+			menuTitleFont?: string;
+	  };
 
 export default function MenuDropdown(props: Props) {
+	const { options, cardId, menuTitle, menuTitleFont } = props;
 	const [isMenu, setMenu] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
-	const { options, menuTitle, menuTitleFont } = props;
 
 	useEffect(() => {
 		const closeOpenMenu = (
@@ -31,6 +42,11 @@ export default function MenuDropdown(props: Props) {
 		};
 		document.addEventListener("mousedown", closeOpenMenu);
 	}, [isMenu]);
+
+	function handleOptionClick(optionFn: (_id: string) => void) {
+		optionFn(cardId!);
+		setMenu(false);
+	}
 
 	return (
 		<div className="relative" ref={menuRef}>
@@ -66,10 +82,13 @@ export default function MenuDropdown(props: Props) {
 						<div
 							className="hover:cursor-pointer hover:bg-slate-300 px-3 rounded-full flex flex-row space-x-2 py-1"
 							key={index}
-							onClick={() => {
-								option.function(option.ticketId);
-								setMenu(false);
-							}}
+							onClick={() => handleOptionClick(option.fn)}
+							// onClick={() => {
+							// 	cardId
+							// 		? option.function(cardId)
+							// 		: option.function();
+							// 	setMenu(false);
+							// }}
 						>
 							<span>{option.name}</span>
 							{option.arrowDirection && (
