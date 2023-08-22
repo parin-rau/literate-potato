@@ -133,36 +133,6 @@ export default function TicketEditor(props: Props) {
 					setEditor(initEditor);
 				}
 			}
-
-			// const newTicket: TicketData = previousData // get rid of mongo assigned id
-			// 	? { ...editor, ...init.unusedPrevData }
-			// 	: {
-			// 			...editor,
-			// 			projectId: projectId,
-			// 			timestamp: Date.now(),
-			// 			ticketId: uuidv4(),
-			// 			taskStatus: "Not Started",
-			// 	  };
-			// console.log(newTicket);
-			// const res = previousData
-			// 	? await fetch(`/api/ticket/${previousData.ticketId}`, {
-			// 			method: "PATCH",
-			// 			headers: { "Content-Type": "application/json" },
-			// 			body: JSON.stringify(newTicket),
-			// 	  })
-			// 	: await fetch("/api/ticket", {
-			// 			method: "POST",
-			// 			headers: { "Content-Type": "application/json" },
-			// 			body: JSON.stringify(newTicket),
-			// 	  });
-			// if (res.ok) {
-			// 	const response = await res.json();
-			// 	setCards((prevCards) => [
-			// 		{ ...newTicket, ticketNumber: response.ticketNumber },
-			// 		...prevCards,
-			// 	]);
-			// 	setEditor(initEditor);
-			// }
 		} catch (err) {
 			console.error(err);
 		}

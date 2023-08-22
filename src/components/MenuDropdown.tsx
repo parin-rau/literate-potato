@@ -1,11 +1,11 @@
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import DirectionalArrow from "./DirectionalArrow";
 
 type Props = {
 	options: {
 		name: string;
 		arrowDirection?: "up" | "down";
-		function: (id?) => void;
+		function: (_id?: string) => void;
 		ticketId?: string;
 	}[];
 	menuTitle?: string;
@@ -14,28 +14,26 @@ type Props = {
 
 export default function MenuDropdown(props: Props) {
 	const [isMenu, setMenu] = useState(false);
-	const menuRef = useRef();
+	const menuRef = useRef<HTMLDivElement>(null);
 	const { options, menuTitle, menuTitleFont } = props;
 
-	const closeOpenMenu = useCallback(
-		(e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+	useEffect(() => {
+		const closeOpenMenu = (
+			e: React.MouseEvent<HTMLDivElement, MouseEvent> | MouseEvent
+		) => {
 			if (
 				menuRef.current &&
 				isMenu &&
-				!menuRef.current.contains(e.target)
+				!menuRef.current.contains(e.target as Node)
 			) {
 				setMenu(false);
 			}
-		},
-		[isMenu]
-	);
-
-	useEffect(() => {
+		};
 		document.addEventListener("mousedown", closeOpenMenu);
-	}, [closeOpenMenu]);
+	}, [isMenu]);
 
 	return (
-		<div className="relative">
+		<div className="relative" ref={menuRef}>
 			<button
 				className={
 					"hover:bg-slate-300 px-2 py-1 my-1 rounded-full " +
