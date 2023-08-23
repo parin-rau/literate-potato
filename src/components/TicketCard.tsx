@@ -121,7 +121,11 @@ export default function TicketCard(props: Props) {
 					setCards((prevCards) =>
 						prevCards.map((card) =>
 							card.ticketId === ticketId
-								? { ...card, subtasks: updatedSubtasks }
+								? {
+										...card,
+										subtasks: updatedSubtasks,
+										lastModified: Date.now(),
+								  }
 								: card
 						)
 					);
@@ -138,29 +142,32 @@ export default function TicketCard(props: Props) {
 				subtask.completed ? 1 : 0
 			);
 			const totalCompleted = isCompleted.reduce((a, b) => a + b, 0);
-			return totalCompleted;
+			const percentCompleted =
+				Math.floor(
+					subtasks.length > 0
+						? (totalCompleted / subtasks.length) * 100
+						: 0
+				).toString() + "%";
+			return { totalCompleted, percentCompleted };
 		} else {
-			return 0;
+			return { totalCompleted: 0, percentCompleted: "0%" };
 		}
 	}
 
 	function CardDisplay() {
 		return (
 			<div className="flex flex-col px-4 py-4 space-y-2">
-				<div className="flex flex-row flex-grow justify-between items-center space-x-10">
-					<div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-x-6">
-						<Link to={`/ticket/${ticketId}`}>
-							<h1 className="text-bold text-3xl">{title}</h1>
+				<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
+					<div className="flex flex-col sm:flex-row sm:items-baseline space-y-1 sm:space-x-4">
+						<Link
+							to={`/ticket/${ticketId}`}
+							className="font-semibold text-2xl sm:text-3xl"
+						>
+							{title}
 						</Link>
-						<h2 className="text-bold text-lg">
+						<h2 className="text-lg sm:text-xl">
 							{ticketNumber && `#${ticketNumber}`}
 						</h2>
-						{subtasks && subtasks.length > 0 && (
-							<span>
-								{countCompletedSubs()}/{subtasks.length}{" "}
-								subtasks
-							</span>
-						)}
 					</div>
 					<div className="flex flex-row space-x-2 items-center">
 						<SelectDropdown
@@ -173,27 +180,51 @@ export default function TicketCard(props: Props) {
 						<MenuDropdown options={moreOptions} cardId={ticketId} />
 					</div>
 				</div>
-				{description && <p className="text-lg">{description}</p>}
-				{priority && (
-					<p>
-						<strong>Priority: {priority}</strong>
-					</p>
+				{(priority || due || subtasks!.length > 0) && (
+					<div className="grid grid-cols-2 rounded-lg border border-1 shadow-sm p-2">
+						{subtasks && subtasks.length > 0 && (
+							<span>
+								{`${countCompletedSubs().totalCompleted}/${
+									subtasks.length
+								} Subtask${subtasks.length !== 1 ? "s" : ""}`}
+							</span>
+						)}
+						{priority && <p className="">Priority: {priority}</p>}
+						{subtasks && subtasks.length > 0 && (
+							<span>{`${
+								countCompletedSubs().percentCompleted
+							} Completed`}</span>
+						)}
+						{due && <p>Due: {due}</p>}
+					</div>
 				)}
-				{due && <p>Due: {due}</p>}
-				{subtasks && subtasks.length > 0 && (
-					<SubtaskDisplay
-						subtasks={subtasks}
-						completeSubtask={completeSubtask}
-					/>
+				{(description || subtasks!.length > 0 || tags.length > 0) && (
+					<div className="border border-1 rounded-lg shadow-sm p-2 space-y-4">
+						{description && (
+							<p className="text-lg">{description}</p>
+						)}
+						{subtasks && subtasks.length > 0 && (
+							<div>
+								<h4 className="font-semibold">Subtasks</h4>
+								<SubtaskDisplay
+									subtasks={subtasks}
+									completeSubtask={completeSubtask}
+								/>
+							</div>
+						)}
+						{tags.length > 0 && (
+							<div>
+								<h4 className="font-semibold">Tags</h4>
+								<TagsDisplay
+									tags={tags}
+									filter={filter}
+									setFilter={setFilter}
+								/>
+							</div>
+						)}
+					</div>
 				)}
-				{tags.length > 0 && (
-					<TagsDisplay
-						tags={tags}
-						filter={filter}
-						setFilter={setFilter}
-					/>
-				)}
-				<div className="flex flex-col">
+				<div className="flex flex-col shadow-sm border border-1 p-2 rounded-lg">
 					<span>Created: {timestampDisplay(timestamp)}</span>
 					{lastModified && (
 						<i>Last Activity: {timestampDisplay(lastModified)}</i>
@@ -206,7 +237,7 @@ export default function TicketCard(props: Props) {
 	}
 
 	return (
-		<div className="my-1 mx-1 min-w-min border-black border-2 rounded-lg bg-white">
+		<div className="my-1 mx-1 min-w-min border-black border-2 rounded-md bg-white">
 			{!isEditing && <CardDisplay />}
 			{isEditing && (
 				<TicketEditor

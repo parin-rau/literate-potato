@@ -10,7 +10,6 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import SubtaskEditor from "./SubtaskEditor";
 import { optionLookup } from "../utility/optionLookup";
-import timestampDisplay from "../utility/timestampDisplay";
 
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
@@ -160,23 +159,24 @@ export default function TicketEditor(props: Props) {
 	return (
 		<div
 			className={
-				"container mx-auto  " +
+				"mx-2 sm:mx-0 " +
 				(!previousData && "border-black border-2 rounded-lg")
 			}
 		>
 			<form
-				className="flex flex-col px-4 py-4 space-y-2"
+				className="flex flex-col px-4 py-2 sm:py-4 space-y-2"
 				onSubmit={handleSubmit}
 				onKeyDown={handleKeyDown}
 			>
 				<div className="flex flex-row justify-between">
 					<h1
 						className={
-							"text-3xl " + (!expand && "hover:cursor-pointer")
+							"font-semibold text-xl sm:text-2xl " +
+							(!previousData && "hover:cursor-pointer")
 						}
 						onClick={() => {
-							if (!expand) {
-								setExpand(true);
+							if (!previousData) {
+								setExpand(!expand);
 							}
 						}}
 					>
@@ -205,7 +205,7 @@ export default function TicketEditor(props: Props) {
 				{expand && (
 					<>
 						<input
-							className="text-xl sm:text-2xl bg-slate-100 rounded-lg px-2"
+							className="text-lg sm:text-xl border rounded-lg px-2 shadow-sm"
 							name="title"
 							value={editor.title}
 							onChange={handleChange}
@@ -214,7 +214,7 @@ export default function TicketEditor(props: Props) {
 							required
 						/>
 						<textarea
-							className="text-md rounded-lg bg-slate-100 px-2"
+							className="text-sm sm:text-base rounded-lg border px-2 shadow-sm"
 							name="description"
 							rows={2}
 							value={editor.description}
@@ -237,23 +237,31 @@ export default function TicketEditor(props: Props) {
 								>
 							}
 						/>
-						<SelectDropdown
-							name="priority"
-							value={editor.priority}
-							options={optionLookup.priority}
-							handleChange={handleChange}
-							colors="bg-slate-100"
-						/>
-						<input
-							className="text-lg max-w-xs px-1 rounded-lg bg-slate-100"
-							name="due"
-							type="date"
-							value={editor.due}
-							onChange={handleChange}
-						/>
+						<div className="grid grid-cols-2 place-items-stretch gap-2 rounded-lg shadow-none">
+							<div className="flex flex-col sm:border sm:rounded-lg shadow-none sm:shadow-sm p-2 space-y-2">
+								<h4 className="px-1">Due Date</h4>
+								<input
+									className="text-base px-1 rounded-lg bg-slate-100"
+									name="due"
+									type="date"
+									value={editor.due}
+									onChange={handleChange}
+								/>
+							</div>
+							<div className="flex flex-col sm:border sm:rounded-lg shadow-none sm:shadow-sm p-2 space-y-2">
+								<h4 className="px-1">Priority</h4>
+								<SelectDropdown
+									name="priority"
+									value={editor.priority}
+									options={optionLookup.priority}
+									handleChange={handleChange}
+									colors="bg-slate-100"
+								/>
+							</div>
+						</div>
 						<div className="space-x-2">
 							<button
-								className="mt-2 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg max-w-min"
+								className="transition duration-200 mt-2 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg max-w-min"
 								type="submit"
 							>
 								Submit

@@ -38,25 +38,18 @@ export default function TagsEditor(props: Props) {
 	}
 
 	return (
-		<div className="flex flex-col rounded-lg border pt-2">
-			<div className="flex flex-row space-x-2 items-center">
-				<input
-					className="text-lg bg-slate-100 p-1 flex-grow mx-1 rounded-md"
-					name="tags"
-					value={text}
-					onChange={handleChange}
-					onKeyDown={handleKeyDown}
-					placeholder="Enter New Tag"
-				/>
-				{/* <button
-					className="bg-slate-300 hover:bg-slate-400 rounded-lg px-3 py-2"
-					type="button"
-					onClick={() => addTag(text)}
-				>
-					Add Tag
-				</button> */}
-				{/* <i className="text-sm">Enter</i> */}
-			</div>
+		<div className="flex flex-col rounded-lg shadow-sm border">
+			<input
+				className={
+					"duration-500 sm:text-base text-sm px-2 py-1 flex-grow rounded-lg " +
+					(tags.length > 0 && "shadow-lg")
+				}
+				name="tags"
+				value={text}
+				onChange={handleChange}
+				onKeyDown={handleKeyDown}
+				placeholder="Enter New Tag"
+			/>
 			{tags.length > 0 && (
 				<TagsDisplay tags={tags} deleteTag={deleteTag} />
 			)}

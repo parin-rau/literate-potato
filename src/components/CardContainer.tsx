@@ -120,6 +120,10 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
+	function deleteTag(id: number) {
+		setFilter((prev) => prev.filter((_tag, index) => index !== id));
+	}
+
 	function CardSelector(
 		dataKind: string,
 		cards: FetchedTicketData[] | Project[]
@@ -146,13 +150,9 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
-	function deleteTag(id: number) {
-		setFilter((prev) => prev.filter((_tag, index) => index !== id));
-	}
-
 	function FilterSelect() {
 		return (
-			<div className="flex rounded-md bg-slate-200 items-center px-2 space-x-2">
+			<div className="flex flex-col sm:flex-row flex-wrap rounded-md border shadow-md items-center px-2 space-x-2">
 				<SearchBar setFilter={setFilter} placeholder="Filter by Tags" />
 				{filter.length > 0 && (
 					<TagsDisplay tags={filter} deleteTag={deleteTag} />
@@ -163,11 +163,11 @@ export default function CardContainer(props: Props) {
 
 	return (
 		<div className="@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg">
-			<div className="flex flex-row justify-between items-center">
+			<div className="flex flex-row justify-between items-baseline">
 				<h1 className="text-bold text-3xl my-4">
 					{filter.length > 0 ? "Filtering Results" : containerTitle}
 				</h1>
-				<div className="flex flex-row items-center space-x-2">
+				<div className="flex flex-row items-baseline space-x-2">
 					<FilterSelect />
 					<MenuDropdown
 						menuTitle="Sort"
@@ -177,7 +177,7 @@ export default function CardContainer(props: Props) {
 				</div>
 			</div>
 			<span>{sortMeta && getSortLabel(cards)}</span>
-			<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch-stretch items-stretch sm:container mx-auto ">
+			<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto ">
 				{CardSelector(dataKind, cards)}
 			</div>
 		</div>

@@ -28,11 +28,11 @@ export default function ProjectTaskPage() {
 	}, [projectId]);
 
 	return (
-		<>
+		<div className="flex flex-col justify-center items-stretch">
 			<Nav />
-			<div className="flex flex-col space-y-4 pt-16">
-				<div className="sm:container sm:mx-auto flex flex-col space-y-6">
-					<h1 className="text-bold text-4xl">
+			<div className="flex flex-col space-y-4 pt-20 items-center">
+				<div className="container flex flex-col space-y-6">
+					<h1 className="font-bold text-4xl mx-2">
 						{project?.title || "Project"}
 					</h1>
 					<TicketEditor setCards={setCards} projectId={projectId} />
@@ -45,6 +45,6 @@ export default function ProjectTaskPage() {
 					/>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 }

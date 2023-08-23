@@ -40,35 +40,29 @@ export default function SubtaskEditor(props: Props) {
 	}
 
 	function deleteSubtask(id: string) {
-		const deleteTargetId = subtasks.find(
-			(item) => item.subtaskId === id
-		)?.subtaskId;
+		const updatedSubtasks = subtasks.filter(
+			(item) => item.subtaskId !== id
+		);
 		setEditor({
 			...editor,
-			subtasks: subtasks.filter(() => deleteTargetId !== id),
+			subtasks: updatedSubtasks,
 		});
 	}
 
 	return (
-		<div className="flex flex-col rounded-lg border pt-2">
-			<div className="flex flex-row space-x-2 items-center">
-				<input
-					className="text-lg bg-slate-100 p-1 flex-grow mx-1 rounded-md"
-					name="subtasks"
-					value={text}
-					onChange={handleChange}
-					onKeyDown={handleKeyDown}
-					placeholder="Enter New Subtask"
-				/>
-				{/* <button
-					className="bg-slate-500 hover:bg-blue-400 rounded-lg px-3 py-2 text-bold text-white"
-					type="button"
-					onClick={() => addSubtask(text)}
-				>
-					Add Subtask
-				</button> */}
-				{/* <i className="text-sm">Enter</i> */}
-			</div>
+		<div className="flex flex-col rounded-lg shadow-sm border">
+			<input
+				className={
+					"duration-500 sm:text-base text-sm px-2 py-1 flex-grow rounded-lg " +
+					(subtasks.length > 0 && "shadow-md")
+				}
+				name="subtasks"
+				value={text}
+				onChange={handleChange}
+				onKeyDown={handleKeyDown}
+				placeholder="Enter New Subtask"
+			/>
+
 			{subtasks.length > 0 && (
 				<SubtaskDisplay
 					subtasks={subtasks}

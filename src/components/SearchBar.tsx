@@ -17,16 +17,18 @@ export default function SearchBar(props: Props) {
 
 	function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
 		if (setFilter && e.code === "Enter" && e.shiftKey === false) {
+			e.preventDefault;
 			setFilter((prev) => [...prev, search]);
 			setSearch("");
 		}
 	}
 
 	return (
-		<div
+		<form
+			onSubmit={(e) => e.preventDefault()}
 			className={
 				setFilter
-					? "bg-slate-100 rounded-md my-2"
+					? "bg-white rounded-md my-2"
 					: "flex flex-row flex-grow rounded-md bg-slate-200 items-center w-full"
 			}
 		>
@@ -55,6 +57,6 @@ export default function SearchBar(props: Props) {
 					</svg>
 				</button>
 			)}
-		</div>
+		</form>
 	);
 }
