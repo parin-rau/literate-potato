@@ -1,6 +1,7 @@
 import { useState } from "react";
 import TagsDisplay from "./TagsDisplay";
 import { EditorData } from "../types";
+import { firstLetterCap } from "../utility/charCaseFunctions";
 
 type Props = {
 	editor: EditorData;
@@ -23,7 +24,8 @@ export default function TagsEditor(props: Props) {
 
 	function addTag(tag: string) {
 		if (tag) {
-			setEditor({ ...editor, tags: [...tags, tag] });
+			const firstUpperTag = firstLetterCap(tag);
+			setEditor({ ...editor, tags: [...tags, firstUpperTag] });
 			setText("");
 		}
 	}

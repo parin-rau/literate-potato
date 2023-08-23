@@ -10,6 +10,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import SubtaskEditor from "./SubtaskEditor";
 import { optionLookup } from "../utility/optionLookup";
+import timestampDisplay from "../utility/timestampDisplay";
 
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
@@ -100,7 +101,11 @@ export default function TicketEditor(props: Props) {
 					}
 				);
 				if (res.ok) {
-					const updatedTicket = { ...patchData, _id: init._id };
+					const updatedTicket = {
+						...patchData,
+						_id: init._id,
+						lastModified: Date.now(),
+					};
 					setCards((prevCards) =>
 						prevCards.map((card) =>
 							card._id === updatedTicket._id

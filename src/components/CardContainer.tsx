@@ -4,6 +4,8 @@ import { sortData } from "../utility/optionLookup";
 import { FetchedTicketData, Project } from "../types";
 import MenuDropdown from "./MenuDropdown";
 import ProjectCard from "./ProjectCard";
+import TagsDisplay from "./TagsDisplay";
+import SearchBar from "./SearchBar";
 
 type Props =
 	| {
@@ -31,6 +33,7 @@ export default function CardContainer(props: Props) {
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
+	const [filter, setFilter] = useState<string[]>([]);
 	const { cards, setCards, containerTitle, dataKind, projectId } = props;
 	const sortMenu: SortMenu = [
 		{
@@ -131,6 +134,8 @@ export default function CardContainer(props: Props) {
 							React.SetStateAction<FetchedTicketData[]>
 						>
 					}
+					filter={filter}
+					setFilter={setFilter}
 				/>
 			));
 		}
@@ -141,15 +146,35 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
+	function deleteTag(id: number) {
+		setFilter((prev) => prev.filter((_tag, index) => index !== id));
+	}
+
+	function FilterSelect() {
+		return (
+			<div className="flex rounded-md bg-slate-200 items-center px-2 space-x-2">
+				<SearchBar setFilter={setFilter} placeholder="Filter by Tags" />
+				{filter.length > 0 && (
+					<TagsDisplay tags={filter} deleteTag={deleteTag} />
+				)}
+			</div>
+		);
+	}
+
 	return (
 		<div className="@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg">
 			<div className="flex flex-row justify-between items-center">
-				<h1 className="text-bold text-3xl my-4">{containerTitle}</h1>
-				<MenuDropdown
-					menuTitle="Sort"
-					menuTitleFont="text-xl"
-					options={sortMenu}
-				/>
+				<h1 className="text-bold text-3xl my-4">
+					{filter.length > 0 ? "Filtering Results" : containerTitle}
+				</h1>
+				<div className="flex flex-row items-center space-x-2">
+					<FilterSelect />
+					<MenuDropdown
+						menuTitle="Sort"
+						menuTitleFont="text-xl"
+						options={sortMenu}
+					/>
+				</div>
 			</div>
 			<span>{sortMeta && getSortLabel(cards)}</span>
 			<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch-stretch items-stretch sm:container mx-auto ">

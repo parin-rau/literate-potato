@@ -1,22 +1,31 @@
 type Props = {
 	tags: string[];
 	deleteTag?: (_id: number) => void;
+	filter?: string[];
+	setFilter?: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 export default function TagsDisplay(props: Props) {
-	const { tags, deleteTag } = props;
+	const { tags, deleteTag, filter, setFilter } = props;
+
+	function handleClick(id: number, tag?: string) {
+		if (setFilter && tag && !filter!.includes(tag)) {
+			setFilter((prev) => [...prev, tag]);
+		} else if (deleteTag) {
+			deleteTag(id);
+		}
+	}
 
 	return (
-		<div className="flex flex-row flex-wrap py-2 space-x-1">
+		<div className="flex flex-row flex-wrap py-2">
 			{tags.map((tag, index) => (
 				<div
 					className={
 						"text-sm bg-blue-300 rounded-full px-3 py-1 m-1 flex flex-row" +
-						(deleteTag &&
-							" hover:cursor-pointer hover:bg-blue-500 hover:text-white")
+						" hover:cursor-pointer hover:bg-blue-500 hover:text-white"
 					}
 					key={index}
-					onClick={deleteTag && (() => deleteTag(index))}
+					onClick={() => handleClick(index, tag)}
 				>
 					{tag}
 					{deleteTag && (

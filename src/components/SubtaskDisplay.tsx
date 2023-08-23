@@ -10,14 +10,14 @@ export default function SubtaskDisplay(props: Props) {
 	return (
 		<div
 			className={
-				"flex py-2 justify-start max-w-min" +
-				(completeSubtask ? "flex-col" : "flex-row flex-wrap")
+				"flex py-2 flex-col flex-wrap"
+				//(completeSubtask ? "flex-col" : "flex-row flex-wrap")
 			}
 		>
 			{subtasks.map((subtask) => (
 				<div
 					className={
-						"text-sm bg-slate-300 rounded-md px-1 py-1 flex flex-row space-x-4 mx-1 justify-between items-center " +
+						"text-sm bg-slate-300 rounded-md px-1 py-1 max-w-fit flex flex-row space-x-4 m-1 justify-between items-center " +
 						(completeSubtask &&
 							" hover:cursor-pointer hover:bg-slate-400 hover:text-white")
 					}

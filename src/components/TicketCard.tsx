@@ -12,6 +12,8 @@ import TicketEditor from "./TicketEditor";
 type Props = {
 	cardData: FetchedTicketData;
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	filter: string[];
+	setFilter: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 export default function TicketCard(props: Props) {
@@ -29,7 +31,7 @@ export default function TicketCard(props: Props) {
 		//projectId,
 		ticketNumber,
 	} = props.cardData;
-	const { setCards } = props;
+	const { setCards, filter, setFilter } = props;
 	const moreOptions = [
 		{ name: "Delete", fn: deleteCard, ticketId: ticketId },
 		{ name: "Edit", fn: editCard, ticketId: ticketId },
@@ -184,7 +186,13 @@ export default function TicketCard(props: Props) {
 						completeSubtask={completeSubtask}
 					/>
 				)}
-				{tags.length > 0 && <TagsDisplay tags={tags} />}
+				{tags.length > 0 && (
+					<TagsDisplay
+						tags={tags}
+						filter={filter}
+						setFilter={setFilter}
+					/>
+				)}
 				<div className="flex flex-col">
 					<span>Created: {timestampDisplay(timestamp)}</span>
 					{lastModified && (
