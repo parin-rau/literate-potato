@@ -150,6 +150,28 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
+	function filterCards() {
+		if (filter.length > 0) {
+			const filteredCards = (cards as FetchedTicketData[]).filter(
+				(card) => card.tags.includes(filter[0])
+			);
+			setCards(filteredCards);
+		}
+	}
+
+	// useEffect(() => {
+	// 	function handleFilter(cardsArr: FetchedTicketData[]) {
+	// 		if (filter.length > 0) {
+	// 			const filteredCards = cardsArr.filter((card) =>
+	// 				card.tags.includes(filter[0])
+	// 			);
+	// 			return filteredCards;
+	// 		}
+	// 	}
+	// 	const filteredCards = handleFilter(cards as FetchedTicketData[]);
+	// 	setCards(filteredCards);
+	// }, []);
+
 	function FilterSelect() {
 		return (
 			<div className="flex flex-col sm:flex-row flex-wrap rounded-md border shadow-md items-center px-2 space-x-2">

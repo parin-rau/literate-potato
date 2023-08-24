@@ -38,10 +38,10 @@ export default function TagsEditor(props: Props) {
 	}
 
 	return (
-		<div className="flex flex-col rounded-lg shadow-sm border">
+		<div className="flex flex-col rounded-md shadow-sm border">
 			<input
 				className={
-					"duration-500 sm:text-base text-sm px-2 py-1 flex-grow rounded-lg " +
+					"duration-500 sm:text-base text-sm px-2 py-1 flex-grow rounded-md " +
 					(tags.length > 0 && "shadow-lg")
 				}
 				name="tags"

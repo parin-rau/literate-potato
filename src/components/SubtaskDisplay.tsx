@@ -17,11 +17,10 @@ export default function SubtaskDisplay(props: Props) {
 			{subtasks.map((subtask) => (
 				<div
 					className={
-						"transition duration-100 text-sm rounded px-1 py-1 max-w-fit flex flex-row space-x-4 m-1 justify-between items-center " +
-						(completeSubtask &&
-							" hover:cursor-pointer hover:bg-slate-400 hover:text-white") +
+						"transition duration-100 hover:bg-slate-400 hover:text-white text-sm rounded px-1 py-1 max-w-fit flex flex-row space-x-4 m-1 justify-between items-center " +
+						(completeSubtask && " hover:cursor-pointer ") +
 						(subtask.completed
-							? " bg-transparent outline outline-1 outline-neutral-200 hover:outline-none"
+							? " bg-transparent outline outline-1 text-slate-400 outline-neutral-200 hover:outline-none"
 							: " bg-slate-300")
 					}
 					onClick={() =>
@@ -31,7 +30,7 @@ export default function SubtaskDisplay(props: Props) {
 				>
 					<div className="px-2 py-1">
 						{subtask.completed ? (
-							<u className="text-base">{subtask.description}</u>
+							<i className="text-base ">{subtask.description}</i>
 						) : (
 							<span className="text-base">
 								{subtask.description}

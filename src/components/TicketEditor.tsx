@@ -160,7 +160,7 @@ export default function TicketEditor(props: Props) {
 		<div
 			className={
 				"mx-2 sm:mx-0 " +
-				(!previousData && "border-black border-2 rounded-lg")
+				(!previousData && "border-black border-2 rounded-md")
 			}
 		>
 			<form
@@ -205,7 +205,7 @@ export default function TicketEditor(props: Props) {
 				{expand && (
 					<>
 						<input
-							className="text-lg sm:text-xl border rounded-lg px-2 shadow-sm"
+							className="text-lg sm:text-xl border rounded-md px-2 shadow-sm"
 							name="title"
 							value={editor.title}
 							onChange={handleChange}
@@ -214,7 +214,7 @@ export default function TicketEditor(props: Props) {
 							required
 						/>
 						<textarea
-							className="text-sm sm:text-base rounded-lg border px-2 shadow-sm"
+							className="text-sm sm:text-base rounded-md border px-2 shadow-sm"
 							name="description"
 							rows={2}
 							value={editor.description}
@@ -237,18 +237,18 @@ export default function TicketEditor(props: Props) {
 								>
 							}
 						/>
-						<div className="grid grid-cols-2 place-items-stretch gap-2 rounded-lg shadow-none">
-							<div className="flex flex-col sm:border sm:rounded-lg shadow-none sm:shadow-sm p-2 space-y-2">
+						<div className="grid grid-cols-2 place-items-stretch gap-2 rounded-md shadow-none">
+							<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2">
 								<h4 className="px-1">Due Date</h4>
 								<input
-									className="text-base px-1 rounded-lg bg-slate-100"
+									className="text-base px-1 rounded-md bg-slate-100"
 									name="due"
 									type="date"
 									value={editor.due}
 									onChange={handleChange}
 								/>
 							</div>
-							<div className="flex flex-col sm:border sm:rounded-lg shadow-none sm:shadow-sm p-2 space-y-2">
+							<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2">
 								<h4 className="px-1">Priority</h4>
 								<SelectDropdown
 									name="priority"
@@ -261,7 +261,7 @@ export default function TicketEditor(props: Props) {
 						</div>
 						<div className="space-x-2">
 							<button
-								className="transition duration-200 mt-2 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg max-w-min"
+								className="transition duration-200 mt-2 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-md max-w-min"
 								type="submit"
 							>
 								Submit
