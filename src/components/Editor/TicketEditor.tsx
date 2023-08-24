@@ -1,15 +1,15 @@
 import { useState } from "react";
-import SelectDropdown from "./SelectDropdown";
+import SelectDropdown from "../Nav/SelectDropdown";
 import TagsEditor from "./TagsEditor";
 import {
 	initEditor,
 	FetchedTicketData,
 	TicketData,
 	EditorData,
-} from "../types";
+} from "../../types";
 import { v4 as uuidv4 } from "uuid";
 import SubtaskEditor from "./SubtaskEditor";
-import { optionLookup } from "../utility/optionLookup";
+import { optionLookup } from "../../utility/optionLookup";
 
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;

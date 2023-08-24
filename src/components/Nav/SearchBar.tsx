@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { firstLetterCap } from "../utility/charCaseFunctions";
+import { firstLetterCap } from "../../utility/charCaseFunctions";
 
 type Props = {
 	setFilter?: React.Dispatch<React.SetStateAction<string[]>>;

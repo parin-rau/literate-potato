@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import DirectionalArrow from "./DirectionalArrow";
+import DirectionalArrow from "../Display/DirectionalArrow";
 
 type Props =
 	| {

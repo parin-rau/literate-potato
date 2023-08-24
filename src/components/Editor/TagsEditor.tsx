@@ -1,7 +1,7 @@
 import { useState } from "react";
-import TagsDisplay from "./TagsDisplay";
-import { EditorData } from "../types";
-import { firstLetterCap } from "../utility/charCaseFunctions";
+import TagsDisplay from "../Display/TagsDisplay";
+import { EditorData } from "../../types";
+import { firstLetterCap } from "../../utility/charCaseFunctions";
 
 type Props = {
 	editor: EditorData;

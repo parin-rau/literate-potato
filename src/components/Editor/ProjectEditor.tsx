@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Project } from "../types";
+import { Project } from "../../types";
 
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<Project[]>>;

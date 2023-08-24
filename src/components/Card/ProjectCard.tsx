@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { Project } from "../types";
-import timestampDisplay from "../utility/timestampDisplay";
+import { Project } from "../../types";
+import timestampDisplay from "../../utility/timestampDisplay";
 
 type Props = {
 	cardData: Project;

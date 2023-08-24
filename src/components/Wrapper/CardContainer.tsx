@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import TicketCard from "./TicketCard";
-import { sortData } from "../utility/optionLookup";
-import { FetchedTicketData, Project } from "../types";
-import MenuDropdown from "./MenuDropdown";
-import ProjectCard from "./ProjectCard";
-import TagsDisplay from "./TagsDisplay";
-import SearchBar from "./SearchBar";
+import TicketCard from "../Card/TicketCard";
+import { sortData } from "../../utility/optionLookup";
+import { FetchedTicketData, Project } from "../../types";
+import MenuDropdown from "../Nav/MenuDropdown";
+import ProjectCard from "../Card/ProjectCard";
+import TagsDisplay from "../Display/TagsDisplay";
+import SearchBar from "../Nav/SearchBar";
 
 type Props =
 	| {

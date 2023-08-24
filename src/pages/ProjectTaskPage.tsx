@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import CardContainer from "../components/CardContainer";
-import TicketEditor from "../components/TicketEditor";
-import Nav from "../components/Nav";
+import CardContainer from "../components/Wrapper/CardContainer";
+import TicketEditor from "../components/Editor/TicketEditor";
+import Nav from "../components/Nav/NavBar";
 import { FetchedTicketData, Project } from "../types";
 import { useParams } from "react-router-dom";
 

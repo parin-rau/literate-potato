@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
 
-export default function Nav() {
+export default function NavBar() {
 	const [darkMode, setDarkMode] = useState(true);
 
 	function handleToggle() {

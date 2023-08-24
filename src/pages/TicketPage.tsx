@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FetchedTicketData } from "../types";
-import Nav from "../components/Nav";
+import Nav from "../components/Nav/NavBar";
 
 export default function TicketPage() {
 	const ticketId = useParams().id || "";

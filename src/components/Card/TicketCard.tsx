@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { FetchedTicketData, TicketData } from "../types";
-import MenuDropdown from "./MenuDropdown";
-import timestampDisplay from "../utility/timestampDisplay";
-import TagsDisplay from "./TagsDisplay";
-import SelectDropdown from "./SelectDropdown";
-import SubtaskDisplay from "./SubtaskDisplay";
-import { optionLookup } from "../utility/optionLookup";
+import { FetchedTicketData, TicketData } from "../../types";
+import MenuDropdown from "../Nav/MenuDropdown";
+import timestampDisplay from "../../utility/timestampDisplay";
+import TagsDisplay from "../Display/TagsDisplay";
+import SelectDropdown from "../Nav/SelectDropdown";
+import SubtaskDisplay from "../Display/SubtaskDisplay";
+import { optionLookup } from "../../utility/optionLookup";
 import { Link } from "react-router-dom";
-import TicketEditor from "./TicketEditor";
+import TicketEditor from "../Editor/TicketEditor";
 
 type Props = {
 	cardData: FetchedTicketData;

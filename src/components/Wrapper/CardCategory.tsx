@@ -1,5 +1,5 @@
-import { FetchedTicketData, Project } from "../types";
-import TicketCard from "./TicketCard";
+import { FetchedTicketData, Project } from "../../types";
+import TicketCard from "../Card/TicketCard";
 
 type Props =
 	| {

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import ProjectEditor from "../components/ProjectEditor";
+import ProjectEditor from "../components/Editor/ProjectEditor";
 import { FetchedTicketData, Project } from "../types";
-import CardContainer from "../components/CardContainer";
-import Nav from "../components/Nav";
+import CardContainer from "../components/Wrapper/CardContainer";
+import Nav from "../components/Nav/NavBar";
 
 export default function HomePage() {
 	const [projects, setProjects] = useState<Project[]>([]);
