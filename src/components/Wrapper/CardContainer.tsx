@@ -34,6 +34,9 @@ export default function CardContainer(props: Props) {
 		{ property: string; categories: string[] } | undefined
 	>();
 	const [filter, setFilter] = useState<string[]>([]);
+	const [cardCache, setCardCache] = useState<FetchedTicketData[] | Project[]>(
+		[]
+	);
 	const { cards, setCards, containerTitle, dataKind, projectId } = props;
 	const sortMenu: SortMenu = [
 		{
@@ -150,15 +153,32 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
-	function filterCards() {
-		if (filter.length > 0) {
-			const filteredCards = (cards as FetchedTicketData[]).filter(
-				(card) => card.tags.includes(filter[0])
-			);
-			setCards(filteredCards);
-		}
-	}
+	useEffect(() => {
+		function filterCards() {
+			if (filter.length > 0) {
+				const filteredCards: FetchedTicketData[] = [];
+				filter.forEach((tag) => {
+					const matches = (cards as FetchedTicketData[]).filter(
+						(card) =>
+							card.tags.includes(tag) &&
+							!filteredCards.includes(card)
+					);
+					filteredCards.push(...matches);
+				});
 
+				// const filteredCards = (cards as FetchedTicketData[]).filter(
+				// 	(card: FetchedTicketData) => card.tags.includes(filter)
+				// );
+				setCardCache(cards);
+				setCards(filteredCards);
+			}
+			if (filter.length === 0) {
+				setCards(cardCache);
+				setCardCache([]);
+			}
+		}
+		filterCards();
+	}, [filter]);
 	// useEffect(() => {
 	// 	function handleFilter(cardsArr: FetchedTicketData[]) {
 	// 		if (filter.length > 0) {
