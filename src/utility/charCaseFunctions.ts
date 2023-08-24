@@ -1,8 +1,10 @@
 export function firstLetterCap(string: string): string {
 	const lowercaseArr = string.toLocaleLowerCase().split(/[- ]/);
-	const firstUpperArr = lowercaseArr.map((word) => {
+	const firstUpperArr = lowercaseArr.map((word, index) => {
 		const firstLetter = noCap.includes(word)
-			? word.charAt(0)
+			? index === 0
+				? word.charAt(0).toLocaleUpperCase()
+				: word.charAt(0)
 			: word.charAt(0).toLocaleUpperCase();
 		const remainderLetters = word.slice(1);
 		const wordFirstUpper = firstLetter + remainderLetters;
@@ -40,6 +42,7 @@ const noCap = [
 	"so",
 	"than",
 	"that",
+	"the",
 	"to",
 	"upon",
 	"when",

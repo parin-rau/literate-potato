@@ -1,16 +1,16 @@
 type Props = {
 	tags: string[];
 	deleteTag?: (_id: number) => void;
-	filter?: string[];
-	setFilter?: React.Dispatch<React.SetStateAction<string[]>>;
+	filters?: string[];
+	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 export default function TagsDisplay(props: Props) {
-	const { tags, deleteTag, filter, setFilter } = props;
+	const { tags, deleteTag, filters, setFilters } = props;
 
 	function handleClick(id: number, tag?: string) {
-		if (setFilter && tag && !filter!.includes(tag)) {
-			setFilter((prev) => [...prev, tag]);
+		if (setFilters && tag && !filters!.includes(tag)) {
+			setFilters((prev) => [...prev, tag]);
 		} else if (deleteTag) {
 			deleteTag(id);
 		}

@@ -12,8 +12,8 @@ import TicketEditor from "../Editor/TicketEditor";
 type Props = {
 	cardData: FetchedTicketData;
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	filter: string[];
-	setFilter: React.Dispatch<React.SetStateAction<string[]>>;
+	filters: string[];
+	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 export default function TicketCard(props: Props) {
@@ -30,8 +30,9 @@ export default function TicketCard(props: Props) {
 		subtasks,
 		//projectId,
 		ticketNumber,
+		comments,
 	} = props.cardData;
-	const { setCards, filter, setFilter } = props;
+	const { setCards, filters, setFilters } = props;
 	const moreOptions = [
 		{ name: "Delete", fn: deleteCard, ticketId: ticketId },
 		{ name: "Edit", fn: editCard, ticketId: ticketId },
@@ -217,11 +218,22 @@ export default function TicketCard(props: Props) {
 								<h4 className="font-semibold">Tags</h4>
 								<TagsDisplay
 									tags={tags}
-									filter={filter}
-									setFilter={setFilter}
+									filters={filters}
+									setFilters={setFilters}
 								/>
 							</div>
 						)}
+					</div>
+				)}
+				{comments && (
+					<div className="flex flex-col shadow-sm border border-1 p-2 rounded-lg">
+						<span>
+							<Link to={`/ticket/${ticketId}`}>
+								{`${comments.length} Comment${
+									comments.length !== 1 && "s"
+								}`}
+							</Link>
+						</span>
 					</div>
 				)}
 				<div className="flex flex-col shadow-sm border border-1 p-2 rounded-lg">

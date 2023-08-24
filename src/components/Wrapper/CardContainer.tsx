@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import TicketCard from "../Card/TicketCard";
-import { sortData } from "../../utility/optionLookup";
-import { FetchedTicketData, Project } from "../../types";
+import { menuLookup, sortData } from "../../utility/optionLookup";
+import { FetchedTicketData, Project, SortMenu } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import ProjectCard from "../Card/ProjectCard";
 import TagsDisplay from "../Display/TagsDisplay";
@@ -23,53 +23,18 @@ type Props =
 			projectId?: string;
 	  };
 
-type SortMenu = {
-	name: string;
-	arrowDirection: "up" | "down";
-	fn: () => void;
-}[];
-
 export default function CardContainer(props: Props) {
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
-	const [filter, setFilter] = useState<string[]>([]);
+	const [filters, setFilters] = useState<string[]>([]);
 	const [cardCache, setCardCache] = useState<FetchedTicketData[] | Project[]>(
 		[]
 	);
+	const [isFirstFilter, setFirstFilter] = useState(true);
 	const { cards, setCards, containerTitle, dataKind, projectId } = props;
-	const sortMenu: SortMenu = [
-		{
-			name: "Priority",
-			arrowDirection: "up",
-			fn: () => handleSort("priority", "asc"),
-		},
-		{
-			name: "Priority",
-			arrowDirection: "down",
-			fn: () => handleSort("priority", "desc"),
-		},
-		{
-			name: "Progress",
-			arrowDirection: "up",
-			fn: () => handleSort("taskStatus", "asc"),
-		},
-		{
-			name: "Progress",
-			arrowDirection: "down",
-			fn: () => handleSort("taskStatus", "desc"),
-		},
-		{
-			name: "Recent",
-			arrowDirection: "up",
-			fn: () => handleSort("timestamp", "asc"),
-		},
-		{
-			name: "Recent",
-			arrowDirection: "down",
-			fn: () => handleSort("timestamp", "desc"),
-		},
-	];
+
+	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
 
 	useEffect(() => {
 		async function getPosts() {
@@ -123,8 +88,8 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
-	function deleteTag(id: number) {
-		setFilter((prev) => prev.filter((_tag, index) => index !== id));
+	function deleteFilterTag(id: number) {
+		setFilters((prev) => prev.filter((_tag, index) => index !== id));
 	}
 
 	function CardSelector(
@@ -141,8 +106,8 @@ export default function CardContainer(props: Props) {
 							React.SetStateAction<FetchedTicketData[]>
 						>
 					}
-					filter={filter}
-					setFilter={setFilter}
+					filters={filters}
+					setFilters={setFilters}
 				/>
 			));
 		}
@@ -155,49 +120,51 @@ export default function CardContainer(props: Props) {
 
 	useEffect(() => {
 		function filterCards() {
-			if (filter.length > 0) {
+			function getFilterMatches(cardArr: FetchedTicketData[]) {
 				const filteredCards: FetchedTicketData[] = [];
-				filter.forEach((tag) => {
-					const matches = (cards as FetchedTicketData[]).filter(
+				filters.forEach((tag) => {
+					const matches = cardArr.filter(
 						(card) =>
 							card.tags.includes(tag) &&
 							!filteredCards.includes(card)
 					);
 					filteredCards.push(...matches);
 				});
+				// if all active filter tags are not included on card, remove card
 
-				// const filteredCards = (cards as FetchedTicketData[]).filter(
-				// 	(card: FetchedTicketData) => card.tags.includes(filter)
-				// );
-				setCardCache(cards);
-				setCards(filteredCards);
+				// if (filteredCards.includes()) {
+
+				// }
+				return filteredCards;
 			}
-			if (filter.length === 0) {
+
+			if (filters.length === 1 && isFirstFilter) {
+				const filtered: FetchedTicketData[] = getFilterMatches(cards);
+				setCardCache(cards);
+				setFirstFilter(false);
+				setCards(filtered);
+			} else if (filters.length === 0 && !isFirstFilter) {
 				setCards(cardCache);
+				setFirstFilter(true);
 				setCardCache([]);
+			} else {
+				const filtered: FetchedTicketData[] =
+					getFilterMatches(cardCache);
+				setCards(filtered);
 			}
 		}
 		filterCards();
-	}, [filter]);
-	// useEffect(() => {
-	// 	function handleFilter(cardsArr: FetchedTicketData[]) {
-	// 		if (filter.length > 0) {
-	// 			const filteredCards = cardsArr.filter((card) =>
-	// 				card.tags.includes(filter[0])
-	// 			);
-	// 			return filteredCards;
-	// 		}
-	// 	}
-	// 	const filteredCards = handleFilter(cards as FetchedTicketData[]);
-	// 	setCards(filteredCards);
-	// }, []);
+	}, [filters]);
 
 	function FilterSelect() {
 		return (
 			<div className="flex flex-col sm:flex-row flex-wrap rounded-md border shadow-md items-center px-2 space-x-2">
-				<SearchBar setFilter={setFilter} placeholder="Filter by Tags" />
-				{filter.length > 0 && (
-					<TagsDisplay tags={filter} deleteTag={deleteTag} />
+				<SearchBar
+					setFilters={setFilters}
+					placeholder="Filter by Tags"
+				/>
+				{filters.length > 0 && (
+					<TagsDisplay tags={filters} deleteTag={deleteFilterTag} />
 				)}
 			</div>
 		);
@@ -207,7 +174,7 @@ export default function CardContainer(props: Props) {
 		<div className="@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg">
 			<div className="flex flex-row justify-between items-baseline">
 				<h1 className="text-bold text-3xl my-4">
-					{filter.length > 0 ? "Filtering Results" : containerTitle}
+					{filters.length > 0 ? "Filtering Results" : containerTitle}
 				</h1>
 				<div className="flex flex-row items-baseline space-x-2">
 					<FilterSelect />

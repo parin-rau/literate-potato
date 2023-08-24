@@ -122,6 +122,7 @@ export default function TicketEditor(props: Props) {
 					timestamp: Date.now(),
 					ticketId: uuidv4(),
 					taskStatus: "Not Started",
+					comments: [],
 				};
 				const res = await fetch("/api/ticket", {
 					method: "POST",

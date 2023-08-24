@@ -34,7 +34,7 @@ export interface TicketData {
 		completed: boolean;
 	}[];
 	comments?: {
-		_id: string;
+		commentId: string;
 		timestamp: number;
 		content: string;
 	}[];
@@ -80,3 +80,9 @@ export const initEditor: EditorData = {
 	tags: [],
 	subtasks: [],
 };
+
+export type SortMenu = {
+	name: string;
+	arrowDirection: "up" | "down";
+	fn: () => void;
+}[];

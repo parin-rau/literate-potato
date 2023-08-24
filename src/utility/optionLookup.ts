@@ -1,4 +1,4 @@
-import { FetchedTicketData } from "../types";
+import { FetchedTicketData, SortMenu } from "../types";
 
 //type SortArr = FetchedTicketData[];
 type OptionsTable = { value: string; sortValue: number }[];
@@ -138,4 +138,46 @@ export const optionLookup = {
 			textColor: "text-white",
 		},
 	],
+};
+
+export const menuLookup = {
+	sortMenu: function menuLookup(
+		handleSort: (
+			_sortKind: "priority" | "taskStatus" | "timestamp",
+			_direction: "asc" | "desc"
+		) => void
+	) {
+		return <SortMenu>[
+			{
+				name: "Priority",
+				arrowDirection: "up",
+				fn: () => handleSort("priority", "asc"),
+			},
+			{
+				name: "Priority",
+				arrowDirection: "down",
+				fn: () => handleSort("priority", "desc"),
+			},
+			{
+				name: "Progress",
+				arrowDirection: "up",
+				fn: () => handleSort("taskStatus", "asc"),
+			},
+			{
+				name: "Progress",
+				arrowDirection: "down",
+				fn: () => handleSort("taskStatus", "desc"),
+			},
+			{
+				name: "Recent",
+				arrowDirection: "up",
+				fn: () => handleSort("timestamp", "asc"),
+			},
+			{
+				name: "Recent",
+				arrowDirection: "down",
+				fn: () => handleSort("timestamp", "desc"),
+			},
+		];
+	},
 };

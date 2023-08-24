@@ -2,12 +2,12 @@ import { useState } from "react";
 import { firstLetterCap } from "../../utility/charCaseFunctions";
 
 type Props = {
-	setFilter?: React.Dispatch<React.SetStateAction<string[]>>;
+	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
 	placeholder?: string;
 };
 
 export default function SearchBar(props: Props) {
-	const { setFilter, placeholder } = props;
+	const { setFilters, placeholder } = props;
 	const [search, setSearch] = useState("");
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -16,9 +16,9 @@ export default function SearchBar(props: Props) {
 	}
 
 	function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-		if (setFilter && e.code === "Enter" && e.shiftKey === false) {
+		if (setFilters && e.code === "Enter" && e.shiftKey === false) {
 			e.preventDefault;
-			setFilter((prev) => [...prev, search]);
+			setFilters((prev) => [...prev, search]);
 			setSearch("");
 		}
 	}
@@ -27,7 +27,7 @@ export default function SearchBar(props: Props) {
 		<form
 			onSubmit={(e) => e.preventDefault()}
 			className={
-				setFilter
+				setFilters
 					? "bg-white rounded-md my-2"
 					: "flex flex-row flex-grow rounded-md bg-slate-200 items-center w-full"
 			}
@@ -39,7 +39,7 @@ export default function SearchBar(props: Props) {
 				onKeyDown={handleKeyDown}
 				placeholder={placeholder || "Search..."}
 			/>
-			{!setFilter && (
+			{!setFilters && (
 				<button className="px-4">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
