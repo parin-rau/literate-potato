@@ -14,6 +14,7 @@ type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
+	setCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 };
 
 export default function TicketCard(props: Props) {
@@ -32,7 +33,7 @@ export default function TicketCard(props: Props) {
 		ticketNumber,
 		comments,
 	} = props.cardData;
-	const { setCards, filters, setFilters } = props;
+	const { setCards, filters, setFilters, setCache } = props;
 	const moreOptions = [
 		{ name: "Delete", fn: deleteCard, ticketId: ticketId },
 		{ name: "Edit", fn: editCard, ticketId: ticketId },
@@ -63,6 +64,10 @@ export default function TicketCard(props: Props) {
 				setCards((prevCards) =>
 					prevCards.filter((card) => card.ticketId !== id)
 				);
+				setCache &&
+					setCache((prev) =>
+						prev.filter((Card) => Card.ticketId !== id)
+					);
 			}
 		} catch (err) {
 			console.error(err);
@@ -270,6 +275,7 @@ export default function TicketCard(props: Props) {
 				<TicketEditor
 					setCards={setCards}
 					setEditing={setEditing}
+					setCache={setCache}
 					previousData={{ ...props.cardData }}
 				/>
 			)}

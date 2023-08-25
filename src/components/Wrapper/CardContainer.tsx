@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
 import TicketCard from "../Card/TicketCard";
 import { menuLookup, sortData } from "../../utility/optionLookup";
-import {
-	FetchedTicketData,
-	Project,
-	SortMenu,
-	isFilterable,
-} from "../../types";
+import { FetchedTicketData, Project, SortMenu } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import ProjectCard from "../Card/ProjectCard";
 import TagsDisplay from "../Display/TagsDisplay";
 import SearchBar from "../Nav/SearchBar";
+import TicketEditor from "../Editor/TicketEditor";
 
 type Props =
 	| {
@@ -37,7 +33,7 @@ export default function CardContainer(props: Props) {
 		[]
 	);
 	const [isFirstFilter, setFirstFilter] = useState(true);
-	const [filterMode, setFilterMode] = useState<"OR" | "AND">("OR");
+	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
 	const { cards, setCards, containerTitle, dataKind, projectId } = props;
 
 	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
@@ -66,24 +62,59 @@ export default function CardContainer(props: Props) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dataKind]);
 
-	// useEffect(() => {
-	// 	function updateCache() {
-	// 		if (isFirstFilter) {
-	// 			const filtered = getFilterMatches(cards)!;
-	// 			setCardCache(cards);
-	// 			setFirstFilter(false);
-	// 			setCards(filtered);
-	// 		} else if (filters.length === 0 && !isFirstFilter) {
-	// 			setCards(cardCache);
-	// 			setFirstFilter(true);
-	// 			setCardCache([]);
-	// 		} else {
-	// 			const filtered = getFilterMatches(cardCache);
-	// 			setCards(filtered);
-	// 		}
-	// 	}
-	// 	updateCache()
-	// }, [cards])
+	useEffect(() => {
+		function filterCards() {
+			function getFilterMatches(
+				cardArr: FetchedTicketData[] | Project[]
+			) {
+				if (filterMode === "OR") {
+					const filteredCards: FetchedTicketData[] = [];
+					filters.forEach((mask) => {
+						const matches = (cardArr as FetchedTicketData[]).filter(
+							(card) => {
+								if ("tags" in card) {
+									return (
+										card.tags.includes(mask) &&
+										!filteredCards.includes(card)
+									);
+								}
+							}
+						);
+						filteredCards.push(...matches);
+					});
+					console.log(filteredCards);
+
+					return filteredCards;
+				}
+				if (filterMode === "AND") {
+					const filteredCards: FetchedTicketData[] = (
+						cardArr as FetchedTicketData[]
+					).filter((card) =>
+						filters.every((mask) => card.tags.includes(mask))
+					);
+
+					console.log(filteredCards);
+
+					return filteredCards;
+				}
+			}
+
+			if (filters.length === 1 && isFirstFilter) {
+				const filtered = getFilterMatches(cards)!;
+				setCardCache(cards);
+				setFirstFilter(false);
+				setCards(filtered);
+			} else if (filters.length === 0 && !isFirstFilter) {
+				setCards(cardCache);
+				setFirstFilter(true);
+				setCardCache([]);
+			} else if (filters.length > 0 && !isFirstFilter) {
+				const filtered = getFilterMatches(cardCache);
+				setCards(filtered);
+			}
+		}
+		filterCards();
+	}, [filters, filterMode, setCardCache, setCards]);
 
 	function handleSort(
 		sortKind: "priority" | "taskStatus" | "timestamp",
@@ -135,6 +166,11 @@ export default function CardContainer(props: Props) {
 					}
 					filters={filters}
 					setFilters={setFilters}
+					setCache={
+						setCardCache as React.Dispatch<
+							React.SetStateAction<FetchedTicketData[]>
+						>
+					}
 				/>
 			));
 		}
@@ -145,66 +181,16 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
-	useEffect(() => {
-		function filterCards() {
-			function getFilterMatches(
-				cardArr: FetchedTicketData[] | Project[]
-			) {
-				if (filterMode === "OR") {
-					const filteredCards: FetchedTicketData[] = [];
-					filters.forEach((mask) => {
-						const matches = (cardArr as FetchedTicketData[]).filter(
-							(card) => {
-								if ("tags" in card) {
-									return (
-										card.tags.includes(mask) &&
-										!filteredCards.includes(card)
-									);
-								}
-							}
-						);
-						filteredCards.push(...matches);
-					});
-					console.log(filteredCards);
-
-					return filteredCards;
-				}
-				if (filterMode === "AND") {
-					const filteredCards: FetchedTicketData[] = (
-						cardArr as FetchedTicketData[]
-					).filter((card) =>
-						filters.every((mask) => card.tags.includes(mask))
-					);
-
-					console.log(filteredCards);
-
-					return filteredCards;
-				}
-			}
-
-			if (isFirstFilter) {
-				const filtered = getFilterMatches(cards)!;
-				setCardCache(cards);
-				setFirstFilter(false);
-				setCards(filtered);
-			} else if (filters.length === 0 && !isFirstFilter) {
-				setCards(cardCache);
-				setFirstFilter(true);
-				setCardCache([]);
-			} else {
-				const filtered = getFilterMatches(cardCache);
-				setCards(filtered);
-			}
-		}
-		filterCards();
-	}, [filters]);
-
-	function changeFilterMode() {
-		const nextMode = filterMode === "OR" ? "AND" : "OR";
-		setFilterMode(nextMode);
-	}
-
 	function FilterSelect() {
+		function changeFilterMode() {
+			const nextMode = filterMode === "OR" ? "AND" : "OR";
+			setFilterMode(nextMode);
+		}
+
+		function resetFilters() {
+			setFilters([]);
+		}
+
 		return (
 			<div className="flex flex-col sm:flex-row flex-wrap rounded-md border shadow-md items-center px-2 space-x-2">
 				<SearchBar
@@ -217,9 +203,22 @@ export default function CardContainer(props: Props) {
 							tags={filters}
 							deleteTag={deleteFilterTag}
 						/>
-						<button type="button" onClick={changeFilterMode}>
-							{filterMode}
-						</button>
+						<div className="grid grid-cols-2 justify-items-center divide-x">
+							<button
+								className="px-2 py-1 hover:bg-slate-300 hover:rounded-full"
+								type="button"
+								onClick={changeFilterMode}
+							>
+								{filterMode}
+							</button>
+							<button
+								className="px-2 py-1 hover:bg-slate-300 hover:rounded-full"
+								type="button"
+								onClick={resetFilters}
+							>
+								Reset
+							</button>
+						</div>
 					</>
 				)}
 			</div>
@@ -228,9 +227,12 @@ export default function CardContainer(props: Props) {
 
 	return (
 		<div className="@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg">
+			<TicketEditor />
 			<div className="flex flex-row justify-between items-baseline">
 				<h1 className="text-bold text-3xl my-4">
-					{filters.length > 0 ? "Filtering Results" : containerTitle}
+					{filters.length > 0
+						? `Filtering Results (${cards.length})`
+						: containerTitle}
 				</h1>
 				<div className="flex flex-row items-baseline space-x-2">
 					<FilterSelect />

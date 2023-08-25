@@ -13,6 +13,7 @@ import { optionLookup } from "../../utility/optionLookup";
 
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	setCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 } & (
 	| {
 			projectId: string;
@@ -27,7 +28,7 @@ type Props = {
 );
 
 export default function TicketEditor(props: Props) {
-	const { setCards, projectId, previousData, setEditing } = props;
+	const { setCards, projectId, previousData, setEditing, setCache } = props;
 	const init = handleInit();
 	const [editor, setEditor] = useState(init.initState);
 	const [expand, setExpand] = useState(init.defaultExpand);
@@ -112,6 +113,14 @@ export default function TicketEditor(props: Props) {
 								: card
 						)
 					);
+					setCache &&
+						setCache((prev) =>
+							prev.map((card) =>
+								card._id === updatedTicket._id
+									? updatedTicket
+									: card
+							)
+						);
 					setEditor(initEditor);
 					setEditing(false);
 				}
@@ -160,12 +169,12 @@ export default function TicketEditor(props: Props) {
 	return (
 		<div
 			className={
-				"mx-2 sm:mx-0 " +
+				"mx-2 sm:mx-0 bg-white " +
 				(!previousData && "border-black border-2 rounded-md")
 			}
 		>
 			<form
-				className="flex flex-col px-4 py-2 sm:py-4 space-y-2"
+				className="flex flex-col px-4 py-2 sm:py-4 space-y-2 sm:space-y-4"
 				onSubmit={handleSubmit}
 				onKeyDown={handleKeyDown}
 			>
@@ -238,7 +247,7 @@ export default function TicketEditor(props: Props) {
 								>
 							}
 						/>
-						<div className="grid grid-cols-2 place-items-stretch gap-2 rounded-md shadow-none">
+						<div className="grid grid-cols-2 place-items-stretch gap-2 sm:gap-4 rounded-md shadow-none">
 							<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2">
 								<h4 className="px-1">Due Date</h4>
 								<input
