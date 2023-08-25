@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import CardContainer from "../components/Wrapper/CardContainer";
-import TicketEditor from "../components/Editor/TicketEditor";
 import Nav from "../components/Nav/NavBar";
-import { FetchedTicketData, Project } from "../types";
+import { Project } from "../types";
 import { useParams } from "react-router-dom";
 
 export default function ProjectTaskPage() {
-	const [cards, setCards] = useState<FetchedTicketData[]>([]);
 	const [project, setProject] = useState<Project>();
 	const projectId = useParams().id || "";
 
@@ -35,11 +33,8 @@ export default function ProjectTaskPage() {
 					<h1 className="font-bold text-4xl mx-2">
 						{project?.title || "Project"}
 					</h1>
-					<TicketEditor setCards={setCards} projectId={projectId} />
 					<CardContainer
 						dataKind="ticket"
-						cards={cards}
-						setCards={setCards}
 						containerTitle="Tasks"
 						projectId={projectId}
 					/>

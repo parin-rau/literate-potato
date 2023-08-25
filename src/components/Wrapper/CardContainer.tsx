@@ -10,21 +10,18 @@ import TicketEditor from "../Editor/TicketEditor";
 
 type Props =
 	| {
-			cards: FetchedTicketData[];
-			setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 			containerTitle: string;
 			dataKind: "ticket";
 			projectId?: string;
 	  }
 	| {
-			cards: Project[];
-			setCards: React.Dispatch<React.SetStateAction<Project[]>>;
 			containerTitle: string;
 			dataKind: "project";
 			projectId?: string;
 	  };
 
 export default function CardContainer(props: Props) {
+	const [cards, setCards] = useState<FetchedTicketData[]>([]);
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
@@ -34,7 +31,7 @@ export default function CardContainer(props: Props) {
 	);
 	const [isFirstFilter, setFirstFilter] = useState(true);
 	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
-	const { cards, setCards, containerTitle, dataKind, projectId } = props;
+	const { containerTitle, dataKind, projectId } = props;
 
 	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
 
@@ -150,6 +147,15 @@ export default function CardContainer(props: Props) {
 		setFilters((prev) => prev.filter((_tag, index) => index !== id));
 	}
 
+	function changeFilterMode() {
+		const nextMode = filterMode === "OR" ? "AND" : "OR";
+		setFilterMode(nextMode);
+	}
+
+	function resetFilters() {
+		setFilters([]);
+	}
+
 	function CardSelector(
 		dataKind: string,
 		cards: FetchedTicketData[] | Project[]
@@ -182,15 +188,6 @@ export default function CardContainer(props: Props) {
 	}
 
 	function FilterSelect() {
-		function changeFilterMode() {
-			const nextMode = filterMode === "OR" ? "AND" : "OR";
-			setFilterMode(nextMode);
-		}
-
-		function resetFilters() {
-			setFilters([]);
-		}
-
 		return (
 			<div className="flex flex-col sm:flex-row flex-wrap rounded-md border shadow-md items-center px-2 space-x-2">
 				<SearchBar
@@ -227,7 +224,16 @@ export default function CardContainer(props: Props) {
 
 	return (
 		<div className="@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg">
-			<TicketEditor />
+			<TicketEditor
+				setCards={setCards}
+				projectId={projectId}
+				setCache={
+					setCardCache as React.Dispatch<
+						React.SetStateAction<FetchedTicketData[]>
+					>
+				}
+				resetFilters={resetFilters}
+			/>
 			<div className="flex flex-row justify-between items-baseline">
 				<h1 className="text-bold text-3xl my-4">
 					{filters.length > 0

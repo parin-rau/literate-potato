@@ -14,6 +14,7 @@ import { optionLookup } from "../../utility/optionLookup";
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	setCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	resetFilters?: () => void;
 } & (
 	| {
 			projectId: string;
@@ -28,7 +29,14 @@ type Props = {
 );
 
 export default function TicketEditor(props: Props) {
-	const { setCards, projectId, previousData, setEditing, setCache } = props;
+	const {
+		setCards,
+		projectId,
+		previousData,
+		setEditing,
+		setCache,
+		resetFilters,
+	} = props;
 	const init = handleInit();
 	const [editor, setEditor] = useState(init.initState);
 	const [expand, setExpand] = useState(init.defaultExpand);
@@ -144,6 +152,16 @@ export default function TicketEditor(props: Props) {
 						{ ...newTicket, ticketNumber: response.ticketNumber },
 						...prevCards,
 					]);
+					if (setCache && resetFilters) {
+						setCache((prevCards) => [
+							{
+								...newTicket,
+								ticketNumber: response.ticketNumber,
+							},
+							...prevCards,
+						]);
+						resetFilters();
+					}
 					setEditor(initEditor);
 				}
 			}
