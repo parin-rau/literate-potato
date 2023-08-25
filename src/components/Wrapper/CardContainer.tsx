@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import TicketCard from "../Card/TicketCard";
 import { menuLookup, sortData } from "../../utility/optionLookup";
-import { FetchedTicketData, Project, SortMenu } from "../../types";
+import {
+	FetchedTicketData,
+	Project,
+	SortMenu,
+	isFilterable,
+} from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import ProjectCard from "../Card/ProjectCard";
 import TagsDisplay from "../Display/TagsDisplay";
@@ -32,6 +37,7 @@ export default function CardContainer(props: Props) {
 		[]
 	);
 	const [isFirstFilter, setFirstFilter] = useState(true);
+	const [filterMode, setFilterMode] = useState<"OR" | "AND">("OR");
 	const { cards, setCards, containerTitle, dataKind, projectId } = props;
 
 	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
@@ -49,7 +55,9 @@ export default function CardContainer(props: Props) {
 					headers: { "Content-Type": "application/json" },
 				});
 				const data = await res.json();
-				setCards(data);
+				if (res.ok) {
+					setCards(data);
+				}
 			} catch (err) {
 				console.error(err);
 			}
@@ -57,6 +65,25 @@ export default function CardContainer(props: Props) {
 		getPosts();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dataKind]);
+
+	// useEffect(() => {
+	// 	function updateCache() {
+	// 		if (isFirstFilter) {
+	// 			const filtered = getFilterMatches(cards)!;
+	// 			setCardCache(cards);
+	// 			setFirstFilter(false);
+	// 			setCards(filtered);
+	// 		} else if (filters.length === 0 && !isFirstFilter) {
+	// 			setCards(cardCache);
+	// 			setFirstFilter(true);
+	// 			setCardCache([]);
+	// 		} else {
+	// 			const filtered = getFilterMatches(cardCache);
+	// 			setCards(filtered);
+	// 		}
+	// 	}
+	// 	updateCache()
+	// }, [cards])
 
 	function handleSort(
 		sortKind: "priority" | "taskStatus" | "timestamp",
@@ -120,26 +147,43 @@ export default function CardContainer(props: Props) {
 
 	useEffect(() => {
 		function filterCards() {
-			function getFilterMatches(cardArr: FetchedTicketData[]) {
-				const filteredCards: FetchedTicketData[] = [];
-				filters.forEach((tag) => {
-					const matches = cardArr.filter(
-						(card) =>
-							card.tags.includes(tag) &&
-							!filteredCards.includes(card)
+			function getFilterMatches(
+				cardArr: FetchedTicketData[] | Project[]
+			) {
+				if (filterMode === "OR") {
+					const filteredCards: FetchedTicketData[] = [];
+					filters.forEach((mask) => {
+						const matches = (cardArr as FetchedTicketData[]).filter(
+							(card) => {
+								if ("tags" in card) {
+									return (
+										card.tags.includes(mask) &&
+										!filteredCards.includes(card)
+									);
+								}
+							}
+						);
+						filteredCards.push(...matches);
+					});
+					console.log(filteredCards);
+
+					return filteredCards;
+				}
+				if (filterMode === "AND") {
+					const filteredCards: FetchedTicketData[] = (
+						cardArr as FetchedTicketData[]
+					).filter((card) =>
+						filters.every((mask) => card.tags.includes(mask))
 					);
-					filteredCards.push(...matches);
-				});
-				// if all active filter tags are not included on card, remove card
 
-				// if (filteredCards.includes()) {
+					console.log(filteredCards);
 
-				// }
-				return filteredCards;
+					return filteredCards;
+				}
 			}
 
-			if (filters.length === 1 && isFirstFilter) {
-				const filtered: FetchedTicketData[] = getFilterMatches(cards);
+			if (isFirstFilter) {
+				const filtered = getFilterMatches(cards)!;
 				setCardCache(cards);
 				setFirstFilter(false);
 				setCards(filtered);
@@ -148,13 +192,17 @@ export default function CardContainer(props: Props) {
 				setFirstFilter(true);
 				setCardCache([]);
 			} else {
-				const filtered: FetchedTicketData[] =
-					getFilterMatches(cardCache);
+				const filtered = getFilterMatches(cardCache);
 				setCards(filtered);
 			}
 		}
 		filterCards();
 	}, [filters]);
+
+	function changeFilterMode() {
+		const nextMode = filterMode === "OR" ? "AND" : "OR";
+		setFilterMode(nextMode);
+	}
 
 	function FilterSelect() {
 		return (
@@ -164,7 +212,15 @@ export default function CardContainer(props: Props) {
 					placeholder="Filter by Tags"
 				/>
 				{filters.length > 0 && (
-					<TagsDisplay tags={filters} deleteTag={deleteFilterTag} />
+					<>
+						<TagsDisplay
+							tags={filters}
+							deleteTag={deleteFilterTag}
+						/>
+						<button type="button" onClick={changeFilterMode}>
+							{filterMode}
+						</button>
+					</>
 				)}
 			</div>
 		);

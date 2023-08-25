@@ -86,3 +86,9 @@ export type SortMenu = {
 	arrowDirection: "up" | "down";
 	fn: () => void;
 }[];
+
+export function isFilterable(
+	arr: FetchedTicketData[] | Project[]
+): arr is FetchedTicketData[] {
+	return typeof (arr[0] as FetchedTicketData).tags[0] === "string";
+}

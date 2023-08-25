@@ -80,15 +80,9 @@ export default function MenuDropdown(props: Props) {
 				<div className="absolute right-0 bg-slate-200 px-1 py-1 rounded-md z-10 border-black border">
 					{options.map((option, index: number) => (
 						<div
-							className="hover:cursor-pointer hover:bg-slate-300 px-3 rounded-full flex flex-row space-x-2 py-1"
+							className="hover:cursor-pointer hover:bg-slate-300 px-3 rounded-full flex flex-row space-x-2 py-1 w-fit"
 							key={index}
 							onClick={() => handleOptionClick(option.fn)}
-							// onClick={() => {
-							// 	cardId
-							// 		? option.function(cardId)
-							// 		: option.function();
-							// 	setMenu(false);
-							// }}
 						>
 							<span>{option.name}</span>
 							{option.arrowDirection && (

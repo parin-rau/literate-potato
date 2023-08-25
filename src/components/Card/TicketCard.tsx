@@ -196,7 +196,22 @@ export default function TicketCard(props: Props) {
 								countCompletedSubs().percentCompleted
 							} Completed`}</span>
 						)}
-						{due && <p>Due: {due}</p>}
+						{due && (
+							<p
+								className={
+									" " +
+									(taskStatus !== "Completed" &&
+										Date.now() > new Date(due).getTime() &&
+										"text-red-500 font-semibold")
+								}
+							>
+								Due: {due}
+								{taskStatus !== "Completed" &&
+									Date.now() > new Date(due).getTime() && (
+										<i> Overdue</i>
+									)}
+							</p>
+						)}
 					</div>
 				)}
 				{(description || subtasks!.length > 0 || tags.length > 0) && (
@@ -249,7 +264,7 @@ export default function TicketCard(props: Props) {
 	}
 
 	return (
-		<div className="my-1 mx-1 min-w-min border-black border-2 rounded-md bg-white">
+		<div className="m-1 border-black border-2 rounded-md bg-white">
 			{!isEditing && <CardDisplay />}
 			{isEditing && (
 				<TicketEditor

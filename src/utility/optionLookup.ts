@@ -149,33 +149,33 @@ export const menuLookup = {
 	) {
 		return <SortMenu>[
 			{
-				name: "Priority",
-				arrowDirection: "up",
+				name: "Low Priority",
+				//arrowDirection: "up",
 				fn: () => handleSort("priority", "asc"),
 			},
 			{
-				name: "Priority",
-				arrowDirection: "down",
+				name: "High Priority",
+				//arrowDirection: "down",
 				fn: () => handleSort("priority", "desc"),
 			},
 			{
-				name: "Progress",
-				arrowDirection: "up",
+				name: "Lowest Progress",
+				//arrowDirection: "up",
 				fn: () => handleSort("taskStatus", "asc"),
 			},
 			{
-				name: "Progress",
-				arrowDirection: "down",
+				name: "Highest Progress",
+				//arrowDirection: "down",
 				fn: () => handleSort("taskStatus", "desc"),
 			},
 			{
-				name: "Recent",
-				arrowDirection: "up",
+				name: "Oldest",
+				//arrowDirection: "up",
 				fn: () => handleSort("timestamp", "asc"),
 			},
 			{
 				name: "Recent",
-				arrowDirection: "down",
+				//arrowDirection: "down",
 				fn: () => handleSort("timestamp", "desc"),
 			},
 		];
