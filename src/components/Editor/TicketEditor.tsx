@@ -40,6 +40,7 @@ export default function TicketEditor(props: Props) {
 	const init = handleInit();
 	const [editor, setEditor] = useState(init.initState);
 	const [expand, setExpand] = useState(init.defaultExpand);
+	const [isPinned, setPinned] = useState(false);
 
 	function handleChange(
 		e:
@@ -199,14 +200,14 @@ export default function TicketEditor(props: Props) {
 				onSubmit={handleSubmit}
 				onKeyDown={handleKeyDown}
 			>
-				<div className="flex flex-row justify-between">
+				<div className="flex flex-row justify-between items-baseline">
 					{previousData ? (
-						<h1 className="font-semibold text-xl sm:text-2xl">
+						<h1 className="font-semibold text-lg sm:text-2xl">
 							{init.editorHeading}
 						</h1>
 					) : (
 						<button
-							className="font-semibold text-xl sm:text-2xl"
+							className="font-semibold text-lg sm:text-2xl"
 							onClick={() => {
 								setExpand(!expand);
 							}}
@@ -216,19 +217,42 @@ export default function TicketEditor(props: Props) {
 						</button>
 					)}
 					{expand && (
-						<div className="flex space-x-4">
-							<button type="button" onClick={handleReset}>
+						<div className="flex text-xs sm:text-base ">
+							<button
+								className="dark:hover:bg-zinc-700 rounded-md px-2 py-1"
+								type="button"
+								onClick={handleReset}
+							>
 								Reset Form
 							</button>
+							{!setEditing && (
+								<button
+									className={
+										"dark:hover:bg-zinc-700 rounded-md px-2 py-1 " +
+										(isPinned && " bg-zinc-800")
+									}
+									type="button"
+									onClick={() => setPinned(!isPinned)}
+								>
+									{isPinned
+										? "Unpin Editor"
+										: "Pin Editor Open"}
+								</button>
+							)}
 							{previousData ? (
 								<button
+									className="dark:hover:bg-zinc-700 rounded-md px-2 py-1"
 									type="button"
 									onClick={handleEditCancel}
 								>
 									Cancel Edit
 								</button>
 							) : (
-								<button type="button" onClick={handleExpand}>
+								<button
+									className="dark:hover:bg-zinc-700 rounded-md px-2 py-1"
+									type="button"
+									onClick={handleExpand}
+								>
 									Hide Editor
 								</button>
 							)}

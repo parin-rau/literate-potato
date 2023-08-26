@@ -19,10 +19,14 @@ export default function TagsDisplay(props: Props) {
 	return (
 		<div className="flex flex-row flex-wrap py-2">
 			{tags.map((tag, index) => (
-				<div
+				<button
+					type="button"
 					className="text-sm bg-blue-500 text-white hover:bg-blue-600 hover:text-white rounded-full px-3 py-1 m-1 flex flex-row cursor-pointer "
 					key={index}
-					onClick={() => handleClick(index, tag)}
+					onClick={(e) => {
+						e.preventDefault();
+						handleClick(index, tag);
+					}}
 				>
 					{tag}
 					{deleteTag && (
@@ -35,7 +39,7 @@ export default function TagsDisplay(props: Props) {
 							<path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
 						</svg>
 					)}
-				</div>
+				</button>
 			))}
 		</div>
 	);

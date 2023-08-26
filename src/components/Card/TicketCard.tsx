@@ -156,115 +156,230 @@ export default function TicketCard(props: Props) {
 		}
 	}
 
-	function CardDisplay() {
-		return (
-			<div className="flex flex-col px-4 py-4 space-y-2 dark:border-neutral-700">
-				<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
-					<div className="flex flex-col sm:flex-row sm:items-baseline space-y-1 sm:space-x-4">
-						<Link
-							to={`/ticket/${ticketId}`}
-							className="font-semibold text-2xl sm:text-3xl"
-						>
-							{title}
-						</Link>
-						<h2 className="text-lg sm:text-xl">
-							{ticketNumber && `#${ticketNumber}`}
-						</h2>
-					</div>
-					<div className="flex flex-row space-x-2 items-center">
-						<SelectDropdown
-							name="taskStatus"
-							value={taskStatus}
-							options={optionLookup.taskStatus}
-							handleChange={changeStatus}
-							stylesOverride={statusColors}
-						/>
-						<MenuDropdown options={moreOptions} cardId={ticketId} />
-					</div>
-				</div>
-				{(priority || due || subtasks!.length > 0) && (
-					<div className="grid grid-cols-2 rounded-lg border border-inherit shadow-sm p-2">
-						{subtasks && subtasks.length > 0 && (
-							<span>
-								{`${countCompletedSubs().totalCompleted}/${
-									subtasks.length
-								} Subtask${subtasks.length !== 1 ? "s" : ""}`}
-							</span>
-						)}
-						{priority && <p className="">Priority: {priority}</p>}
-						{subtasks && subtasks.length > 0 && (
-							<span>{`${
-								countCompletedSubs().percentCompleted
-							} Completed`}</span>
-						)}
-						{due && (
-							<p
-								className={
-									" " +
-									(taskStatus !== "Completed" &&
-										Date.now() > new Date(due).getTime() &&
-										"text-red-500 font-semibold")
-								}
-							>
-								Due: {due}
-								{taskStatus !== "Completed" &&
-									Date.now() > new Date(due).getTime() && (
-										<i> Overdue</i>
-									)}
-							</p>
-						)}
-					</div>
-				)}
-				{(description || subtasks!.length > 0 || tags.length > 0) && (
-					<div className="border-inherit border rounded-lg shadow-sm p-2 space-y-4">
-						{description && (
-							<p className="text-lg">{description}</p>
-						)}
-						{subtasks && subtasks.length > 0 && (
-							<div>
-								<h4 className="font-semibold">Subtasks</h4>
-								<SubtaskDisplay
-									subtasks={subtasks}
-									completeSubtask={completeSubtask}
-								/>
-							</div>
-						)}
-						{tags.length > 0 && (
-							<div>
-								<h4 className="font-semibold">Tags</h4>
-								<TagsDisplay
-									{...{ tags, filters, setFilters }}
-								/>
-							</div>
-						)}
-					</div>
-				)}
-				{comments && (
-					<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
-						<span>
-							<Link to={`/ticket/${ticketId}`}>
-								{`${comments.length} Comment${
-									comments.length !== 1 && "s"
-								}`}
-							</Link>
-						</span>
-					</div>
-				)}
-				<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
-					<span>Created: {timestampDisplay(timestamp)}</span>
-					{lastModified && (
-						<i>Last Activity: {timestampDisplay(lastModified)}</i>
-					)}
-				</div>
-				{/* <p>ticket: {ticketId}</p>
-				<p>project: {projectId}</p> */}
-			</div>
-		);
-	}
+	// function CardDisplay() {
+	// 	return (
+	// 		<div className="flex flex-col px-4 py-4 space-y-2 dark:border-neutral-700">
+	// 			<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
+	// 				<div className="flex flex-col sm:flex-row sm:items-baseline space-y-1 sm:space-x-4">
+	// 					<Link
+	// 						to={`/ticket/${ticketId}`}
+	// 						className="font-semibold text-2xl sm:text-3xl"
+	// 					>
+	// 						{title}
+	// 					</Link>
+	// 					<h2 className="text-lg sm:text-xl">
+	// 						{ticketNumber && `#${ticketNumber}`}
+	// 					</h2>
+	// 				</div>
+	// 				<div className="flex flex-row space-x-2 items-center">
+	// 					<SelectDropdown
+	// 						name="taskStatus"
+	// 						value={taskStatus}
+	// 						options={optionLookup.taskStatus}
+	// 						handleChange={changeStatus}
+	// 						stylesOverride={statusColors}
+	// 					/>
+	// 					<MenuDropdown options={moreOptions} cardId={ticketId} />
+	// 				</div>
+	// 			</div>
+	// 			{(priority || due || subtasks!.length > 0) && (
+	// 				<div className="grid grid-cols-2 rounded-lg border border-inherit shadow-sm p-2">
+	// 					{subtasks && subtasks.length > 0 && (
+	// 						<span>
+	// 							{`${countCompletedSubs().totalCompleted}/${
+	// 								subtasks.length
+	// 							} Subtask${subtasks.length !== 1 ? "s" : ""}`}
+	// 						</span>
+	// 					)}
+	// 					{priority && <p className="">Priority: {priority}</p>}
+	// 					{subtasks && subtasks.length > 0 && (
+	// 						<span>{`${
+	// 							countCompletedSubs().percentCompleted
+	// 						} Completed`}</span>
+	// 					)}
+	// 					{due && (
+	// 						<p
+	// 							className={
+	// 								" " +
+	// 								(taskStatus !== "Completed" &&
+	// 									Date.now() > new Date(due).getTime() &&
+	// 									"text-red-500 font-semibold")
+	// 							}
+	// 						>
+	// 							Due: {due}
+	// 							{taskStatus !== "Completed" &&
+	// 								Date.now() > new Date(due).getTime() && (
+	// 									<i> Overdue</i>
+	// 								)}
+	// 						</p>
+	// 					)}
+	// 				</div>
+	// 			)}
+	// 			{(description || subtasks!.length > 0 || tags.length > 0) && (
+	// 				<div className="border-inherit border rounded-lg shadow-sm p-2 space-y-4">
+	// 					{description && (
+	// 						<p className="text-lg">{description}</p>
+	// 					)}
+	// 					{subtasks && subtasks.length > 0 && (
+	// 						<div>
+	// 							<h4 className="font-semibold">Subtasks</h4>
+	// 							<SubtaskDisplay
+	// 								subtasks={subtasks}
+	// 								completeSubtask={completeSubtask}
+	// 							/>
+	// 						</div>
+	// 					)}
+	// 					{tags.length > 0 && (
+	// 						<div>
+	// 							<h4 className="font-semibold">Tags</h4>
+	// 							<TagsDisplay
+	// 								{...{ tags, filters, setFilters }}
+	// 							/>
+	// 						</div>
+	// 					)}
+	// 				</div>
+	// 			)}
+	// 			{comments && (
+	// 				<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
+	// 					<span>
+	// 						<Link to={`/ticket/${ticketId}`}>
+	// 							{`${comments.length} Comment${
+	// 								comments.length !== 1 && "s"
+	// 							}`}
+	// 						</Link>
+	// 					</span>
+	// 				</div>
+	// 			)}
+	// 			<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
+	// 				<span>Created: {timestampDisplay(timestamp)}</span>
+	// 				{lastModified && (
+	// 					<i>Last Activity: {timestampDisplay(lastModified)}</i>
+	// 				)}
+	// 			</div>
+	// 			{/* <p>ticket: {ticketId}</p>
+	// 			<p>project: {projectId}</p> */}
+	// 		</div>
+	// 	);
+	// }
 
 	return (
 		<div className="m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600">
-			{!isEditing && <CardDisplay />}
+			{!isEditing && (
+				<div className="flex flex-col px-4 py-4 space-y-2 dark:border-neutral-700">
+					<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
+						<div className="flex flex-col sm:flex-row sm:items-baseline space-y-1 sm:space-x-4">
+							<Link
+								to={`/ticket/${ticketId}`}
+								className="font-semibold text-2xl sm:text-3xl"
+							>
+								{title}
+							</Link>
+							<h2 className="text-lg sm:text-xl">
+								{ticketNumber && `#${ticketNumber}`}
+							</h2>
+						</div>
+						<div className="flex flex-row space-x-2 items-center">
+							<SelectDropdown
+								name="taskStatus"
+								value={taskStatus}
+								options={optionLookup.taskStatus}
+								handleChange={changeStatus}
+								stylesOverride={statusColors}
+							/>
+							<MenuDropdown
+								options={moreOptions}
+								cardId={ticketId}
+							/>
+						</div>
+					</div>
+					{(priority || due || subtasks!.length > 0) && (
+						<div className="grid grid-cols-2 rounded-lg border border-inherit shadow-sm p-2">
+							{subtasks && subtasks.length > 0 && (
+								<span>
+									{`${countCompletedSubs().totalCompleted}/${
+										subtasks.length
+									} Subtask${
+										subtasks.length !== 1 ? "s" : ""
+									}`}
+								</span>
+							)}
+							{priority && (
+								<p className="">Priority: {priority}</p>
+							)}
+							{subtasks && subtasks.length > 0 && (
+								<span>{`${
+									countCompletedSubs().percentCompleted
+								} Completed`}</span>
+							)}
+							{due && (
+								<p
+									className={
+										" " +
+										(taskStatus !== "Completed" &&
+											Date.now() >
+												new Date(due).getTime() &&
+											"text-red-500 font-semibold")
+									}
+								>
+									Due: {due}
+									{taskStatus !== "Completed" &&
+										Date.now() >
+											new Date(due).getTime() && (
+											<i> Overdue</i>
+										)}
+								</p>
+							)}
+						</div>
+					)}
+					{(description ||
+						subtasks!.length > 0 ||
+						tags.length > 0) && (
+						<div className="border-inherit border rounded-lg shadow-sm p-2 space-y-4">
+							{description && (
+								<p className="text-lg">{description}</p>
+							)}
+							{subtasks && subtasks.length > 0 && (
+								<div>
+									<h4 className="font-semibold">Subtasks</h4>
+									<SubtaskDisplay
+										subtasks={subtasks}
+										completeSubtask={completeSubtask}
+									/>
+								</div>
+							)}
+							{tags.length > 0 && (
+								<div>
+									<h4 className="font-semibold">Tags</h4>
+									<TagsDisplay
+										{...{ tags, filters, setFilters }}
+									/>
+								</div>
+							)}
+						</div>
+					)}
+					{comments && (
+						<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
+							<span>
+								<Link to={`/ticket/${ticketId}`}>
+									{`${comments.length} Comment${
+										comments.length !== 1 && "s"
+									}`}
+								</Link>
+							</span>
+						</div>
+					)}
+					<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
+						<span>Created: {timestampDisplay(timestamp)}</span>
+						{lastModified && (
+							<i>
+								Last Activity: {timestampDisplay(lastModified)}
+							</i>
+						)}
+					</div>
+					{/* <p>ticket: {ticketId}</p>
+				<p>project: {projectId}</p> */}
+				</div>
+			)}
 			{isEditing && (
 				<TicketEditor
 					{...{ setCards, setEditing, setCache }}

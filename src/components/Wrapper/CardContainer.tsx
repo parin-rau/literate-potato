@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import TicketCard from "../Card/TicketCard";
 import { menuLookup, sortData } from "../../utility/optionLookup";
 import { FetchedTicketData, Project, SortMenu } from "../../types";
-import ProjectCard from "../Card/ProjectCard";
 import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
+import CardSelector from "../Card/CardSelector";
 
 type Props =
 	| {
@@ -154,38 +153,6 @@ export default function CardContainer(props: Props) {
 		setFilters([]);
 	}
 
-	function CardSelector(
-		dataKind: string,
-		cards: FetchedTicketData[] | Project[]
-	) {
-		if (dataKind === "ticket") {
-			return (cards as FetchedTicketData[]).map((card) => (
-				<TicketCard
-					key={card.ticketId}
-					cardData={{ ...card }}
-					setCards={
-						setCards as React.Dispatch<
-							React.SetStateAction<FetchedTicketData[]>
-						>
-					}
-					filters={filters}
-					setFilters={setFilters}
-					setCache={
-						setCardCache as React.Dispatch<
-							React.SetStateAction<FetchedTicketData[]>
-						>
-					}
-				/>
-			));
-		}
-		if (dataKind === "project") {
-			return (cards as Project[]).map((card) => (
-				<ProjectCard key={card.projectId} cardData={{ ...card }} />
-			));
-		}
-	}
-
-	//dark:bg-neutral-900
 	return (
 		<div className="@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg dark:bg-transparent">
 			<TicketEditor
@@ -225,8 +192,57 @@ export default function CardContainer(props: Props) {
 			</div>
 			<span>{sortMeta && getSortLabel(cards)}</span>
 			<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto ">
-				{CardSelector(dataKind, cards)}
+				<CardSelector
+					{...{
+						dataKind,
+						cards,
+						setCards,
+						setCardCache,
+						filters,
+						setFilters,
+					}}
+				/>
 			</div>
 		</div>
 	);
 }
+
+// type Props2 = {
+// 	dataKind: string;
+// 	cards: FetchedTicketData[] | Project[];
+// 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+// 	setCardCache: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+// 	filters: string[];
+// 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
+// };
+
+// function CardSelector(props: Props2) {
+// 	const { dataKind, cards, setCards, setCardCache, filters, setFilters } =
+// 		props;
+
+// 	if (dataKind === "ticket") {
+// 		return (cards as FetchedTicketData[]).map((card) => (
+// 			<TicketCard
+// 				key={card.ticketId}
+// 				cardData={{ ...card }}
+// 				setCards={
+// 					setCards as React.Dispatch<
+// 						React.SetStateAction<FetchedTicketData[]>
+// 					>
+// 				}
+// 				filters={filters}
+// 				setFilters={setFilters}
+// 				setCache={
+// 					setCardCache as React.Dispatch<
+// 						React.SetStateAction<FetchedTicketData[]>
+// 					>
+// 				}
+// 			/>
+// 		));
+// 	}
+// 	if (dataKind === "project") {
+// 		return (cards as Project[]).map((card) => (
+// 			<ProjectCard key={card.projectId} cardData={{ ...card }} />
+// 		));
+// 	}
+// }
