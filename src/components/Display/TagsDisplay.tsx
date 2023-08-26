@@ -23,10 +23,10 @@ export default function TagsDisplay(props: Props) {
 					type="button"
 					className="text-sm bg-blue-500 text-white hover:bg-blue-600 hover:text-white rounded-full px-3 py-1 m-1 flex flex-row cursor-pointer "
 					key={index}
-					onClick={(e) => {
-						e.preventDefault();
+					onClick={() => {
 						handleClick(index, tag);
 					}}
+					title={deleteTag ? "Delete" : "Add to Filters"}
 				>
 					{tag}
 					{deleteTag && (
