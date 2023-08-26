@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import TicketCard from "../Card/TicketCard";
 import { menuLookup, sortData } from "../../utility/optionLookup";
 import { FetchedTicketData, Project, SortMenu } from "../../types";
-import MenuDropdown from "../Nav/MenuDropdown";
 import ProjectCard from "../Card/ProjectCard";
-import TagsDisplay from "../Display/TagsDisplay";
-import SearchBar from "../Nav/SearchBar";
+import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 
 type Props =
@@ -187,43 +185,9 @@ export default function CardContainer(props: Props) {
 		}
 	}
 
-	function FilterSelect() {
-		return (
-			<div className="flex flex-col sm:flex-row flex-wrap rounded-md border shadow-md items-center px-2 space-x-2">
-				<SearchBar
-					setFilters={setFilters}
-					placeholder="Filter by Tags"
-				/>
-				{filters.length > 0 && (
-					<>
-						<TagsDisplay
-							tags={filters}
-							deleteTag={deleteFilterTag}
-						/>
-						<div className="grid grid-cols-2 justify-items-center divide-x">
-							<button
-								className="px-2 py-1 hover:bg-slate-300 hover:rounded-full"
-								type="button"
-								onClick={changeFilterMode}
-							>
-								{filterMode}
-							</button>
-							<button
-								className="px-2 py-1 hover:bg-slate-300 hover:rounded-full"
-								type="button"
-								onClick={resetFilters}
-							>
-								Reset
-							</button>
-						</div>
-					</>
-				)}
-			</div>
-		);
-	}
-
+	//dark:bg-neutral-900
 	return (
-		<div className="@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg">
+		<div className="@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg dark:bg-transparent">
 			<TicketEditor
 				setCards={setCards}
 				projectId={projectId}
@@ -234,19 +198,29 @@ export default function CardContainer(props: Props) {
 				}
 				resetFilters={resetFilters}
 			/>
-			<div className="flex flex-row justify-between items-baseline">
+			<div className="flex flex-row justify-between items-baseline mx-1">
 				<h1 className="text-bold text-3xl my-4">
 					{filters.length > 0
 						? `Filtering Results (${cards.length})`
 						: containerTitle}
 				</h1>
 				<div className="flex flex-row items-baseline space-x-2">
-					<FilterSelect />
-					<MenuDropdown
+					<FilterSelect
+						{...{
+							filters,
+							setFilters,
+							deleteFilterTag,
+							filterMode,
+							changeFilterMode,
+							resetFilters,
+							sortMenu,
+						}}
+					/>
+					{/* <MenuDropdown
 						menuTitle="Sort"
 						menuTitleFont="text-xl"
 						options={sortMenu}
-					/>
+					/> */}
 				</div>
 			</div>
 			<span>{sortMeta && getSortLabel(cards)}</span>

@@ -127,7 +127,7 @@ export const optionLookup = {
 			label: "In Progress",
 			value: "In Progress",
 			sortValue: 1,
-			bgColor: "bg-yellow-500",
+			bgColor: "bg-amber-500",
 			textColor: "text-white",
 		},
 		{

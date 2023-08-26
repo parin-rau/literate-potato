@@ -1,24 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
 
 export default function NavBar() {
-	const [darkMode, setDarkMode] = useState(true);
+	const [theme, setTheme] = useState<string>(localStorage.theme);
 
-	function handleToggle() {
-		setDarkMode(!darkMode);
+	function handleThemeToggle() {
+		theme === "dark" ? setTheme("light") : setTheme("dark");
 	}
 
+	useEffect(() => {
+		function changeTheme() {
+			if (theme === "dark") {
+				document.documentElement.classList.add("dark");
+				localStorage.theme = "dark";
+			} else {
+				document.documentElement.classList.remove("dark");
+				localStorage.theme = "light";
+			}
+		}
+		changeTheme();
+	}, [theme]);
+
 	return (
-		<div className="fixed top-0 z-20 w-full bg-slate-100 px-1 sm:px-2">
-			<div className="flex flex-grow flex-row justify-between sm:space-x-6 space-x-2 sm:px-4 px-1 py-2 items-center w-full">
+		<div className="fixed top-0 z-20 w-full bg-slate-100 dark:bg-neutral-900 px-1 sm:px-2 dark:border-b dark:border-zinc-800">
+			<div className="flex flex-grow flex-row justify-between sm:space-x-6 space-x-2 sm:px-4 px-1 py-2 items-center w-full ">
 				<Link to={`/`}>
 					<h2 className="text-bold text-xl">Home</h2>
 				</Link>
 				<SearchBar />
 				<div className="flex space-x-4">
-					<button className="" onClick={handleToggle} type="button">
-						{darkMode ? (
+					<button
+						className=""
+						onClick={handleThemeToggle}
+						type="button"
+					>
+						{theme === "light" ? (
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								fill="none"
@@ -50,9 +67,6 @@ export default function NavBar() {
 							</svg>
 						)}
 					</button>
-					{/* <button onClick={() => console.log(localStorage.theme)}>
-					Local Storage Theme
-				</button> */}
 					<div className="flex flex-shrink-0 pr-4 justify-start">
 						<Link
 							to={"login"}

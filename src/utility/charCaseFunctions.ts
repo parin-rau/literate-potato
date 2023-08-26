@@ -1,14 +1,27 @@
-export function firstLetterCap(string: string): string {
+export function titleCap(string: string): string {
 	const lowercaseArr = string.toLocaleLowerCase().split(/[- ]/);
-	const firstUpperArr = lowercaseArr.map((word, index) => {
+	const titleCapArr = lowercaseArr.map((word, index) => {
 		const firstLetter = noCap.includes(word)
 			? index === 0
 				? word.charAt(0).toLocaleUpperCase()
 				: word.charAt(0)
 			: word.charAt(0).toLocaleUpperCase();
 		const remainderLetters = word.slice(1);
-		const wordFirstUpper = firstLetter + remainderLetters;
-		return wordFirstUpper;
+		const wordTitleCap = firstLetter + remainderLetters;
+		return wordTitleCap;
+	});
+	const words = titleCapArr.join(" ");
+	return words;
+}
+
+export function firstLetterCap(string: string): string {
+	const lowercaseArr = string.toLocaleLowerCase().split(/[- ]/);
+	const firstUpperArr = lowercaseArr.map((word, index) => {
+		const firstUpperletter =
+			index === 0 ? word.charAt(0).toLocaleUpperCase() : word.charAt(0);
+		const remainderLetters = word.slice(1);
+		const firstWordUpper = firstUpperletter + remainderLetters;
+		return firstWordUpper;
 	});
 	const words = firstUpperArr.join(" ");
 	return words;

@@ -20,10 +20,7 @@ export default function TagsDisplay(props: Props) {
 		<div className="flex flex-row flex-wrap py-2">
 			{tags.map((tag, index) => (
 				<div
-					className={
-						"text-sm bg-blue-300 rounded-full px-3 py-1 m-1 flex flex-row" +
-						" hover:cursor-pointer hover:bg-blue-500 hover:text-white"
-					}
+					className="text-sm bg-blue-500 text-white hover:bg-blue-600 hover:text-white rounded-full px-3 py-1 m-1 flex flex-row cursor-pointer "
 					key={index}
 					onClick={() => handleClick(index, tag)}
 				>

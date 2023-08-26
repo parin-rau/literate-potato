@@ -75,11 +75,7 @@ export default function TicketCard(props: Props) {
 	}
 
 	function editCard() {
-		try {
-			setEditing(true);
-		} catch (err) {
-			console.error(err);
-		}
+		setEditing(true);
 	}
 
 	async function changeStatus(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -162,7 +158,7 @@ export default function TicketCard(props: Props) {
 
 	function CardDisplay() {
 		return (
-			<div className="flex flex-col px-4 py-4 space-y-2">
+			<div className="flex flex-col px-4 py-4 space-y-2 dark:border-neutral-700">
 				<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
 					<div className="flex flex-col sm:flex-row sm:items-baseline space-y-1 sm:space-x-4">
 						<Link
@@ -181,13 +177,13 @@ export default function TicketCard(props: Props) {
 							value={taskStatus}
 							options={optionLookup.taskStatus}
 							handleChange={changeStatus}
-							colors={statusColors}
+							stylesOverride={statusColors}
 						/>
 						<MenuDropdown options={moreOptions} cardId={ticketId} />
 					</div>
 				</div>
 				{(priority || due || subtasks!.length > 0) && (
-					<div className="grid grid-cols-2 rounded-lg border border-1 shadow-sm p-2">
+					<div className="grid grid-cols-2 rounded-lg border border-inherit shadow-sm p-2">
 						{subtasks && subtasks.length > 0 && (
 							<span>
 								{`${countCompletedSubs().totalCompleted}/${
@@ -220,7 +216,7 @@ export default function TicketCard(props: Props) {
 					</div>
 				)}
 				{(description || subtasks!.length > 0 || tags.length > 0) && (
-					<div className="border border-1 rounded-lg shadow-sm p-2 space-y-4">
+					<div className="border-inherit border rounded-lg shadow-sm p-2 space-y-4">
 						{description && (
 							<p className="text-lg">{description}</p>
 						)}
@@ -237,16 +233,14 @@ export default function TicketCard(props: Props) {
 							<div>
 								<h4 className="font-semibold">Tags</h4>
 								<TagsDisplay
-									tags={tags}
-									filters={filters}
-									setFilters={setFilters}
+									{...{ tags, filters, setFilters }}
 								/>
 							</div>
 						)}
 					</div>
 				)}
 				{comments && (
-					<div className="flex flex-col shadow-sm border border-1 p-2 rounded-lg">
+					<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
 						<span>
 							<Link to={`/ticket/${ticketId}`}>
 								{`${comments.length} Comment${
@@ -256,7 +250,7 @@ export default function TicketCard(props: Props) {
 						</span>
 					</div>
 				)}
-				<div className="flex flex-col shadow-sm border border-1 p-2 rounded-lg">
+				<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
 					<span>Created: {timestampDisplay(timestamp)}</span>
 					{lastModified && (
 						<i>Last Activity: {timestampDisplay(lastModified)}</i>
@@ -269,13 +263,11 @@ export default function TicketCard(props: Props) {
 	}
 
 	return (
-		<div className="m-1 border-black border-2 rounded-md bg-white">
+		<div className="m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600">
 			{!isEditing && <CardDisplay />}
 			{isEditing && (
 				<TicketEditor
-					setCards={setCards}
-					setEditing={setEditing}
-					setCache={setCache}
+					{...{ setCards, setEditing, setCache }}
 					previousData={{ ...props.cardData }}
 				/>
 			)}

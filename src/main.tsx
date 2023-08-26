@@ -7,27 +7,31 @@ import ErrorPage from "./pages/error-page.tsx";
 import "./index.css";
 import TicketPage from "./pages/TicketPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
+import RootLayout from "./layout/RootLayout.tsx";
 
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <HomePage />,
+		element: <RootLayout />,
 		errorElement: <ErrorPage />,
-	},
-	{
-		path: "project/:id",
-		element: <ProjectTaskPage />,
-		errorElement: <ErrorPage />,
-	},
-	{
-		path: "ticket/:id",
-		element: <TicketPage />,
-		errorElement: <ErrorPage />,
-	},
-	{
-		path: "login",
-		element: <LoginPage />,
-		errorElement: <ErrorPage />,
+		children: [
+			{ path: "/", element: <HomePage />, errorElement: <ErrorPage /> },
+			{
+				path: "project/:id",
+				element: <ProjectTaskPage />,
+				errorElement: <ErrorPage />,
+			},
+			{
+				path: "ticket/:id",
+				element: <TicketPage />,
+				errorElement: <ErrorPage />,
+			},
+			{
+				path: "login",
+				element: <LoginPage />,
+				errorElement: <ErrorPage />,
+			},
+		],
 	},
 ]);
 

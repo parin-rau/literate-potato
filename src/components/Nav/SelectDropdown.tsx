@@ -9,32 +9,32 @@ type Props = {
 		textColor?: string;
 	}[];
 	handleChange: (_e: React.ChangeEvent<HTMLSelectElement>) => void;
-	colors?: string;
+	stylesOverride?: string;
 };
 
 export default function SelectDropdown(props: Props) {
-	const { name, value, options, handleChange, colors } = props;
+	const { name, value, options, handleChange, stylesOverride } = props;
 
 	return (
-		<div>
-			<select
-				name={name}
-				className={"text-base max-w-xs px-2 py-1 rounded-lg " + colors}
-				value={value}
-				onChange={(e) => {
-					handleChange(e);
-				}}
-			>
-				{options.map((option, index) => (
-					<option
-						key={index}
-						value={option.value}
-						className="bg-slate-100 text-black"
-					>
-						{option.label}
-					</option>
-				))}
-			</select>
-		</div>
+		<select
+			name={name}
+			className={
+				"text-base max-w-xs px-2 py-1 rounded-lg " + stylesOverride
+			}
+			value={value}
+			onChange={(e) => {
+				handleChange(e);
+			}}
+		>
+			{options.map((option, index) => (
+				<option
+					key={index}
+					value={option.value}
+					className="bg-inherit text-inherit"
+				>
+					{option.label}
+				</option>
+			))}
+		</select>
 	);
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { firstLetterCap } from "../../utility/charCaseFunctions";
+import { titleCap } from "../../utility/charCaseFunctions";
 
 type Props = {
 	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
@@ -12,7 +12,7 @@ export default function SearchBar(props: Props) {
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const { value } = e.target;
-		setSearch(firstLetterCap(value));
+		setSearch(titleCap(value));
 	}
 
 	function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -27,9 +27,10 @@ export default function SearchBar(props: Props) {
 		<form
 			onSubmit={(e) => e.preventDefault()}
 			className={
-				setFilters
-					? "bg-white rounded-md my-2"
-					: "flex flex-row flex-grow rounded-md bg-slate-200 items-center w-full"
+				"dark:bg-zinc-800" +
+				(setFilters
+					? " bg-white rounded-md my-2"
+					: " flex flex-row flex-grow rounded-md bg-slate-200 items-center w-full")
 			}
 		>
 			<input

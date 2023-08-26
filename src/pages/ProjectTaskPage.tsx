@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import CardContainer from "../components/Wrapper/CardContainer";
-import Nav from "../components/Nav/NavBar";
 import { Project } from "../types";
 import { useParams } from "react-router-dom";
 
@@ -27,7 +26,6 @@ export default function ProjectTaskPage() {
 
 	return (
 		<div className="flex flex-col justify-center items-stretch">
-			<Nav />
 			<div className="flex flex-col space-y-4 pt-20 items-center">
 				<div className="container flex flex-col space-y-6">
 					<h1 className="font-bold text-4xl mx-2">

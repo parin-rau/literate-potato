@@ -1,7 +1,7 @@
 import { useState } from "react";
 import TagsDisplay from "../Display/TagsDisplay";
 import { EditorData } from "../../types";
-import { firstLetterCap } from "../../utility/charCaseFunctions";
+import { titleCap } from "../../utility/charCaseFunctions";
 
 type Props = {
 	editor: EditorData;
@@ -24,7 +24,7 @@ export default function TagsEditor(props: Props) {
 
 	function addTag(tag: string) {
 		if (tag) {
-			const firstUpperTag = firstLetterCap(tag);
+			const firstUpperTag = titleCap(tag);
 			setEditor({ ...editor, tags: [...tags, firstUpperTag] });
 			setText("");
 		}
@@ -38,10 +38,10 @@ export default function TagsEditor(props: Props) {
 	}
 
 	return (
-		<div className="flex flex-col rounded-md shadow-sm border">
+		<div className="flex flex-col rounded-md shadow-sm border border-inherit">
 			<input
 				className={
-					"duration-500 sm:text-base text-sm px-2 py-1 flex-grow rounded-md " +
+					"duration-500 sm:text-base text-sm px-2 py-1 flex-grow rounded-md bg-inherit " +
 					(tags.length > 0 && "shadow-lg")
 				}
 				name="tags"

@@ -52,7 +52,7 @@ export default function MenuDropdown(props: Props) {
 		<div className="relative" ref={menuRef}>
 			<button
 				className={
-					"hover:bg-slate-300 px-2 py-1 my-1 rounded-full " +
+					"hover:bg-slate-300 dark:hover:bg-zinc-700 px-2 py-1 my-1 rounded-full " +
 					menuTitleFont
 				}
 				onClick={() => setMenu(!isMenu)}
@@ -77,10 +77,10 @@ export default function MenuDropdown(props: Props) {
 				)}
 			</button>
 			{isMenu && (
-				<div className="absolute right-0 bg-slate-200 px-1 py-1 rounded-md z-10 border-black border">
+				<div className="absolute right-0 bg-slate-200 dark:bg-neutral-800 px-1 py-1 rounded-md z-10 border-black border dark:border-none">
 					{options.map((option, index: number) => (
 						<div
-							className="hover:cursor-pointer hover:bg-slate-300 px-3 rounded-full flex flex-row space-x-2 py-1 w-fit"
+							className="hover:cursor-pointer hover:bg-slate-300 dark:hover:bg-zinc-700 px-3 rounded-full flex flex-row space-x-2 py-1 justify-stretch w-max"
 							key={index}
 							onClick={() => handleOptionClick(option.fn)}
 						>

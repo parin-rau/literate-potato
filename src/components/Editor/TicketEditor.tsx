@@ -187,29 +187,34 @@ export default function TicketEditor(props: Props) {
 	return (
 		<div
 			className={
-				"mx-2 sm:mx-0 bg-white " +
-				(!previousData && "border-black border-2 rounded-md")
+				"mx-2 sm:mx-0 bg-white dark:bg-zinc-900 " +
+				(!expand && " hover:cursor-pointer ") +
+				(!previousData &&
+					"border-black border-2 rounded-md dark:border-zinc-600")
 			}
+			onClick={() => !expand && setExpand(true)}
 		>
 			<form
-				className="flex flex-col px-4 py-2 sm:py-4 space-y-2 sm:space-y-4"
+				className="flex flex-col px-4 py-2 sm:py-4 space-y-2 sm:space-y-4 bg-transparent dark:border-neutral-700"
 				onSubmit={handleSubmit}
 				onKeyDown={handleKeyDown}
 			>
 				<div className="flex flex-row justify-between">
-					<h1
-						className={
-							"font-semibold text-xl sm:text-2xl " +
-							(!previousData && "hover:cursor-pointer")
-						}
-						onClick={() => {
-							if (!previousData) {
+					{previousData ? (
+						<h1 className="font-semibold text-xl sm:text-2xl">
+							{init.editorHeading}
+						</h1>
+					) : (
+						<button
+							className="font-semibold text-xl sm:text-2xl"
+							onClick={() => {
 								setExpand(!expand);
-							}
-						}}
-					>
-						{init.editorHeading}
-					</h1>
+							}}
+							type="button"
+						>
+							{init.editorHeading}
+						</button>
+					)}
 					{expand && (
 						<div className="flex space-x-4">
 							<button type="button" onClick={handleReset}>
@@ -233,7 +238,7 @@ export default function TicketEditor(props: Props) {
 				{expand && (
 					<>
 						<input
-							className="text-lg sm:text-xl border rounded-md px-2 shadow-sm"
+							className="text-lg sm:text-xl border rounded-md px-2 shadow-sm bg-inherit border-inherit"
 							name="title"
 							value={editor.title}
 							onChange={handleChange}
@@ -242,7 +247,7 @@ export default function TicketEditor(props: Props) {
 							required
 						/>
 						<textarea
-							className="text-sm sm:text-base rounded-md border px-2 shadow-sm"
+							className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
 							name="description"
 							rows={2}
 							value={editor.description}
@@ -265,25 +270,25 @@ export default function TicketEditor(props: Props) {
 								>
 							}
 						/>
-						<div className="grid grid-cols-2 place-items-stretch gap-2 sm:gap-4 rounded-md shadow-none">
-							<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2">
+						<div className="grid grid-cols-2 place-items-stretch gap-2 sm:gap-4 rounded-md shadow-none border-inherit">
+							<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
 								<h4 className="px-1">Due Date</h4>
 								<input
-									className="text-base px-1 rounded-md bg-slate-100"
+									className="text-base px-1 rounded-md bg-slate-100 dark:bg-zinc-800 h-8  "
 									name="due"
 									type="date"
 									value={editor.due}
 									onChange={handleChange}
 								/>
 							</div>
-							<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2">
+							<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
 								<h4 className="px-1">Priority</h4>
 								<SelectDropdown
 									name="priority"
 									value={editor.priority}
 									options={optionLookup.priority}
 									handleChange={handleChange}
-									colors="bg-slate-100"
+									stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
 								/>
 							</div>
 						</div>
