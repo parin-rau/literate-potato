@@ -4,7 +4,8 @@ export interface Project {
 	creator: string;
 	timestamp: number;
 	projectId: string;
-	projectNumber: number;
+	projectNumber?: number;
+	lastModified?: number;
 	//[key: string]: string | number;
 }
 

@@ -222,22 +222,58 @@ export default function TicketEditor(props: Props) {
 						!isPinned && setExpand(false);
 					}
 				}
-			} else if (dataKind === "project" && !previousData) {
-				const newCard: Project = {
-					...(editor as ProjectEditor),
-					timestamp: Date.now(),
-					projectId: uuidv4(),
-				};
-				console.log(newCard);
-				const res = await fetch("/api/project", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(newCard),
-				});
-				if (res.ok) {
-					setCards((prevCards) => [newCard, ...prevCards]);
-					setEditor(initProjectEditor);
-					!isPinned && setExpand(false);
+			} else if (dataKind === "project") {
+				if (previousData) {
+					const patchData = { ...editor };
+					const res = await fetch(
+						`/api/project/${previousData.projectId}`,
+						{
+							method: "PATCH",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify(patchData),
+						}
+					);
+					if (res.ok) {
+						const updatedCard: Project = {
+							...(patchData as ProjectEditor),
+							...(init!.unusedPrevData! as Project),
+							lastModified: Date.now(),
+						};
+						setCards((prevCards) =>
+							prevCards.map((card) =>
+								card.projectId === updatedCard.projectId
+									? updatedCard
+									: card
+							)
+						);
+						setCardCache &&
+							setCardCache((prev) =>
+								prev.map((card) =>
+									card.projectId === updatedCard.projectId
+										? updatedCard
+										: card
+								)
+							);
+						setEditor(initTicketEditor);
+						setEditing(false);
+					}
+				} else {
+					const newCard: Project = {
+						...(editor as ProjectEditor),
+						timestamp: Date.now(),
+						projectId: uuidv4(),
+					};
+					console.log(newCard);
+					const res = await fetch("/api/project", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(newCard),
+					});
+					if (res.ok) {
+						setCards((prevCards) => [newCard, ...prevCards]);
+						setEditor(initProjectEditor);
+						!isPinned && setExpand(false);
+					}
 				}
 			}
 		} catch (err) {
