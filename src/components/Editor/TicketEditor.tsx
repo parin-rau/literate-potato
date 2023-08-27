@@ -99,7 +99,7 @@ export default function TicketEditor(props: Props) {
 					subtasks,
 					priority,
 					...unusedPrevData
-				} = previousData;
+				} = previousData as FetchedTicketData;
 				return {
 					initState: {
 						title,
@@ -111,13 +111,13 @@ export default function TicketEditor(props: Props) {
 					},
 					unusedPrevData,
 					defaultExpand: true,
-					editorHeading: `Edit Task`,
+					editorHeading: "Edit Task",
 				};
 			} else {
 				return {
 					initState: initTicketEditor,
 					defaultExpand: false,
-					editorHeading: `Create New Task`,
+					editorHeading: "Create New Task",
 				};
 			}
 		} else if (dataKind === "project") {
@@ -346,7 +346,7 @@ export default function TicketEditor(props: Props) {
 				)}
 				{expand && dataKind === "project" && (
 					<ProjectForm
-						{...{ editor: editor as Project, handleChange }}
+						{...{ editor: editor as ProjectEditor, handleChange }}
 					/>
 				)}
 			</form>

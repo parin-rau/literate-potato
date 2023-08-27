@@ -36,8 +36,8 @@ export default function TicketCard(props: Props) {
 	} = props.cardData;
 	const { setCards, filters, setFilters, setCardCache } = props;
 	const moreOptions = [
-		{ name: "Delete", fn: deleteCard, ticketId: ticketId },
-		{ name: "Edit", fn: editCard, ticketId: ticketId },
+		{ name: "Delete", fn: deleteCard, ticketId },
+		{ name: "Edit", fn: editCard, ticketId },
 	];
 
 	const [statusColors, setStatusColors] = useState(
@@ -67,7 +67,7 @@ export default function TicketCard(props: Props) {
 				);
 				setCardCache &&
 					setCardCache((prev) =>
-						prev.filter((Card) => Card.ticketId !== id)
+						prev.filter((card) => card.ticketId !== id)
 					);
 			}
 		} catch (err) {

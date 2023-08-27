@@ -33,7 +33,7 @@ export default function HomePage() {
 						styles={cardContainerStyles}
 					/>
 					<CardContainer
-						containerTitle="Upcoming Tasks"
+						containerTitle="All Tasks"
 						dataKind="ticket"
 						styles={cardContainerStyles}
 					/>

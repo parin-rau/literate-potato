@@ -13,7 +13,7 @@ export default function ProjectForm(props: Props) {
 	return (
 		<>
 			<input
-				className="text-2xl"
+				className="text-lg sm:text-xl border rounded-md px-2 shadow-sm bg-inherit border-inherit"
 				name="title"
 				value={editor.title}
 				onChange={handleChange}
@@ -21,21 +21,22 @@ export default function ProjectForm(props: Props) {
 				autoFocus
 				required
 			/>
+			<input
+				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
+				name="creator"
+				value={editor.creator}
+				onChange={handleChange}
+				placeholder="Creator"
+			/>
 			<textarea
-				className="text-md"
+				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
 				name="description"
 				rows={2}
 				value={editor.description}
 				onChange={handleChange}
 				placeholder="Description"
 			/>
-			<input
-				className="text-md"
-				name="creator"
-				value={editor.creator}
-				onChange={handleChange}
-				placeholder="Creator"
-			/>
+
 			<div className="space-x-2">
 				<button
 					className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-full max-w-min"

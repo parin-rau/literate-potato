@@ -70,6 +70,38 @@ app.get("/api/project/:id/ticket", async (req, res) => {
 	}
 });
 
+app.patch("/api/project/:id", async (req, res) => {
+	try {
+		const id = req.params.id;
+		const data = await req.body;
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localProjects);
+		const result = await coll.updateOne(
+			{ projectId: id },
+			{ $set: { ...data, lastModified: Date.now() } }
+		);
+		await client.close();
+		res.status(200).send(result);
+	} catch (err) {
+		console.error(err);
+	}
+});
+
+app.delete("/api/project/:id", async (req, res) => {
+	try {
+		const id = req.params.id;
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localProjects);
+		const result = await coll.deleteOne({ projectId: id });
+		await client.close();
+		res.status(200).send(result);
+	} catch (err) {
+		console.error(err);
+	}
+});
+
 // TICKETS
 
 app.get("/api/ticket", async (_req, res) => {

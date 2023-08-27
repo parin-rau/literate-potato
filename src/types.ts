@@ -4,7 +4,8 @@ export interface Project {
 	creator: string;
 	timestamp: number;
 	projectId: string;
-	[key: string]: string | number;
+	projectNumber: number;
+	//[key: string]: string | number;
 }
 
 export type ProjectEditor = {

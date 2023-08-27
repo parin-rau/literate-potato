@@ -5,8 +5,12 @@ import TicketCard from "./TicketCard";
 type Props = {
 	dataKind: string;
 	cards: FetchedTicketData[] | Project[];
-	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	setCardCache: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	setCards: React.Dispatch<
+		React.SetStateAction<FetchedTicketData[] | Project[]>
+	>;
+	setCardCache: React.Dispatch<
+		React.SetStateAction<FetchedTicketData[] | Project[]>
+	>;
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
 };
@@ -37,7 +41,18 @@ export default function CardSelector(props: Props) {
 	}
 	if (dataKind === "project") {
 		return (cards as Project[]).map((card) => (
-			<ProjectCard key={card.projectId} cardData={{ ...card }} />
+			<ProjectCard
+				key={card.projectId}
+				cardData={{ ...card }}
+				setCards={
+					setCards as React.Dispatch<React.SetStateAction<Project[]>>
+				}
+				setCardCache={
+					setCardCache as React.Dispatch<
+						React.SetStateAction<Project[]>
+					>
+				}
+			/>
 		));
 	}
 }
