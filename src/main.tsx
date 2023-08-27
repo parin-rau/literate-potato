@@ -8,6 +8,7 @@ import "./index.css";
 import TicketPage from "./pages/TicketPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
 import RootLayout from "./layout/RootLayout.tsx";
+import SearchResultsPage from "./pages/SearchResultsPage.tsx";
 
 const router = createBrowserRouter([
 	{
@@ -29,6 +30,11 @@ const router = createBrowserRouter([
 			{
 				path: "login",
 				element: <LoginPage />,
+				errorElement: <ErrorPage />,
+			},
+			{
+				path: "search/:query",
+				element: <SearchResultsPage />,
 				errorElement: <ErrorPage />,
 			},
 		],

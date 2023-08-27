@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { titleCap } from "../../utility/charCaseFunctions";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
 	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
 	placeholder?: string;
+	linkTo?: string;
 };
 
 export default function SearchBar(props: Props) {
-	const { setFilters, placeholder } = props;
+	const { setFilters, placeholder, linkTo } = props;
 	const [search, setSearch] = useState("");
+	const navigate = useNavigate();
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const { value } = e.target;
@@ -23,9 +26,16 @@ export default function SearchBar(props: Props) {
 		}
 	}
 
+	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		if (linkTo) {
+			navigate(`${linkTo}/${search}`);
+		}
+	}
+
 	return (
 		<form
-			onSubmit={(e) => e.preventDefault()}
+			onSubmit={handleSubmit}
 			className={
 				"dark:bg-zinc-800" +
 				(setFilters
@@ -41,7 +51,7 @@ export default function SearchBar(props: Props) {
 				placeholder={placeholder || "Search..."}
 			/>
 			{!setFilters && (
-				<button className="px-4">
+				<button className="px-4" type="submit">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"

@@ -14,7 +14,6 @@ import TicketForm from "../Form/TicketForm";
 type CommonProps = {
 	dataKind: string;
 	resetFilters?: () => void;
-	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type CommonProjectProps = {
@@ -91,7 +90,7 @@ export default function TicketEditor(props: Props) {
 
 	function handleInit(dataKind: "ticket" | "project") {
 		if (dataKind === "ticket") {
-			if (previousData as FetchedTicketData) {
+			if (previousData) {
 				const {
 					title,
 					description,
@@ -122,7 +121,7 @@ export default function TicketEditor(props: Props) {
 				};
 			}
 		} else if (dataKind === "project") {
-			if (previousData as Project) {
+			if (previousData) {
 				const { title, description, ...unusedPrevData } = previousData;
 				return {
 					initState: {

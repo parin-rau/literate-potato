@@ -149,6 +149,22 @@ app.delete("/api/ticket/:id", async (req, res) => {
 
 // USER
 
+// SEARCH
+
+app.get("/api/search/:query", async (req, res) => {
+	try {
+		const { query } = req.params;
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localTickets);
+		const results = await coll.find({ title: query }).limit(50).toArray();
+		await client.close();
+		res.status(200).send(results);
+	} catch (e) {
+		console.error(e);
+	}
+});
+
 // TEST
 
 app.get("/api/test", (_req, res) => {

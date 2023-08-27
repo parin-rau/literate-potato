@@ -28,7 +28,7 @@ export default function NavBar() {
 				<Link to={`/`}>
 					<h2 className="text-bold text-xl">Home</h2>
 				</Link>
-				<SearchBar />
+				<SearchBar linkTo="/search" />
 				<div className="flex space-x-4">
 					<button
 						className=""

@@ -6,7 +6,9 @@ import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "../Card/CardSelector";
 import CardCategory from "./CardCategory";
 
-type Props = { styles?: string } & (
+type Props = {
+	styles?: string;
+} & (
 	| {
 			containerTitle: string;
 			dataKind: "ticket";
