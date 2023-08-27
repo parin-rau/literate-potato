@@ -1,52 +1,83 @@
 import { useState } from "react";
-import SelectDropdown from "../Nav/SelectDropdown";
-import TagsEditor from "./TagsEditor";
 import {
-	initEditor,
+	initProjectEditor,
+	initTicketEditor,
 	FetchedTicketData,
 	TicketData,
 	EditorData,
+	Project,
 } from "../../types";
 import { v4 as uuidv4 } from "uuid";
-import SubtaskEditor from "./SubtaskEditor";
-import { optionLookup } from "../../utility/optionLookup";
+import ProjectForm from "../Form/ProjectForm";
+import TicketForm from "../Form/TicketForm";
 
-type Props = {
+type CommonProps = {
+	dataKind: string;
+	resetFilters: () => void;
+	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+type CommonProjectProps = {
+	dataKind: "project";
+	setCards: React.Dispatch<React.SetStateAction<Project[]>>;
+	setCardCache: React.Dispatch<React.SetStateAction<Project[]>>;
+};
+
+type CommonTicketProps = {
+	dataKind: "ticket";
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	setCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	resetFilters?: () => void;
-} & (
-	| {
-			projectId: string;
-			previousData?: never;
-			setEditing?: never;
-	  }
-	| {
-			projectId?: never;
-			previousData: FetchedTicketData;
-			setEditing: React.Dispatch<React.SetStateAction<boolean>>;
-	  }
-);
+	setCardCache: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+};
+
+type CreatingProjectProps = CommonProjectProps & {
+	projectId?: never;
+	previousData?: never;
+	setEditing?: never;
+};
+
+type CreatingTicketProps = CommonTicketProps & {
+	projectId: string;
+	previousData?: never;
+	setEditing?: never;
+};
+
+type EditingProjectProps = CommonProjectProps & {
+	projectId: string;
+	previousData: Project;
+	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+type EditingTicketProps = CommonTicketProps & {
+	projectId?: never;
+	previousData: FetchedTicketData;
+	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+type Props = CommonProps &
+	(
+		| (CreatingTicketProps | EditingTicketProps)
+		| (CreatingProjectProps | EditingProjectProps)
+	);
 
 export default function TicketEditor(props: Props) {
 	const {
+		dataKind,
 		setCards,
 		projectId,
 		previousData,
 		setEditing,
-		setCache,
+		setCardCache,
 		resetFilters,
 	} = props;
-	const init = handleInit();
-	const [editor, setEditor] = useState(init.initState);
-	const [expand, setExpand] = useState(init.defaultExpand);
+	const init = handleInit(dataKind);
+	const [editor, setEditor] = useState(init!.initState);
+	const [expand, setExpand] = useState(init!.defaultExpand);
 	const [isPinned, setPinned] = useState(false);
 
 	function handleChange(
-		e:
-			| React.ChangeEvent<HTMLInputElement>
-			| React.ChangeEvent<HTMLTextAreaElement>
-			| React.ChangeEvent<HTMLSelectElement>
+		e: React.ChangeEvent<
+			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+		>
 	) {
 		const { value, name } = e.target;
 		setEditor({ ...editor, [name]: value });
@@ -58,112 +89,160 @@ export default function TicketEditor(props: Props) {
 		}
 	}
 
-	function handleInit() {
-		if (previousData) {
-			const {
-				title,
-				description,
-				due,
-				tags,
-				subtasks,
-				priority,
-				_id,
-				...unusedPrevData
-			} = previousData;
-			return {
-				initState: {
+	function handleInit(dataKind: "ticket" | "project") {
+		if (dataKind === "ticket") {
+			if (previousData) {
+				const {
 					title,
 					description,
-					priority,
 					due,
-					subtasks,
 					tags,
-				},
-				unusedPrevData,
-				_id,
-				defaultExpand: true,
-				editorHeading: "Edit Task",
-			};
+					subtasks,
+					priority,
+					_id,
+					...unusedPrevData
+				} = previousData;
+				return {
+					initState: {
+						title,
+						description,
+						priority,
+						due,
+						subtasks,
+						tags,
+					},
+					unusedPrevData,
+					_id,
+					defaultExpand: true,
+					editorHeading: `Edit Task`,
+				};
+			} else {
+				return {
+					initState: initTicketEditor,
+					defaultExpand: false,
+					editorHeading: `Create New Task`,
+				};
+			}
+		} else if (dataKind === "project") {
+			if (previousData) {
+				const { title, description, _id, ...unusedPrevData } =
+					previousData;
+				return {
+					initState: {
+						title,
+						description,
+					},
+					unusedPrevData,
+					_id,
+					defaultExpand: true,
+					editorHeading: "Edit Project",
+				};
+			} else {
+				return {
+					initState: initProjectEditor,
+					defaultExpand: false,
+					editorHeading: "Create New Project",
+				};
+			}
 		} else {
-			return {
-				initState: initEditor,
-				defaultExpand: false,
-				editorHeading: "Create New Task",
-			};
+			console.error("Init undefined");
 		}
 	}
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		try {
-			if (previousData) {
-				const patchData: TicketData = {
-					...editor!,
-					...init.unusedPrevData!,
-				};
-				const res = await fetch(
-					`/api/ticket/${previousData.ticketId}`,
-					{
-						method: "PATCH",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify(patchData),
-					}
-				);
-				if (res.ok) {
-					const updatedTicket = {
-						...patchData,
-						_id: init._id,
-						lastModified: Date.now(),
+			if (dataKind === "ticket") {
+				if (previousData) {
+					const patchData: TicketData = {
+						...editor!,
+						...init!.unusedPrevData!,
 					};
-					setCards((prevCards) =>
-						prevCards.map((card) =>
-							card._id === updatedTicket._id
-								? updatedTicket
-								: card
-						)
+					const res = await fetch(
+						`/api/ticket/${previousData.ticketId}`,
+						{
+							method: "PATCH",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify(patchData),
+						}
 					);
-					setCache &&
-						setCache((prev) =>
-							prev.map((card) =>
+					if (res.ok) {
+						const updatedTicket = {
+							...patchData,
+							_id: init!._id,
+							lastModified: Date.now(),
+						};
+						setCards((prevCards) =>
+							prevCards.map((card) =>
 								card._id === updatedTicket._id
 									? updatedTicket
 									: card
 							)
 						);
-					setEditor(initEditor);
-					setEditing(false);
-				}
-			} else {
-				const newTicket = {
-					...editor,
-					projectId: projectId,
-					timestamp: Date.now(),
-					ticketId: uuidv4(),
-					taskStatus: "Not Started",
-					comments: [],
-				};
-				const res = await fetch("/api/ticket", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(newTicket),
-				});
-				if (res.ok) {
-					const response = await res.json();
-					setCards((prevCards) => [
-						{ ...newTicket, ticketNumber: response.ticketNumber },
-						...prevCards,
-					]);
-					if (setCache && resetFilters) {
-						setCache((prevCards) => [
+						setCardCache &&
+							setCardCache((prev) =>
+								prev.map((card) =>
+									card._id === updatedTicket._id
+										? updatedTicket
+										: card
+								)
+							);
+						setEditor(initTicketEditor);
+						setEditing(false);
+					}
+				} else {
+					const newTicket = {
+						...editor,
+						projectId: projectId,
+						timestamp: Date.now(),
+						ticketId: uuidv4(),
+						taskStatus: "Not Started",
+						comments: [],
+					};
+					const res = await fetch("/api/ticket", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(newTicket),
+					});
+					if (res.ok) {
+						const response = await res.json();
+						setCards((prevCards) => [
 							{
 								...newTicket,
 								ticketNumber: response.ticketNumber,
 							},
 							...prevCards,
 						]);
-						resetFilters();
+						if (setCardCache && resetFilters) {
+							setCardCache((prevCards) => [
+								{
+									...newTicket,
+									ticketNumber: response.ticketNumber,
+								},
+								...prevCards,
+							]);
+							resetFilters();
+						}
+						setEditor(initTicketEditor);
+						!isPinned && setExpand(false);
 					}
-					setEditor(initEditor);
+				}
+			} else if (dataKind === "project" && !previousData) {
+				const newCard: Project = {
+					...editor,
+					timestamp: Date.now(),
+					projectId: uuidv4(),
+				};
+				console.log(newCard);
+				const res = await fetch("/api/project", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(newCard),
+				});
+				if (res.ok) {
+					setCards((prevCards) => [newCard, ...prevCards]);
+					setEditor(initProjectEditor);
+					!isPinned && setExpand(false);
 				}
 			}
 		} catch (err) {
@@ -176,7 +255,7 @@ export default function TicketEditor(props: Props) {
 	}
 
 	function handleReset() {
-		setEditor(initEditor);
+		setEditor(initTicketEditor);
 	}
 
 	function handleEditCancel() {
@@ -203,7 +282,7 @@ export default function TicketEditor(props: Props) {
 				<div className="flex flex-row justify-between items-baseline">
 					{previousData ? (
 						<h1 className="font-semibold text-lg sm:text-2xl">
-							{init.editorHeading}
+							{init!.editorHeading}
 						</h1>
 					) : (
 						<button
@@ -213,7 +292,7 @@ export default function TicketEditor(props: Props) {
 							}}
 							type="button"
 						>
-							{init.editorHeading}
+							{init!.editorHeading}
 						</button>
 					)}
 					{expand && (
@@ -259,7 +338,7 @@ export default function TicketEditor(props: Props) {
 						</div>
 					)}
 				</div>
-				{expand && (
+				{/* {expand && (
 					<>
 						<input
 							className="text-lg sm:text-xl border rounded-md px-2 shadow-sm bg-inherit border-inherit"
@@ -309,7 +388,7 @@ export default function TicketEditor(props: Props) {
 								<h4 className="px-1">Priority</h4>
 								<SelectDropdown
 									name="priority"
-									value={editor.priority}
+									value={editor.priority as string}
 									options={optionLookup.priority}
 									handleChange={handleChange}
 									stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
@@ -326,6 +405,22 @@ export default function TicketEditor(props: Props) {
 							<i className="text-sm">Shift + Enter</i>
 						</div>
 					</>
+				)} */}
+				{expand && dataKind === "ticket" && (
+					<TicketForm
+						{...{
+							editor: editor as EditorData,
+							setEditor: setEditor as React.Dispatch<
+								React.SetStateAction<EditorData>
+							>,
+							handleChange,
+						}}
+					/>
+				)}
+				{expand && dataKind === "project" && (
+					<ProjectForm
+						{...{ editor: editor as Project, handleChange }}
+					/>
 				)}
 			</form>
 		</div>

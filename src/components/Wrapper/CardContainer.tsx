@@ -4,8 +4,9 @@ import { FetchedTicketData, Project, SortMenu } from "../../types";
 import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "../Card/CardSelector";
+import CardCategory from "./CardCategory";
 
-type Props =
+type Props = { styles?: string } & (
 	| {
 			containerTitle: string;
 			dataKind: "ticket";
@@ -15,10 +16,12 @@ type Props =
 			containerTitle: string;
 			dataKind: "project";
 			projectId?: string;
-	  };
+	  }
+);
 
 export default function CardContainer(props: Props) {
-	const [cards, setCards] = useState<FetchedTicketData[]>([]);
+	const { containerTitle, dataKind, projectId, styles } = props;
+	const [cards, setCards] = useState<FetchedTicketData[] | Project[]>([]);
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
@@ -28,7 +31,6 @@ export default function CardContainer(props: Props) {
 	);
 	const [isFirstFilter, setFirstFilter] = useState(true);
 	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
-	const { containerTitle, dataKind, projectId } = props;
 
 	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
 
@@ -154,16 +156,32 @@ export default function CardContainer(props: Props) {
 	}
 
 	return (
-		<div className="@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg dark:bg-transparent">
+		<div
+			className={
+				"@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg " +
+				styles
+			}
+		>
 			<TicketEditor
-				setCards={setCards}
-				projectId={projectId}
-				setCache={
-					setCardCache as React.Dispatch<
+				{...{
+					dataKind,
+					setCards: setCards as React.Dispatch<
 						React.SetStateAction<FetchedTicketData[]>
-					>
-				}
-				resetFilters={resetFilters}
+					>,
+					projectId,
+					resetFilters,
+					setCardCache: setCardCache as React.Dispatch<
+						React.SetStateAction<FetchedTicketData[]>
+					>,
+				}}
+				// setCards={setCards}
+				// projectId={projectId}
+				// setCardCache={
+				// 	setCardCache as React.Dispatch<
+				// 		React.SetStateAction<FetchedTicketData[]>
+				// 	>
+				// }
+				// resetFilters={resetFilters}
 			/>
 			<div className="flex flex-row justify-between items-baseline mx-1">
 				<h1 className="text-bold text-3xl my-4">

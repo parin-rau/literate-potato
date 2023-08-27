@@ -1,20 +1,14 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Project } from "../../types";
+import { Project, initProjectEditor } from "../../types";
 
 type Props = {
 	setCards: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
-const initEditor = {
-	title: "",
-	description: "",
-	owner: "",
-};
-
 export default function ProjectEditor(props: Props) {
 	const { setCards } = props;
-	const [editor, setEditor] = useState(initEditor);
+	const [editor, setEditor] = useState(initProjectEditor);
 	const [expand, setExpand] = useState(false);
 
 	function handleChange(
@@ -46,7 +40,7 @@ export default function ProjectEditor(props: Props) {
 			});
 			if (res.ok) {
 				setCards((prevCards) => [newCard, ...prevCards]);
-				setEditor(initEditor);
+				setEditor(initProjectEditor);
 			}
 		} catch (err) {
 			console.error(err);
@@ -58,7 +52,7 @@ export default function ProjectEditor(props: Props) {
 	}
 
 	function handleReset() {
-		setEditor(initEditor);
+		setEditor(initProjectEditor);
 	}
 
 	return (
@@ -113,10 +107,10 @@ export default function ProjectEditor(props: Props) {
 						/>
 						<input
 							className="text-md"
-							name="owner"
-							value={editor.owner}
+							name="creator"
+							value={editor.creator}
 							onChange={handleChange}
-							placeholder="Owner"
+							placeholder="Creator"
 						/>
 						<div className="space-x-2">
 							<button

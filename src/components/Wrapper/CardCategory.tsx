@@ -1,30 +1,58 @@
 import { FetchedTicketData, Project } from "../../types";
 import TicketCard from "../Card/TicketCard";
+import CardSelector from "./CardContainer";
 
-type Props =
+type Props = {
+	dataKind: string;
+	categoryTitle: string;
+	filters: string[];
+	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
+} & (
 	| {
-			categoryTitle: string;
 			cardsSubset: Project[];
 			setCards: React.Dispatch<React.SetStateAction<Project[]>>;
+			setCardCache: React.Dispatch<React.SetStateAction<Project[]>>;
 	  }
 	| {
-			categoryTitle: string;
 			cardsSubset: FetchedTicketData[];
 			setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	  };
+			setCardCache: React.Dispatch<
+				React.SetStateAction<FetchedTicketData[]>
+			>;
+	  }
+);
 
 export default function CardCategory(props: Props) {
-	const { categoryTitle, cardsSubset, setCards } = props;
+	const {
+		dataKind,
+		categoryTitle,
+		cardsSubset,
+		setCards,
+		filters,
+		setFilters,
+		setCardCache,
+	} = props;
 
 	return (
 		<div>
 			<h2>{categoryTitle}</h2>
 			{cardsSubset.map((card) => (
-				<TicketCard
-					key={card.ticketId || card.projectId}
-					cardData={{ ...card }}
-					setCards={setCards}
-				/>
+				<>
+					<CardSelector
+						{...{
+							dataKind,
+							setCards,
+							filters,
+							setFilters,
+							setCardCache,
+						}}
+					/>
+					<TicketCard
+						key={card.ticketId || card.projectId}
+						cardData={{ ...card }}
+						setCards={setCards}
+					/>
+				</>
 			))}
 		</div>
 	);

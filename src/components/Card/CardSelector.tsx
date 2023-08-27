@@ -27,7 +27,7 @@ export default function CardSelector(props: Props) {
 				}
 				filters={filters}
 				setFilters={setFilters}
-				setCache={
+				setCardCache={
 					setCardCache as React.Dispatch<
 						React.SetStateAction<FetchedTicketData[]>
 					>

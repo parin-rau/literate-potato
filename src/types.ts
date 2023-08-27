@@ -1,11 +1,18 @@
 export interface Project {
 	title: string;
 	description: string;
-	owner: string;
+	creator: string;
 	timestamp: number;
 	projectId: string;
 	[key: string]: string | number;
 }
+
+export type ProjectEditor = {
+	title: string;
+	description: string;
+	creator: string;
+	[key: string]: string | number;
+};
 
 export type EditorData = {
 	title: string;
@@ -19,6 +26,7 @@ export type EditorData = {
 		description: string;
 		completed: boolean;
 	}[];
+	creator: string;
 };
 
 export interface TicketData {
@@ -43,6 +51,7 @@ export interface TicketData {
 	projectId: string;
 	lastModified?: number;
 	ticketNumber?: number;
+	creator?: string;
 }
 
 // export type TicketData = EditorData & {
@@ -72,13 +81,20 @@ export interface FetchedTicketData extends TicketData {
 	// timestamp: number;
 }
 
-export const initEditor: EditorData = {
+export const initTicketEditor: EditorData = {
 	title: "",
 	description: "",
 	priority: "",
 	due: "",
 	tags: [],
 	subtasks: [],
+	creator: "",
+};
+
+export const initProjectEditor: ProjectEditor = {
+	title: "",
+	description: "",
+	creator: "",
 };
 
 export type SortMenu = {

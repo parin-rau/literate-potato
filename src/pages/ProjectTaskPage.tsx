@@ -35,6 +35,7 @@ export default function ProjectTaskPage() {
 						dataKind="ticket"
 						containerTitle="Tasks"
 						projectId={projectId}
+						styles="dark:bg-transparent"
 					/>
 				</div>
 			</div>
