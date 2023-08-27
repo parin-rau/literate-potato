@@ -3,9 +3,9 @@ import {
 	initProjectEditor,
 	initTicketEditor,
 	FetchedTicketData,
-	TicketData,
 	EditorData,
 	Project,
+	ProjectEditor,
 } from "../../types";
 import { v4 as uuidv4 } from "uuid";
 import ProjectForm from "../Form/ProjectForm";
@@ -13,7 +13,7 @@ import TicketForm from "../Form/TicketForm";
 
 type CommonProps = {
 	dataKind: string;
-	resetFilters: () => void;
+	resetFilters?: () => void;
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -91,7 +91,7 @@ export default function TicketEditor(props: Props) {
 
 	function handleInit(dataKind: "ticket" | "project") {
 		if (dataKind === "ticket") {
-			if (previousData) {
+			if (previousData as FetchedTicketData) {
 				const {
 					title,
 					description,
@@ -99,7 +99,6 @@ export default function TicketEditor(props: Props) {
 					tags,
 					subtasks,
 					priority,
-					_id,
 					...unusedPrevData
 				} = previousData;
 				return {
@@ -112,7 +111,6 @@ export default function TicketEditor(props: Props) {
 						tags,
 					},
 					unusedPrevData,
-					_id,
 					defaultExpand: true,
 					editorHeading: `Edit Task`,
 				};
@@ -124,16 +122,15 @@ export default function TicketEditor(props: Props) {
 				};
 			}
 		} else if (dataKind === "project") {
-			if (previousData) {
-				const { title, description, _id, ...unusedPrevData } =
-					previousData;
+			if (previousData as Project) {
+				const { title, description, ...unusedPrevData } = previousData;
 				return {
 					initState: {
 						title,
 						description,
 					},
 					unusedPrevData,
-					_id,
+
 					defaultExpand: true,
 					editorHeading: "Edit Project",
 				};
@@ -154,9 +151,8 @@ export default function TicketEditor(props: Props) {
 		try {
 			if (dataKind === "ticket") {
 				if (previousData) {
-					const patchData: TicketData = {
+					const patchData = {
 						...editor!,
-						...init!.unusedPrevData!,
 					};
 					const res = await fetch(
 						`/api/ticket/${previousData.ticketId}`,
@@ -167,14 +163,14 @@ export default function TicketEditor(props: Props) {
 						}
 					);
 					if (res.ok) {
-						const updatedTicket = {
-							...patchData,
-							_id: init!._id,
+						const updatedTicket: FetchedTicketData = {
+							...(patchData as EditorData),
+							...(init!.unusedPrevData! as FetchedTicketData),
 							lastModified: Date.now(),
 						};
 						setCards((prevCards) =>
 							prevCards.map((card) =>
-								card._id === updatedTicket._id
+								card.ticketId === updatedTicket.ticketId
 									? updatedTicket
 									: card
 							)
@@ -182,7 +178,7 @@ export default function TicketEditor(props: Props) {
 						setCardCache &&
 							setCardCache((prev) =>
 								prev.map((card) =>
-									card._id === updatedTicket._id
+									card.ticketId === updatedTicket.ticketId
 										? updatedTicket
 										: card
 								)
@@ -192,8 +188,8 @@ export default function TicketEditor(props: Props) {
 					}
 				} else {
 					const newTicket = {
-						...editor,
-						projectId: projectId,
+						...(editor as EditorData),
+						projectId: projectId!,
 						timestamp: Date.now(),
 						ticketId: uuidv4(),
 						taskStatus: "Not Started",
@@ -229,7 +225,7 @@ export default function TicketEditor(props: Props) {
 				}
 			} else if (dataKind === "project" && !previousData) {
 				const newCard: Project = {
-					...editor,
+					...(editor as ProjectEditor),
 					timestamp: Date.now(),
 					projectId: uuidv4(),
 				};
@@ -338,74 +334,6 @@ export default function TicketEditor(props: Props) {
 						</div>
 					)}
 				</div>
-				{/* {expand && (
-					<>
-						<input
-							className="text-lg sm:text-xl border rounded-md px-2 shadow-sm bg-inherit border-inherit"
-							name="title"
-							value={editor.title}
-							onChange={handleChange}
-							placeholder="Title"
-							autoFocus
-							required
-						/>
-						<textarea
-							className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
-							name="description"
-							rows={2}
-							value={editor.description}
-							onChange={handleChange}
-							placeholder="Description"
-						/>
-						<SubtaskEditor
-							editor={editor as EditorData}
-							setEditor={
-								setEditor as React.Dispatch<
-									React.SetStateAction<EditorData>
-								>
-							}
-						/>
-						<TagsEditor
-							editor={editor as EditorData}
-							setEditor={
-								setEditor as React.Dispatch<
-									React.SetStateAction<EditorData>
-								>
-							}
-						/>
-						<div className="grid grid-cols-2 place-items-stretch gap-2 sm:gap-4 rounded-md shadow-none border-inherit">
-							<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
-								<h4 className="px-1">Due Date</h4>
-								<input
-									className="text-base px-1 rounded-md bg-slate-100 dark:bg-zinc-800 h-8  "
-									name="due"
-									type="date"
-									value={editor.due}
-									onChange={handleChange}
-								/>
-							</div>
-							<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
-								<h4 className="px-1">Priority</h4>
-								<SelectDropdown
-									name="priority"
-									value={editor.priority as string}
-									options={optionLookup.priority}
-									handleChange={handleChange}
-									stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
-								/>
-							</div>
-						</div>
-						<div className="space-x-2">
-							<button
-								className="transition duration-200 mt-2 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-md max-w-min"
-								type="submit"
-							>
-								Submit
-							</button>
-							<i className="text-sm">Shift + Enter</i>
-						</div>
-					</>
-				)} */}
 				{expand && dataKind === "ticket" && (
 					<TicketForm
 						{...{

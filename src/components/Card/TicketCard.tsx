@@ -32,6 +32,7 @@ export default function TicketCard(props: Props) {
 		//projectId,
 		ticketNumber,
 		comments,
+		creator,
 	} = props.cardData;
 	const { setCards, filters, setFilters, setCardCache } = props;
 	const moreOptions = [
@@ -263,6 +264,7 @@ export default function TicketCard(props: Props) {
 						</div>
 					)}
 					<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
+						{creator && <span>Creator: {creator}</span>}
 						<span>Created: {timestampDisplay(timestamp)}</span>
 						{lastModified && (
 							<i>

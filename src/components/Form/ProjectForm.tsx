@@ -1,7 +1,7 @@
-import { EditorData } from "../../types";
+import { ProjectEditor } from "../../types";
 
 type Props = {
-	editor: EditorData;
+	editor: ProjectEditor;
 	handleChange: (
 		_e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => void;

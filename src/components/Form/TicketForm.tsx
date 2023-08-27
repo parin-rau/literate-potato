@@ -28,6 +28,13 @@ export default function ProjectForm(props: Props) {
 				autoFocus
 				required
 			/>
+			<input
+				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
+				name="creator"
+				value={editor.creator}
+				onChange={handleChange}
+				placeholder="Creator"
+			/>
 			<textarea
 				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
 				name="description"
