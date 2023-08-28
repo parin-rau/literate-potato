@@ -70,7 +70,6 @@ export default function ProjectForm(props: Props) {
 				value={editor.title}
 				onChange={handleChange}
 				placeholder="Title"
-				autoFocus
 				required
 			/>
 

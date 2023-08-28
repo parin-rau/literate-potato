@@ -35,13 +35,13 @@ type CreatingProjectProps = CommonProjectProps & {
 };
 
 type CreatingTicketProps = CommonTicketProps & {
-	project: { projectId: string; projectTitle: string };
+	project?: { projectId: string; projectTitle: string };
 	previousData?: never;
 	setEditing?: never;
 };
 
 type EditingProjectProps = CommonProjectProps & {
-	project: { projectId: string; projectTitle: string };
+	project?: never;
 	previousData: Project;
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -62,7 +62,6 @@ export default function TicketEditor(props: Props) {
 	const {
 		dataKind,
 		setCards,
-		project,
 		previousData,
 		setEditing,
 		setCardCache,
@@ -123,22 +122,24 @@ export default function TicketEditor(props: Props) {
 					editorHeading: "Edit Task",
 				};
 			} else {
+				const { project } = props;
 				return {
-					initState: initTicketEditor,
+					initState: { ...initTicketEditor, project },
 					defaultExpand: false,
 					editorHeading: "Create New Task",
 				};
 			}
 		} else if (dataKind === "project") {
 			if (previousData) {
-				const { title, description, ...unusedPrevData } = previousData;
+				const { title, description, creator, ...unusedPrevData } =
+					previousData as Project;
 				return {
 					initState: {
 						title,
 						description,
+						creator,
 					},
 					unusedPrevData,
-
 					defaultExpand: true,
 					editorHeading: "Edit Project",
 				};
@@ -386,7 +387,6 @@ export default function TicketEditor(props: Props) {
 								React.SetStateAction<EditorData>
 							>,
 							handleChange,
-							project,
 						}}
 					/>
 				)}

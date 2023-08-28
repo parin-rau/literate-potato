@@ -8,6 +8,7 @@ import SubtaskDisplay from "../Display/SubtaskDisplay";
 import { optionLookup } from "../../utility/optionLookup";
 import { Link } from "react-router-dom";
 import TicketEditor from "../Editor/TicketEditor";
+import ProgressBar from "../Display/ProgressBar";
 
 type Props = {
 	cardData: FetchedTicketData;
@@ -141,19 +142,30 @@ export default function TicketCard(props: Props) {
 
 	function countCompletedSubs() {
 		if (subtasks) {
+			const totalTasks = subtasks.length;
 			const isCompleted: number[] = subtasks.map((subtask) =>
 				subtask.completed ? 1 : 0
 			);
 			const totalCompleted = isCompleted.reduce((a, b) => a + b, 0);
-			const percentCompleted =
-				Math.floor(
-					subtasks.length > 0
-						? (totalCompleted / subtasks.length) * 100
-						: 0
-				).toString() + "%";
-			return { totalCompleted, percentCompleted };
+			const percentCompletedNum =
+				totalTasks > 0
+					? Math.floor((totalCompleted / totalTasks) * 100) / 100
+					: 0;
+			const percentCompletedString =
+				(percentCompletedNum * 100).toString() + "%";
+			return {
+				totalTasks,
+				totalCompleted,
+				percentCompletedString,
+				percentCompletedNum,
+			};
 		} else {
-			return { totalCompleted: 0, percentCompleted: "0%" };
+			return {
+				totalTasks: 0,
+				totalCompleted: 0,
+				percentCompletedString: "0%",
+				percentCompletedNum: 0,
+			};
 		}
 	}
 
@@ -162,7 +174,7 @@ export default function TicketCard(props: Props) {
 			{!isEditing && (
 				<div className="flex flex-col px-4 py-4 space-y-2 dark:border-neutral-700">
 					<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
-						<div className="flex flex-col sm:flex-row sm:items-baseline space-y-1 sm:space-x-4">
+						<div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-x-4">
 							<Link
 								to={`/ticket/${ticketId}`}
 								className="font-semibold text-2xl sm:text-3xl"
@@ -188,23 +200,17 @@ export default function TicketCard(props: Props) {
 						</div>
 					</div>
 					{(priority || due || subtasks!.length > 0) && (
-						<div className="grid grid-cols-2 rounded-lg border border-inherit shadow-sm p-2">
+						<div className="flex flex-col space-y-1 rounded-lg border border-inherit shadow-sm p-2">
 							{subtasks && subtasks.length > 0 && (
-								<span>
-									{`${countCompletedSubs().totalCompleted}/${
-										subtasks.length
-									} Subtask${
-										subtasks.length !== 1 ? "s" : ""
-									}`}
-								</span>
+								<>
+									<ProgressBar
+										progress={countCompletedSubs()}
+									/>
+									<div></div>
+								</>
 							)}
 							{priority && (
 								<p className="">Priority: {priority}</p>
-							)}
-							{subtasks && subtasks.length > 0 && (
-								<span>{`${
-									countCompletedSubs().percentCompleted
-								} Completed`}</span>
 							)}
 							{due && (
 								<p

@@ -117,6 +117,13 @@ export const optionLookup = {
 	],
 	taskStatus: [
 		{
+			label: "On Hold",
+			value: "On Hold",
+			sortValue: -1,
+			bgColor: "bg-violet-600",
+			textColor: "text-white",
+		},
+		{
 			label: "Not Started",
 			value: "Not Started",
 			sortValue: 0,

@@ -38,6 +38,7 @@ export default function CardContainer(props: Props) {
 	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
 
 	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
+	const project = { projectId, projectTitle };
 
 	useEffect(() => {
 		async function getPosts() {
@@ -173,8 +174,7 @@ export default function CardContainer(props: Props) {
 					setCards: setCards as React.Dispatch<
 						React.SetStateAction<FetchedTicketData[]>
 					>,
-					projectId,
-					projectTitle,
+					project,
 					resetFilters,
 					setCardCache: setCardCache as React.Dispatch<
 						React.SetStateAction<FetchedTicketData[]>
