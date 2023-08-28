@@ -19,7 +19,9 @@ export default function SubtaskEditor(props: Props) {
 	}
 
 	function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-		e.code === "Enter" && e.shiftKey === false && addSubtask(text);
+		if (e.code === "Enter" && e.ctrlKey === false) {
+			addSubtask(text);
+		}
 	}
 
 	function addSubtask(subtaskDesc: string) {

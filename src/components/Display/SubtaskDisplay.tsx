@@ -18,8 +18,9 @@ export default function SubtaskDisplay(props: Props) {
 			}
 		>
 			{subtasks.map((subtask) => (
-				<button
-					type="button"
+				<div
+					role="button"
+					tabIndex={0}
 					className={
 						"transition duration-100 hover:bg-slate-200 dark:hover:bg-zinc-800 text-sm rounded px-1 py-1 flex flex-row space-x-4 m-1 justify-between items-center cursor-pointer text-left " +
 						(subtask.completed
@@ -33,6 +34,12 @@ export default function SubtaskDisplay(props: Props) {
 								: "Mark Completed"
 							: ""
 					}
+					onKeyDown={(e) => {
+						if (e.code === "Enter" || e.code === "Space") {
+							completeSubtask &&
+								completeSubtask(subtask.subtaskId);
+						}
+					}}
 					onClick={() => {
 						completeSubtask && completeSubtask(subtask.subtaskId);
 					}}
@@ -85,7 +92,7 @@ export default function SubtaskDisplay(props: Props) {
 							</button>
 						</div>
 					)}
-				</button>
+				</div>
 			))}
 		</div>
 	);

@@ -28,6 +28,20 @@ app.get("/api/project", async (_req, res) => {
 	}
 });
 
+// app.get("/api/project/title", async (_req, res) => {
+// 	try {
+// 		const client: mongoDB.MongoClient = await connectToDatabase();
+// 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+// 		const coll: mongoDB.Collection = db.collection(localProjects);
+// 		const projects = await coll.find().limit(50).toArray();
+// 		await client.close();
+// 		const projectTitles = projects.
+// 		res.status(200).send(projects);
+// 	} catch (err) {
+// 		console.error(err);
+// 	}
+// });
+
 app.get("/api/project/:id", async (req, res) => {
 	try {
 		const id = req.params.id;

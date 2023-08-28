@@ -34,6 +34,7 @@ export default function ProjectTaskPage() {
 					<CardContainer
 						dataKind="ticket"
 						containerTitle="Tasks"
+						projectTitle={project?.title}
 						projectId={projectId}
 						styles="dark:bg-transparent"
 					/>

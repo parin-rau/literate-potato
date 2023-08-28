@@ -1,4 +1,5 @@
-import { EditorData } from "../../types";
+import { useState, useEffect } from "react";
+import { EditorData, Project } from "../../types";
 import TagsEditor from "../Editor/TagsEditor";
 import SubtaskEditor from "../Editor/SubtaskEditor";
 import SelectDropdown from "../Nav/SelectDropdown";
@@ -12,10 +13,56 @@ type Props = {
 		>
 	) => void;
 	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
+	// handleProjectIdChange: (
+	// 	_searchId: string,
+	// 	_project: { projectId: string; projectTitle: string }
+	// ) => void;
+};
+
+type ProjectList = {
+	label: string;
+	value: string;
 };
 
 export default function ProjectForm(props: Props) {
 	const { editor, handleChange, setEditor } = props;
+	const [projectList, setProjectList] = useState<ProjectList[]>([]);
+	//const [projectTitle, setProjectTitle] = useState<string>("");
+
+	useEffect(() => {
+		async function getProjectTitles() {
+			const defaultProject = { value: "", label: "No project assigned" };
+			try {
+				const res = await fetch("/api/project", {
+					headers: { "Content-Type": "application/json" },
+				});
+				if (res.ok) {
+					const fetchedProjects: Project[] = await res.json();
+					const fetchedProjectNames = fetchedProjects.map(
+						(project) => ({
+							value: project.projectId,
+							label: project.title,
+						})
+					);
+					setProjectList([defaultProject, ...fetchedProjectNames]);
+				}
+			} catch (e) {
+				console.error(e);
+			}
+		}
+		getProjectTitles();
+	}, []);
+
+	useEffect(() => {
+		function updateProjectTitle() {
+			const id = editor.projectId;
+			const updatedTitle =
+				projectList.find((p) => p.value === id)?.label || "";
+			const updatedEditor = { ...editor, projectTitle: updatedTitle };
+			setEditor(updatedEditor);
+		}
+		updateProjectTitle();
+	}, [editor.projectId]);
 
 	return (
 		<>
@@ -28,6 +75,7 @@ export default function ProjectForm(props: Props) {
 				autoFocus
 				required
 			/>
+
 			<input
 				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
 				name="creator"
@@ -35,6 +83,20 @@ export default function ProjectForm(props: Props) {
 				onChange={handleChange}
 				placeholder="Creator"
 			/>
+			<SelectDropdown
+				name="projectId"
+				value={editor.projectId}
+				options={projectList}
+				handleChange={handleChange}
+				stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
+			/>
+			{/* <input
+				type="hidden"
+				name="projectTitle"
+				value={projectTitle}
+				onChange={handleChange}
+			/> */}
+
 			<textarea
 				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
 				name="description"

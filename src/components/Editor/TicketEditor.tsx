@@ -29,25 +29,25 @@ type CommonTicketProps = {
 };
 
 type CreatingProjectProps = CommonProjectProps & {
-	projectId?: never;
+	project?: never;
 	previousData?: never;
 	setEditing?: never;
 };
 
 type CreatingTicketProps = CommonTicketProps & {
-	projectId: string;
+	project: { projectId: string; projectTitle: string };
 	previousData?: never;
 	setEditing?: never;
 };
 
 type EditingProjectProps = CommonProjectProps & {
-	projectId: string;
+	project: { projectId: string; projectTitle: string };
 	previousData: Project;
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type EditingTicketProps = CommonTicketProps & {
-	projectId?: never;
+	project?: never;
 	previousData: FetchedTicketData;
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -62,7 +62,7 @@ export default function TicketEditor(props: Props) {
 	const {
 		dataKind,
 		setCards,
-		projectId,
+		project,
 		previousData,
 		setEditing,
 		setCardCache,
@@ -80,10 +80,17 @@ export default function TicketEditor(props: Props) {
 	) {
 		const { value, name } = e.target;
 		setEditor({ ...editor, [name]: value });
+		console.log(editor);
 	}
 
+	// function handleProjectIdChange(searchId: string, projectLookup: {projectId: string, projectTitle: string}[]) {
+	// 	const title = projectLookup.find(p => p.projectId === searchId)?.projectTitle || ""
+	// 	const newProjectTitle = {...editor, projectTitle: title}
+	// 	setEditor(newProjectTitle)
+	// }
+
 	function handleKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
-		if (e.code === "Enter" && e.shiftKey === false) {
+		if (e.code === "Enter" && e.ctrlKey === false) {
 			e.preventDefault();
 		}
 	}
@@ -188,7 +195,7 @@ export default function TicketEditor(props: Props) {
 				} else {
 					const newTicket = {
 						...(editor as EditorData),
-						projectId: projectId!,
+						project,
 						timestamp: Date.now(),
 						ticketId: uuidv4(),
 						taskStatus: "Not Started",
@@ -283,6 +290,7 @@ export default function TicketEditor(props: Props) {
 
 	function handleExpand() {
 		setExpand(!expand);
+		isPinned && setPinned(false);
 	}
 
 	function handleReset() {
@@ -377,6 +385,7 @@ export default function TicketEditor(props: Props) {
 								React.SetStateAction<EditorData>
 							>,
 							handleChange,
+							project,
 						}}
 					/>
 				)}

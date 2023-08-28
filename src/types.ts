@@ -29,6 +29,8 @@ export type EditorData = {
 		completed: boolean;
 	}[];
 	creator: string;
+	projectTitle: string;
+	projectId: string;
 };
 
 export interface TicketData {
@@ -50,7 +52,7 @@ export interface TicketData {
 	}[];
 	timestamp: number;
 	taskStatus: string;
-	projectId: string;
+	project: { projectTitle: string; projectId: string };
 	lastModified?: number;
 	ticketNumber?: number;
 	creator?: string;
@@ -91,6 +93,8 @@ export const initTicketEditor: EditorData = {
 	tags: [],
 	subtasks: [],
 	creator: "",
+	projectTitle: "",
+	projectId: "",
 };
 
 export const initProjectEditor: ProjectEditor = {
