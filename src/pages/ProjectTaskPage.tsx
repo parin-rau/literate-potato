@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 import CardContainer from "../components/Wrapper/CardContainer";
 import { Project } from "../types";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function ProjectTaskPage() {
 	const [project, setProject] = useState<Project>();
 	const projectId = useParams().id || "";
+	const navigate = useNavigate();
+
+	if (projectId === "") {
+		navigate("/");
+		console.log("Project does not exist");
+	}
 
 	useEffect(() => {
 		async function getProjectTitle() {
 			try {
-				if (projectId.length > 0) {
+				if (projectId) {
 					const res = await fetch(`/api/project/${projectId}`, {
 						headers: { "Content-Type": "application/json" },
 					});
@@ -19,10 +25,11 @@ export default function ProjectTaskPage() {
 				}
 			} catch (e) {
 				console.error(e);
+				navigate("/");
 			}
 		}
 		getProjectTitle();
-	}, [projectId]);
+	}, [projectId, navigate]);
 
 	return (
 		<div className="flex flex-col justify-center items-stretch">

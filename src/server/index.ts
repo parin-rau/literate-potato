@@ -76,7 +76,10 @@ app.get("/api/project/:id/ticket", async (req, res) => {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localTickets);
-		const tickets = await coll.find({ projectId: id }).limit(50).toArray();
+		const tickets = await coll
+			.find({ "project.projectId": id })
+			.limit(50)
+			.toArray();
 		await client.close();
 		res.status(200).send(tickets);
 	} catch (err) {
@@ -170,6 +173,24 @@ app.patch("/api/ticket/:id", async (req, res) => {
 		const coll: mongoDB.Collection = db.collection(localTickets);
 		const tickets = await coll.updateOne(
 			{ ticketId: id },
+			{ $set: { ...data, lastModified: Date.now() } }
+		);
+		await client.close();
+		res.status(200).send(tickets);
+	} catch (err) {
+		console.error(err);
+	}
+});
+
+app.patch("/api/ticket/project-delete/:projectId", async (req, res) => {
+	try {
+		const projectId = req.params.projectId;
+		const data = await req.body;
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localTickets);
+		const tickets = await coll.updateMany(
+			{ "project.projectId": projectId },
 			{ $set: { ...data, lastModified: Date.now() } }
 		);
 		await client.close();

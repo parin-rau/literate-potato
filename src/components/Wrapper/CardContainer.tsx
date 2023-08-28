@@ -6,25 +6,26 @@ import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "../Card/CardSelector";
 import CardCategory from "./CardCategory";
 
+type TicketProps = {
+	containerTitle: string;
+	dataKind: "ticket";
+	projectId?: string;
+	projectTitle?: string;
+};
+
+type ProjectProps = {
+	containerTitle: string;
+	dataKind: "project";
+	projectId?: string;
+	projectTitle?: never;
+};
+
 type Props = {
 	styles?: string;
-} & (
-	| {
-			containerTitle: string;
-			dataKind: "ticket";
-			projectId?: string;
-			projectTitle?: string;
-	  }
-	| {
-			containerTitle: string;
-			dataKind: "project";
-			projectId?: string;
-			projectTitle?: never;
-	  }
-);
+} & (TicketProps | ProjectProps);
 
 export default function CardContainer(props: Props) {
-	const { containerTitle, dataKind, projectId, styles, projectTitle } = props;
+	const { containerTitle, dataKind, styles, projectId, projectTitle } = props;
 	const [cards, setCards] = useState<FetchedTicketData[] | Project[]>([]);
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined

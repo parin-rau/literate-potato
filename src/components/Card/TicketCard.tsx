@@ -265,13 +265,16 @@ export default function TicketCard(props: Props) {
 					)}
 					<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
 						{creator && <span>Creator: {creator}</span>}
-						{project.projectTitle && (
-							<span>
-								<Link to={`/project/${project.projectId}`}>
-									Project: <u>{project.projectTitle}</u>
-								</Link>
-							</span>
-						)}
+						<span>
+							<Link to={`/project/${project.projectId}`}>
+								Project:{" "}
+								{project.projectId ? (
+									<u>{project.projectTitle}</u>
+								) : (
+									"Unassigned"
+								)}
+							</Link>
+						</span>
 						<span>Created: {timestampDisplay(timestamp)}</span>
 						{lastModified && (
 							<i>

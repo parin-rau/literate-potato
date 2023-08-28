@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { EditorData, Project } from "../../types";
 import TagsEditor from "../Editor/TagsEditor";
 import SubtaskEditor from "../Editor/SubtaskEditor";
@@ -13,10 +13,6 @@ type Props = {
 		>
 	) => void;
 	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
-	// handleProjectIdChange: (
-	// 	_searchId: string,
-	// 	_project: { projectId: string; projectTitle: string }
-	// ) => void;
 };
 
 type ProjectList = {
@@ -27,7 +23,7 @@ type ProjectList = {
 export default function ProjectForm(props: Props) {
 	const { editor, handleChange, setEditor } = props;
 	const [projectList, setProjectList] = useState<ProjectList[]>([]);
-	//const [projectTitle, setProjectTitle] = useState<string>("");
+	const { projectId } = editor.project;
 
 	useEffect(() => {
 		async function getProjectTitles() {
@@ -53,16 +49,18 @@ export default function ProjectForm(props: Props) {
 		getProjectTitles();
 	}, []);
 
+	const updateProjectTitle = useCallback(() => {
+		const updatedTitle =
+			projectList.find((p) => p.value === projectId)?.label || "";
+		setEditor((prev) => ({
+			...prev,
+			project: { ...prev.project, projectTitle: updatedTitle },
+		}));
+	}, [projectId, projectList, setEditor]);
+
 	useEffect(() => {
-		function updateProjectTitle() {
-			const id = editor.projectId;
-			const updatedTitle =
-				projectList.find((p) => p.value === id)?.label || "";
-			const updatedEditor = { ...editor, projectTitle: updatedTitle };
-			setEditor(updatedEditor);
-		}
 		updateProjectTitle();
-	}, [editor.projectId]);
+	}, [updateProjectTitle]);
 
 	return (
 		<>
@@ -85,7 +83,7 @@ export default function ProjectForm(props: Props) {
 			/>
 			<SelectDropdown
 				name="projectId"
-				value={editor.projectId}
+				value={editor.project.projectId}
 				options={projectList}
 				handleChange={handleChange}
 				stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"

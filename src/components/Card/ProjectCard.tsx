@@ -24,17 +24,37 @@ export default function ProjectCard(props: Props) {
 
 	async function deleteCard(id: string) {
 		try {
-			const res = await fetch(`/api/project/${projectId}`, {
+			const res1 = await fetch(`/api/project/${projectId}`, {
 				method: "DELETE",
 			});
-			if (res.ok) {
-				setCards((prevCards) =>
-					prevCards.filter((card) => card.projectId !== id)
-				);
-				setCardCache &&
-					setCardCache((prev) =>
-						prev.filter((card) => card.projectId !== id)
+			if (res1.ok) {
+				try {
+					const ticketPatch = {
+						project: {
+							projectId: "",
+							projectTitle: "No project assigned",
+						},
+					};
+					const res2 = await fetch(
+						`/api/ticket/project-delete/${projectId}`,
+						{
+							method: "PATCH",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify(ticketPatch),
+						}
 					);
+					if (res2.ok) {
+						setCards((prevCards) =>
+							prevCards.filter((card) => card.projectId !== id)
+						);
+						setCardCache &&
+							setCardCache((prev) =>
+								prev.filter((card) => card.projectId !== id)
+							);
+					}
+				} catch (e) {
+					console.error(e);
+				}
 			}
 		} catch (err) {
 			console.error(err);

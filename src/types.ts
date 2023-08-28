@@ -29,8 +29,10 @@ export type EditorData = {
 		completed: boolean;
 	}[];
 	creator: string;
-	projectTitle: string;
-	projectId: string;
+	project: {
+		projectTitle: string;
+		projectId: string;
+	};
 };
 
 export interface TicketData {
@@ -93,8 +95,7 @@ export const initTicketEditor: EditorData = {
 	tags: [],
 	subtasks: [],
 	creator: "",
-	projectTitle: "",
-	projectId: "",
+	project: { projectTitle: "", projectId: "" },
 };
 
 export const initProjectEditor: ProjectEditor = {

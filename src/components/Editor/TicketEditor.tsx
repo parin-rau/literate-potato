@@ -79,15 +79,15 @@ export default function TicketEditor(props: Props) {
 		>
 	) {
 		const { value, name } = e.target;
-		setEditor({ ...editor, [name]: value });
-		console.log(editor);
+		if (name === "projectId" || name === "projectTitle") {
+			setEditor({
+				...(editor as EditorData),
+				project: { ...(editor as EditorData).project, [name]: value },
+			});
+		} else {
+			setEditor({ ...editor, [name]: value });
+		}
 	}
-
-	// function handleProjectIdChange(searchId: string, projectLookup: {projectId: string, projectTitle: string}[]) {
-	// 	const title = projectLookup.find(p => p.projectId === searchId)?.projectTitle || ""
-	// 	const newProjectTitle = {...editor, projectTitle: title}
-	// 	setEditor(newProjectTitle)
-	// }
 
 	function handleKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
 		if (e.code === "Enter" && e.ctrlKey === false) {
@@ -105,6 +105,7 @@ export default function TicketEditor(props: Props) {
 					tags,
 					subtasks,
 					priority,
+					project,
 					...unusedPrevData
 				} = previousData as FetchedTicketData;
 				return {
@@ -115,6 +116,7 @@ export default function TicketEditor(props: Props) {
 						due,
 						subtasks,
 						tags,
+						project,
 					},
 					unusedPrevData,
 					defaultExpand: true,
@@ -195,7 +197,6 @@ export default function TicketEditor(props: Props) {
 				} else {
 					const newTicket = {
 						...(editor as EditorData),
-						project,
 						timestamp: Date.now(),
 						ticketId: uuidv4(),
 						taskStatus: "Not Started",
