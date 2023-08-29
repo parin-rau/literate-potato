@@ -19,11 +19,11 @@ export default function ProgressBar(props: Props) {
 		if (progress <= 0 || progress > 1) {
 			return "bg-transparent";
 		} else if (progress < 0.3) {
-			return "bg-red-500";
+			return "bg-red-500 dark:bg-red-700";
 		} else if (progress < 0.7) {
-			return "bg-amber-500";
+			return "bg-amber-500 dark:bg-amber-600";
 		} else {
-			return "bg-green-500";
+			return "bg-green-500 dark:bg-green-700";
 		}
 	};
 

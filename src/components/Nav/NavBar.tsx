@@ -70,7 +70,7 @@ export default function NavBar() {
 					<div className="flex flex-shrink-0 pr-4 justify-start">
 						<Link
 							to={"login"}
-							className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg "
+							className="duration-200 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-lg "
 						>
 							Sign In
 						</Link>

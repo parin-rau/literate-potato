@@ -21,7 +21,7 @@ export default function TagsDisplay(props: Props) {
 			{tags.map((tag, index) => (
 				<button
 					type="button"
-					className="text-sm bg-blue-500 text-white hover:bg-blue-600 hover:text-white rounded-full px-3 py-1 m-1 flex flex-row cursor-pointer "
+					className="text-sm bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white  hover:text-white rounded-full px-3 py-1 m-1 flex flex-row cursor-pointer "
 					key={index}
 					onClick={() => {
 						handleClick(index, tag);

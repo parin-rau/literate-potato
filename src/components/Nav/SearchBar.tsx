@@ -28,7 +28,7 @@ export default function SearchBar(props: Props) {
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		if (linkTo) {
+		if (linkTo && search) {
 			navigate(`${linkTo}/${search}`);
 		}
 	}
