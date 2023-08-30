@@ -45,6 +45,8 @@ export default function MenuDropdown(props: Props) {
 			}
 		};
 		document.addEventListener("mousedown", closeOpenMenu);
+
+		return () => document.removeEventListener("mousedown", closeOpenMenu);
 	}, [isMenu]);
 
 	// useEffect(() => {
@@ -136,7 +138,6 @@ export default function MenuDropdown(props: Props) {
 							)} */}
 						</div>
 					))}
-					<button onClick={() => setModal(true)}>gao</button>
 				</div>
 			)}
 			{/* <dialog ref={modalRef}>

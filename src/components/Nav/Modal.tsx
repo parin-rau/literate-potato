@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 type Props = {
 	isModal: boolean;
 	setModal: React.Dispatch<React.SetStateAction<boolean>>;
-	//modalRef: React.RefObject<HTMLDialogElement>;
 	text: string;
 	submitText: string;
 	modalCallback?: (_id: string) => void;
@@ -13,29 +12,32 @@ type Props = {
 export default function Modal(props: Props) {
 	const { text, submitText, isModal, setModal, modalCallback, cardId } =
 		props;
-	const ref = useRef<HTMLDialogElement>(null);
+	const modalRef = useRef<HTMLDialogElement>(null);
+	const formRef = useRef<HTMLFormElement>(null);
 
 	useEffect(() => {
 		if (isModal) {
-			ref.current?.showModal();
+			modalRef.current?.showModal();
 		} else {
-			ref.current?.close();
+			modalRef.current?.close();
 		}
-	}, [isModal]);
+	}, [isModal, setModal]);
 
 	useEffect(() => {
 		function closeOpenModal(
 			e: React.MouseEvent<HTMLDialogElement, MouseEvent> | MouseEvent
 		) {
 			if (
-				ref.current?.open &&
+				formRef.current &&
 				isModal &&
-				!ref.current.contains(e.target as Node)
+				!formRef.current.contains(e.target as Node)
 			) {
 				setModal(false);
 			}
 		}
 		document.addEventListener("mousedown", closeOpenModal);
+
+		return () => document.removeEventListener("mousedown", closeOpenModal);
 	}, [isModal, setModal]);
 
 	function handleSubmit(e: React.FormEvent) {
@@ -45,7 +47,7 @@ export default function Modal(props: Props) {
 			modalCallback(cardId);
 		}
 		setModal(false);
-		ref.current?.close();
+		modalRef.current?.close();
 	}
 
 	function handleCancel(e: React.FormEvent) {
@@ -54,9 +56,14 @@ export default function Modal(props: Props) {
 	}
 
 	return (
-		<dialog ref={ref} className="bg-transparent" onCancel={handleCancel}>
+		<dialog
+			ref={modalRef}
+			className="bg-transparent"
+			onCancel={handleCancel}
+		>
 			<form
-				className="flex flex-col z-20 px-10 py-6 shadow-md font-semibold border-2 border-black dark:border-zinc-500 bg-slate-100 dark:bg-zinc-800 dark:text-white rounded-lg items-center justify-center space-y-4"
+				className="flex flex-col z-20 px-8 py-6 shadow-md font-semibold border-2 border-black dark:border-zinc-500 bg-slate-100 dark:bg-zinc-800 dark:text-white rounded-lg items-center justify-center space-y-4"
+				ref={formRef}
 				onSubmit={handleSubmit}
 			>
 				<h1>{text}</h1>
