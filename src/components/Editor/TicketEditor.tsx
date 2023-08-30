@@ -192,7 +192,7 @@ export default function TicketEditor(props: Props) {
 										: card
 								)
 							);
-						setEditor(initTicketEditor);
+						setEditor(init?.initState || initTicketEditor);
 						setEditing(false);
 					}
 				} else {
@@ -227,14 +227,14 @@ export default function TicketEditor(props: Props) {
 							]);
 							resetFilters();
 						}
-						setEditor(initTicketEditor);
+						setEditor(init?.initState || initTicketEditor);
 						!isPinned && setExpand(false);
 					}
 				}
 			} else if (dataKind === "project") {
 				if (previousData) {
 					const patchData = { ...editor };
-					const res = await fetch(
+					const res1 = await fetch(
 						`/api/project/${previousData.projectId}`,
 						{
 							method: "PATCH",
@@ -242,29 +242,52 @@ export default function TicketEditor(props: Props) {
 							body: JSON.stringify(patchData),
 						}
 					);
-					if (res.ok) {
-						const updatedCard: Project = {
-							...(patchData as ProjectEditor),
-							...(init!.unusedPrevData! as Project),
-							lastModified: Date.now(),
-						};
-						setCards((prevCards) =>
-							prevCards.map((card) =>
-								card.projectId === updatedCard.projectId
-									? updatedCard
-									: card
-							)
-						);
-						setCardCache &&
-							setCardCache((prev) =>
-								prev.map((card) =>
-									card.projectId === updatedCard.projectId
-										? updatedCard
-										: card
-								)
+					if (res1.ok) {
+						try {
+							const ticketPatch = {
+								project: {
+									projectTitle: editor.title,
+									projectId: previousData.projectId,
+								},
+							};
+							const res2 = await fetch(
+								`/api/ticket/project-edit/${previousData.projectId}`,
+								{
+									method: "PATCH",
+									headers: {
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(ticketPatch),
+								}
 							);
-						setEditor(initTicketEditor);
-						setEditing(false);
+							if (res2.ok) {
+								const updatedCard: Project = {
+									...(patchData as ProjectEditor),
+									...(init!.unusedPrevData! as Project),
+									lastModified: Date.now(),
+								};
+								setCards((prevCards) =>
+									prevCards.map((card) =>
+										card.projectId === updatedCard.projectId
+											? updatedCard
+											: card
+									)
+								);
+								setCardCache &&
+									setCardCache((prev) =>
+										prev.map((card) =>
+											card.projectId ===
+											updatedCard.projectId
+												? updatedCard
+												: card
+										)
+									);
+								setEditor(initTicketEditor);
+								setEditing(false);
+							}
+						} catch (e) {
+							console.error(e);
+						}
 					}
 				} else {
 					const newCard: Project = {
@@ -272,7 +295,7 @@ export default function TicketEditor(props: Props) {
 						timestamp: Date.now(),
 						projectId: uuidv4(),
 					};
-					console.log(newCard);
+
 					const res = await fetch("/api/project", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
@@ -296,7 +319,7 @@ export default function TicketEditor(props: Props) {
 	}
 
 	function handleReset() {
-		setEditor(initTicketEditor);
+		setEditor(init?.initState || initTicketEditor);
 	}
 
 	function handleEditCancel() {

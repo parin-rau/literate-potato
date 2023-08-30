@@ -182,7 +182,7 @@ app.patch("/api/ticket/:id", async (req, res) => {
 	}
 });
 
-app.patch("/api/ticket/project-delete/:projectId", async (req, res) => {
+app.patch("/api/ticket/project-edit/:projectId", async (req, res) => {
 	try {
 		const projectId = req.params.projectId;
 		const data = await req.body;

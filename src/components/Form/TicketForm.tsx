@@ -80,13 +80,16 @@ export default function ProjectForm(props: Props) {
 				onChange={handleChange}
 				placeholder="Creator"
 			/>
-			<SelectDropdown
-				name="projectId"
-				value={editor.project.projectId}
-				options={projectList}
-				handleChange={handleChange}
-				stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
-			/>
+			<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
+				<h4 className="px-1">Project</h4>
+				<SelectDropdown
+					name="projectId"
+					value={editor.project.projectId}
+					options={projectList}
+					handleChange={handleChange}
+					stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
+				/>
+			</div>
 			{/* <input
 				type="hidden"
 				name="projectTitle"

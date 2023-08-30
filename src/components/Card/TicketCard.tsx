@@ -174,18 +174,17 @@ export default function TicketCard(props: Props) {
 			{!isEditing && (
 				<div className="flex flex-col px-4 py-4 space-y-2 dark:border-neutral-700">
 					<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
-						<div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-x-4">
-							<Link
-								to={`/ticket/${ticketId}`}
-								className="font-semibold text-2xl sm:text-3xl"
-							>
-								{title}
-							</Link>
-							<h2 className="text-lg sm:text-xl">
+						<Link
+							to={`/ticket/${ticketId}`}
+							className="font-semibold text-2xl sm:text-3xl"
+						>
+							{title}
+						</Link>
+
+						<div className="flex flex-row space-x-2 items-center">
+							<h2 className="text-lg sm:text-xl pr-2">
 								{ticketNumber && `#${ticketNumber}`}
 							</h2>
-						</div>
-						<div className="flex flex-row space-x-2 items-center">
 							<SelectDropdown
 								name="taskStatus"
 								value={taskStatus}
