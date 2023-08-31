@@ -159,11 +159,12 @@ export default function TicketEditor(props: Props) {
 		e.preventDefault();
 		try {
 			if (dataKind === "ticket") {
+				// Edit exiting ticket
 				if (previousData) {
 					const patchData = {
 						...editor!,
 					};
-					const res = await fetch(
+					const res1 = await fetch(
 						`/api/ticket/${previousData.ticketId}`,
 						{
 							method: "PATCH",
@@ -171,7 +172,7 @@ export default function TicketEditor(props: Props) {
 							body: JSON.stringify(patchData),
 						}
 					);
-					if (res.ok) {
+					if (res1.ok) {
 						const updatedTicket: FetchedTicketData = {
 							...(patchData as EditorData),
 							...(init!.unusedPrevData! as FetchedTicketData),
@@ -194,8 +195,102 @@ export default function TicketEditor(props: Props) {
 							);
 						setEditor(init?.initState || initTicketEditor);
 						setEditing(false);
+
+						//if no change to subtasks length, then skip rest
+						if (
+							previousData.subtasks?.length ===
+							updatedTicket.subtasks?.length
+						) {
+							console.log("No change to subtasks");
+							return;
+						} else if (
+							previousData.project.projectId ||
+							updatedTicket.project.projectId
+						) {
+							// moving ticket to new project
+							if (
+								previousData.project.projectId &&
+								updatedTicket.project.projectId &&
+								previousData.project.projectId !==
+									updatedTicket.project.projectId
+							) {
+								try {
+									// decrease previous project, increase new project
+									const taskIncrement =
+										updatedTicket.subtasks?.length;
+									const res2 = await fetch(
+										`/api/project/${previousData.project.projectId}`,
+										{
+											method: "PATCH",
+											headers: {
+												"Content-Type":
+													"application/json",
+											},
+											body: JSON.stringify({
+												subtasksTotalIncrement:
+													-1 * taskIncrement!,
+											}),
+										}
+									);
+									const res3 = await fetch(
+										`/api/project/${updatedTicket.project.projectId}`,
+										{
+											method: "PATCH",
+											headers: {
+												"Content-Type":
+													"application/json",
+											},
+											body: JSON.stringify({
+												subtasksTotalIncrement:
+													taskIncrement,
+											}),
+										}
+									);
+									if (res2.ok && res3.ok) {
+										console.log(
+											"Moved ticket to different project"
+										);
+									}
+								} catch (e) {
+									console.error(e);
+								}
+							}
+							// increase/decrease current project
+							else
+								try {
+									const targetProject =
+										previousData.project.projectId ||
+										updatedTicket.project.projectId;
+									const updatedSubtasksIncrement =
+										updatedTicket.subtasks!.length -
+											previousData.subtasks!.length || 0;
+
+									const res2 = await fetch(
+										`/api/project/${targetProject}`,
+										{
+											method: "PATCH",
+											headers: {
+												"Content-Type":
+													"application/json",
+											},
+											body: JSON.stringify({
+												subtasksTotalIncrement:
+													updatedSubtasksIncrement,
+											}),
+										}
+									);
+									if (res2.ok) {
+										console.log(
+											"Incremented total tasks for project"
+										);
+									}
+								} catch (e) {
+									console.error(e);
+								}
+						}
 					}
 				} else {
+					// Create new ticket
 					const newTicket = {
 						...(editor as EditorData),
 						timestamp: Date.now(),
@@ -257,6 +352,7 @@ export default function TicketEditor(props: Props) {
 					}
 				}
 			} else if (dataKind === "project") {
+				// Edit existing project
 				if (previousData) {
 					const patchData = { ...editor };
 					const res1 = await fetch(
@@ -315,6 +411,7 @@ export default function TicketEditor(props: Props) {
 						}
 					}
 				} else {
+					// Create new project
 					const newCard: Project = {
 						...(editor as ProjectEditor),
 						timestamp: Date.now(),
