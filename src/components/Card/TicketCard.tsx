@@ -9,6 +9,7 @@ import { optionLookup } from "../../utility/optionLookup";
 import { Link } from "react-router-dom";
 import TicketEditor from "../Editor/TicketEditor";
 import ProgressBar from "../Display/ProgressBar";
+import { countCompletedSubs } from "../../utility/countCompleted";
 
 type Props = {
 	cardData: FetchedTicketData;
@@ -106,9 +107,10 @@ export default function TicketCard(props: Props) {
 
 	async function completeSubtask(id: string) {
 		if (subtasks) {
-			const updatedCompletion = !subtasks.find(
+			const targetSubtask = subtasks.find(
 				(subtask) => subtask.subtaskId === id
-			)?.completed;
+			);
+			const updatedCompletion = !targetSubtask?.completed;
 			const updatedSubtasks = subtasks.map((subtask) =>
 				subtask.subtaskId === id
 					? { ...subtask, completed: updatedCompletion }
@@ -116,56 +118,44 @@ export default function TicketCard(props: Props) {
 			);
 
 			try {
-				const res = await fetch(`/api/ticket/${ticketId}`, {
+				const res1 = await fetch(`/api/ticket/${ticketId}`, {
 					method: "PATCH",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ subtasks: updatedSubtasks }),
 				});
-				if (res.ok) {
-					setCards((prevCards) =>
-						prevCards.map((card) =>
-							card.ticketId === ticketId
-								? {
-										...card,
-										subtasks: updatedSubtasks,
-										lastModified: Date.now(),
-								  }
-								: card
-						)
-					);
+				if (res1.ok) {
+					try {
+						const isCompleted = updatedCompletion ? +1 : -1;
+						const res2 = await fetch(
+							`/api/project/${project.projectId}`,
+							{
+								method: "PATCH",
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify({
+									subtasksCompletedIncrement: isCompleted,
+								}),
+							}
+						);
+						if (res2.ok) {
+							setCards((prevCards) =>
+								prevCards.map((card) =>
+									card.ticketId === ticketId
+										? {
+												...card,
+												subtasks: updatedSubtasks,
+												lastModified: Date.now(),
+										  }
+										: card
+								)
+							);
+						}
+					} catch (e) {
+						console.error(e);
+					}
 				}
 			} catch (e) {
 				console.error(e);
 			}
-		}
-	}
-
-	function countCompletedSubs() {
-		if (subtasks) {
-			const totalTasks = subtasks.length;
-			const isCompleted: number[] = subtasks.map((subtask) =>
-				subtask.completed ? 1 : 0
-			);
-			const totalCompleted = isCompleted.reduce((a, b) => a + b, 0);
-			const percentCompletedNum =
-				totalTasks > 0
-					? Math.floor((totalCompleted / totalTasks) * 100) / 100
-					: 0;
-			const percentCompletedString =
-				(percentCompletedNum * 100).toString() + "%";
-			return {
-				totalTasks,
-				totalCompleted,
-				percentCompletedString,
-				percentCompletedNum,
-			};
-		} else {
-			return {
-				totalTasks: 0,
-				totalCompleted: 0,
-				percentCompletedString: "0%",
-				percentCompletedNum: 0,
-			};
 		}
 	}
 
@@ -176,7 +166,7 @@ export default function TicketCard(props: Props) {
 					<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
 						<Link
 							to={`/ticket/${ticketId}`}
-							className="font-semibold text-2xl sm:text-3xl"
+							className="font-semibold text-2xl sm:text-3xl hover:underline"
 						>
 							{title}
 						</Link>
@@ -203,7 +193,7 @@ export default function TicketCard(props: Props) {
 							{subtasks && subtasks.length > 0 && (
 								<>
 									<ProgressBar
-										progress={countCompletedSubs()}
+										progress={countCompletedSubs(subtasks)}
 									/>
 									<div></div>
 								</>

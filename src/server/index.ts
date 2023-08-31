@@ -88,18 +88,57 @@ app.get("/api/project/:id/ticket", async (req, res) => {
 });
 
 app.patch("/api/project/:id", async (req, res) => {
+	function processIncrementData(receivedData: Record<string, number>) {
+		if (
+			{}.hasOwnProperty.call(receivedData, "subtasksCompletedIncrement")
+		) {
+			const isIncrementOperation = true;
+			const targetProperty = "subtasksCompletedCount";
+			const incrementValue = receivedData.subtasksCompletedIncrement;
+			return { isIncrementOperation, targetProperty, incrementValue };
+		} else if (
+			{}.hasOwnProperty.call(receivedData, "subtasksTotalIncrement")
+		) {
+			const isIncrementOperation = true;
+			const targetProperty = "subtasksTotalCount";
+			const incrementValue = receivedData.subtasksTotalIncrement;
+			return { isIncrementOperation, targetProperty, incrementValue };
+		} else {
+			return { isIncrementOperation: false };
+		}
+	}
+
 	try {
 		const id = req.params.id;
 		const data = await req.body;
+
+		const processedData = processIncrementData(data);
+
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localProjects);
-		const result = await coll.updateOne(
-			{ projectId: id },
-			{ $set: { ...data, lastModified: Date.now() } }
-		);
-		await client.close();
-		res.status(200).send(result);
+		if (processedData?.isIncrementOperation) {
+			console.log(processedData);
+			const result = await coll.updateOne(
+				{ projectId: id },
+				{
+					$inc: {
+						[processedData.targetProperty!]:
+							processedData.incrementValue!,
+					},
+					$set: { lastModified: Date.now() },
+				}
+			);
+			await client.close();
+			res.status(200).send(result);
+		} else {
+			const result = await coll.updateOne(
+				{ projectId: id },
+				{ $set: { ...data, lastModified: Date.now() } }
+			);
+			await client.close();
+			res.status(200).send(result);
+		}
 	} catch (err) {
 		console.error(err);
 	}

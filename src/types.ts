@@ -6,6 +6,8 @@ export interface Project {
 	projectId: string;
 	projectNumber?: number;
 	lastModified?: number;
+	subtasksCompletedCount?: number;
+	subtasksTotalCount?: number;
 	//[key: string]: string | number;
 }
 

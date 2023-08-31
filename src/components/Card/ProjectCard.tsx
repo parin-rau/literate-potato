@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Project } from "../../types";
 import timestampDisplay from "../../utility/timestampDisplay";
 import MenuDropdown from "../Nav/MenuDropdown";
 import TicketEditor from "../Editor/TicketEditor";
+import ProgressBar from "../Display/ProgressBar";
 
 type Props = {
 	isHeader?: boolean;
@@ -13,8 +14,16 @@ type Props = {
 };
 
 export default function ProjectCard(props: Props) {
-	const { title, description, creator, projectId, timestamp, projectNumber } =
-		props.cardData;
+	const {
+		title,
+		description,
+		creator,
+		projectId,
+		timestamp,
+		projectNumber,
+		subtasksCompletedCount,
+		subtasksTotalCount,
+	} = props.cardData;
 	const { setCards, setCardCache, isHeader } = props;
 	const [isEditing, setEditing] = useState(false);
 
@@ -22,6 +31,22 @@ export default function ProjectCard(props: Props) {
 		{ name: "Delete", fn: deleteCard, projectId },
 		{ name: "Edit", fn: editCard, projectId },
 	];
+
+	const percentCompletedNum = Math.floor(
+		(subtasksCompletedCount! / subtasksTotalCount!) * 100
+	);
+	const progress = {
+		totalTasks: subtasksTotalCount,
+		totalCompleted: subtasksCompletedCount,
+		percentCompletedNum,
+		percentCompletedString: `${percentCompletedNum.toString()}%`,
+	};
+
+	useEffect(() => {
+		// Update project card structure to keep count of completed tasks and increment/decrement
+		// project data field in db when related ticket subtasks are completed. Update the
+		// display bar of project card when ticket subtasks are completed.
+	}, []);
 
 	async function deleteCard(id: string) {
 		try {
@@ -74,14 +99,20 @@ export default function ProjectCard(props: Props) {
 					<MenuDropdown options={moreOptions} cardId={projectId} />
 				</div>
 			)}
-			<div className="m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600">
+			<div
+				className={
+					isHeader && !isEditing
+						? ""
+						: "m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600"
+				}
+			>
 				{!isEditing && (
-					<div className="flex flex-col px-4 py-3 space-y-1 dark:border-neutral-700">
+					<div className="flex flex-col px-4 py-2 space-y-1 dark:border-neutral-700">
 						{!isHeader && (
 							<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
 								<div className="flex flex-col sm:flex-row sm:items-baseline space-y-1 sm:space-x-4">
 									<Link to={`project/${projectId}`}>
-										<h1 className="font-semibold text-2xl sm:text-3xl">
+										<h1 className="font-semibold text-2xl sm:text-3xl hover:underline">
 											{title}
 										</h1>
 									</Link>
@@ -96,11 +127,15 @@ export default function ProjectCard(props: Props) {
 							</div>
 						)}
 						{description && (
-							<h2 className="text-lg">{description}</h2>
+							<h2 className={isHeader ? "text-xl" : "text-lg"}>
+								{description}
+							</h2>
 						)}
 						{creator && <h3 className="">Creator: {creator}</h3>}
 						<span>Created: {timestampDisplay(timestamp)}</span>
-						<div>[ View Details ]</div>
+						{subtasksTotalCount > 0 ? (
+							<ProgressBar progress={{ ...progress }} />
+						) : null}
 					</div>
 				)}
 				{isEditing && (

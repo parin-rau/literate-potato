@@ -294,6 +294,8 @@ export default function TicketEditor(props: Props) {
 						...(editor as ProjectEditor),
 						timestamp: Date.now(),
 						projectId: uuidv4(),
+						subtasksCompletedCount: 0,
+						subtasksTotalCount: 0,
 					};
 
 					const res = await fetch("/api/project", {
@@ -331,10 +333,10 @@ export default function TicketEditor(props: Props) {
 	return (
 		<div
 			className={
-				"mx-2 sm:mx-0 bg-white dark:bg-zinc-900 " +
+				"mx-2 sm:mx-0 bg-transparent " +
 				(!expand && " hover:cursor-pointer ") +
 				(!previousData &&
-					"border-black border-2 rounded-md dark:border-zinc-600")
+					"bg-white dark:bg-zinc-900 border-black border-2 rounded-md dark:border-zinc-600")
 			}
 			onClick={() => !expand && setExpand(true)}
 		>

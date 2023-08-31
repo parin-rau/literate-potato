@@ -164,7 +164,7 @@ export default function CardContainer(props: Props) {
 	return (
 		<div
 			className={
-				"@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg " +
+				"@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg space-y-1 " +
 				styles
 			}
 		>
@@ -190,7 +190,7 @@ export default function CardContainer(props: Props) {
 				// resetFilters={resetFilters}
 			/>
 			<div className="flex flex-row justify-between items-baseline mx-1">
-				<h1 className="text-bold text-3xl my-4">
+				<h1 className="font-semibold text-3xl my-4">
 					{filters.length > 0
 						? `Filtering Results (${cards.length})`
 						: containerTitle}
