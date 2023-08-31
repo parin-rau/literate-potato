@@ -124,33 +124,40 @@ export default function TicketCard(props: Props) {
 					body: JSON.stringify({ subtasks: updatedSubtasks }),
 				});
 				if (res1.ok) {
-					try {
-						const isCompleted = updatedCompletion ? +1 : -1;
-						const res2 = await fetch(
-							`/api/project/${project.projectId}`,
-							{
-								method: "PATCH",
-								headers: { "Content-Type": "application/json" },
-								body: JSON.stringify({
-									subtasksCompletedIncrement: isCompleted,
-								}),
-							}
-						);
-						if (res2.ok) {
-							setCards((prevCards) =>
-								prevCards.map((card) =>
-									card.ticketId === ticketId
-										? {
-												...card,
-												subtasks: updatedSubtasks,
-												lastModified: Date.now(),
-										  }
-										: card
-								)
+					setCards((prevCards) =>
+						prevCards.map((card) =>
+							card.ticketId === ticketId
+								? {
+										...card,
+										subtasks: updatedSubtasks,
+										lastModified: Date.now(),
+								  }
+								: card
+						)
+					);
+					if (project.projectId) {
+						try {
+							const isCompleted = updatedCompletion ? +1 : -1;
+							const res2 = await fetch(
+								`/api/project/${project.projectId}`,
+								{
+									method: "PATCH",
+									headers: {
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify({
+										subtasksCompletedIncrement: isCompleted,
+									}),
+								}
 							);
+							if (res2.ok) {
+								console.log(
+									"Incremented completed tasks for project"
+								);
+							}
+						} catch (e) {
+							console.error(e);
 						}
-					} catch (e) {
-						console.error(e);
 					}
 				}
 			} catch (e) {

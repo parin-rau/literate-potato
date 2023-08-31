@@ -203,13 +203,13 @@ export default function TicketEditor(props: Props) {
 						taskStatus: "Not Started",
 						comments: [],
 					};
-					const res = await fetch("/api/ticket", {
+					const res1 = await fetch("/api/ticket", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify(newTicket),
 					});
-					if (res.ok) {
-						const response = await res.json();
+					if (res1.ok) {
+						const response = await res1.json();
 						setCards((prevCards) => [
 							{
 								...newTicket,
@@ -229,6 +229,31 @@ export default function TicketEditor(props: Props) {
 						}
 						setEditor(init?.initState || initTicketEditor);
 						!isPinned && setExpand(false);
+						if (newTicket.project.projectId) {
+							try {
+								const totalSubtasks = newTicket.subtasks.length;
+								const res2 = await fetch(
+									`/api/project/${newTicket.project.projectId}`,
+									{
+										method: "PATCH",
+										headers: {
+											"Content-Type": "application/json",
+										},
+										body: JSON.stringify({
+											subtasksTotalIncrement:
+												totalSubtasks,
+										}),
+									}
+								);
+								if (res2.ok) {
+									console.log(
+										"Incremented completed tasks for project"
+									);
+								}
+							} catch (e) {
+								console.error(e);
+							}
+						}
 					}
 				}
 			} else if (dataKind === "project") {
