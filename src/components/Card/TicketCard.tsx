@@ -60,10 +60,14 @@ export default function TicketCard(props: Props) {
 
 	async function deleteCard(id: string) {
 		try {
-			const res = await fetch(`/api/ticket/${ticketId}`, {
+			const subtasksCompletedIds = subtasks
+				?.filter((o) => o.completed)
+				.map((o) => o.subtaskId);
+			const subtasksTotalIds = subtasks?.map((o) => o.subtaskId);
+			const res1 = await fetch(`/api/ticket/${ticketId}`, {
 				method: "DELETE",
 			});
-			if (res.ok) {
+			if (res1.ok) {
 				setCards((prevCards) =>
 					prevCards.filter((card) => card.ticketId !== id)
 				);
@@ -71,6 +75,27 @@ export default function TicketCard(props: Props) {
 					setCardCache((prev) =>
 						prev.filter((card) => card.ticketId !== id)
 					);
+				try {
+					const res2 = await fetch(
+						`/api/project/${project.projectId}`,
+						{
+							method: "PATCH",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								operation: "delete",
+								subtasksCompletedIds,
+								subtasksTotalIds,
+							}),
+						}
+					);
+					if (res2.ok) {
+						console.log("Deleted tasks from project");
+					}
+				} catch (e) {
+					console.error(e);
+				}
 			}
 		} catch (err) {
 			console.error(err);
@@ -117,6 +142,9 @@ export default function TicketCard(props: Props) {
 					: subtask
 			);
 
+			const subtasksCompletedIds = [targetSubtask?.subtaskId];
+			const subtasksTotalIds: string[] = [];
+
 			try {
 				const res1 = await fetch(`/api/ticket/${ticketId}`, {
 					method: "PATCH",
@@ -136,8 +164,8 @@ export default function TicketCard(props: Props) {
 						)
 					);
 					if (project.projectId) {
+						const operation = updatedCompletion ? "add" : "delete";
 						try {
-							const isCompleted = updatedCompletion ? +1 : -1;
 							const res2 = await fetch(
 								`/api/project/${project.projectId}`,
 								{
@@ -146,7 +174,9 @@ export default function TicketCard(props: Props) {
 										"Content-Type": "application/json",
 									},
 									body: JSON.stringify({
-										subtasksCompletedIncrement: isCompleted,
+										operation,
+										subtasksCompletedIds,
+										subtasksTotalIds,
 									}),
 								}
 							);

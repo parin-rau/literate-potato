@@ -6,8 +6,8 @@ export interface Project {
 	projectId: string;
 	projectNumber?: number;
 	lastModified?: number;
-	subtasksCompletedCount?: number;
-	subtasksTotalCount?: number;
+	subtasksCompletedIds: string[];
+	subtasksTotalIds: string[];
 	//[key: string]: string | number;
 }
 
@@ -44,7 +44,7 @@ export interface TicketData {
 	priority: "" | "Low" | "Medium" | "High";
 	due: string;
 	tags: string[];
-	subtasks?: {
+	subtasks: {
 		subtaskId: string;
 		description: string;
 		completed: boolean;

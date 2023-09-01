@@ -21,8 +21,8 @@ export default function ProjectCard(props: Props) {
 		projectId,
 		timestamp,
 		projectNumber,
-		subtasksCompletedCount,
-		subtasksTotalCount,
+		subtasksCompletedIds,
+		subtasksTotalIds,
 	} = props.cardData;
 	const { setCards, setCardCache, isHeader } = props;
 	const [isEditing, setEditing] = useState(false);
@@ -33,11 +33,11 @@ export default function ProjectCard(props: Props) {
 	];
 
 	const percentCompletedNum = Math.floor(
-		(subtasksCompletedCount! / subtasksTotalCount!) * 100
+		(subtasksCompletedIds.length / subtasksTotalIds.length) * 100
 	);
 	const progress = {
-		totalTasks: subtasksTotalCount,
-		totalCompleted: subtasksCompletedCount,
+		totalTasks: subtasksTotalIds.length,
+		totalCompleted: subtasksCompletedIds.length,
 		percentCompletedNum,
 		percentCompletedString: `${percentCompletedNum.toString()}%`,
 	};
@@ -133,7 +133,7 @@ export default function ProjectCard(props: Props) {
 						)}
 						{creator && <h3 className="">Creator: {creator}</h3>}
 						<span>Created: {timestampDisplay(timestamp)}</span>
-						{subtasksTotalCount > 0 ? (
+						{subtasksTotalIds.length > 0 ? (
 							<ProgressBar progress={{ ...progress }} />
 						) : null}
 					</div>

@@ -88,57 +88,133 @@ app.get("/api/project/:id/ticket", async (req, res) => {
 });
 
 app.patch("/api/project/:id", async (req, res) => {
-	function processIncrementData(receivedData: Record<string, number>) {
-		if (
-			{}.hasOwnProperty.call(receivedData, "subtasksCompletedIncrement")
-		) {
-			const isIncrementOperation = true;
-			const targetProperty = "subtasksCompletedCount";
-			const incrementValue = receivedData.subtasksCompletedIncrement;
-			return { isIncrementOperation, targetProperty, incrementValue };
-		} else if (
-			{}.hasOwnProperty.call(receivedData, "subtasksTotalIncrement")
-		) {
-			const isIncrementOperation = true;
-			const targetProperty = "subtasksTotalCount";
-			const incrementValue = receivedData.subtasksTotalIncrement;
-			return { isIncrementOperation, targetProperty, incrementValue };
-		} else {
-			return { isIncrementOperation: false };
-		}
-	}
+	// async function subtaskDataParser(
+	// 	coll: mongoDB.Collection,
+	// 	projectId: string,
+	// 	receivedData: {
+	// 		subtasksCompletedIds: string[];
+	// 		subtasksTotalIds: string[];
+	// 	}
+	// ) {
+	// 	const projectLookup = await coll.findOne({ projectId: projectId });
+
+	// 	// Add new tasks to total IDs or add to completed IDs
+	// 	if (
+	// 		projectLookup!.subtasksCompletedIds.length <
+	// 			receivedData.subtasksCompletedIds.length ||
+	// 		projectLookup!.subtasksTotalIds.length <
+	// 			receivedData.subtasksTotalIds.length
+	// 	) {
+	// 		const result = await coll.updateOne(
+	// 			{ projectId: projectId },
+	// 			{
+	// 				$addToSet: [
+	// 					{
+	// 						subtasksCompletedIds: {
+	// 							$each: receivedData.subtasksCompletedIds,
+	// 						},
+	// 					},
+	// 					{
+	// 						subtasksTotalIds: {
+	// 							$each: receivedData.subtasksTotalIds,
+	// 						},
+	// 					},
+	// 				],
+	// 			}
+	// 		);
+	// 		return result;
+
+	// 		// Remove deleted tasks from total IDs or remove from completed IDs
+	// 	} else if (
+	// 		projectLookup!.subtasksCompletedIds.length >
+	// 			receivedData.subtasksCompletedIds.length ||
+	// 		projectLookup!.subtasksTotalIds.length >
+	// 			receivedData.subtasksTotalIds.length
+	// 	) {
+	// 		const result = await coll.updateOne({ projectId: projectId }, [
+	// 			{
+	// 				$pullAll: [
+	// 					{
+	// 						subtasksCompletedIds:
+	// 							receivedData.subtasksCompletedIds,
+	// 					},
+	// 					{ subtasksTotalIds: receivedData.subtasksTotalIds },
+	// 				],
+	// 			},
+	// 			{ $set: { lastModified: Date.now() } },
+	// 		]);
+	// 		return result;
+	// 	}
+	// }
 
 	try {
 		const id = req.params.id;
 		const data = await req.body;
 
-		const processedData = processIncrementData(data);
-
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localProjects);
-		if (processedData?.isIncrementOperation) {
-			console.log(processedData);
+
+		// const result = subtaskDataParser(coll, id, data);
+
+		// const projectLookup = await coll.findOne({ projectId: id });
+
+		// Add new tasks to total IDs or add to completed IDs
+
+		if (
+			data.operation === "add"
+
+			// projectLookup!.subtasksCompletedIds.length <
+			// 	data.subtasksCompletedIds.length ||
+			// projectLookup!.subtasksTotalIds.length <
+			// 	data.subtasksTotalIds.length
+		) {
 			const result = await coll.updateOne(
 				{ projectId: id },
 				{
-					$inc: {
-						[processedData.targetProperty!]:
-							processedData.incrementValue!,
+					$addToSet: {
+						subtasksCompletedIds: {
+							$each: data.subtasksCompletedIds,
+						},
+
+						subtasksTotalIds: {
+							$each: data.subtasksTotalIds,
+						},
+					},
+				}
+			);
+			await client.close();
+			res.status(200).send(result);
+
+			// Remove deleted tasks from total IDs or remove from completed IDs
+
+			// } else if (
+			// 	projectLookup!.subtasksCompletedIds.length >
+			// 		data.subtasksCompletedIds.length ||
+			// 	projectLookup!.subtasksTotalIds.length >
+			// 		data.subtasksTotalIds.length
+			// ) {
+		} else if (data.operation === "delete") {
+			const result = await coll.updateOne(
+				{ projectId: id },
+				{
+					$pullAll: {
+						subtasksCompletedIds: data.subtasksCompletedIds,
+						subtasksTotalIds: data.subtasksTotalIds,
 					},
 					$set: { lastModified: Date.now() },
 				}
 			);
 			await client.close();
 			res.status(200).send(result);
-		} else {
-			const result = await coll.updateOne(
-				{ projectId: id },
-				{ $set: { ...data, lastModified: Date.now() } }
-			);
-			await client.close();
-			res.status(200).send(result);
 		}
+
+		// const result = await coll.updateOne(
+		// 	{ projectId: id },
+		// 	{ $set: { ...data, lastModified: Date.now() } }
+		// );
+		// await client.close();
+		// res.status(200).send(result);
 	} catch (err) {
 		console.error(err);
 	}

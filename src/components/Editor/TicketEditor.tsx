@@ -10,6 +10,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import ProjectForm from "../Form/ProjectForm";
 import TicketForm from "../Form/TicketForm";
+import { arraysEqual, arraysDiffs } from "../../utility/arrayComparisons";
 
 type CommonProps = {
 	dataKind: string;
@@ -159,7 +160,7 @@ export default function TicketEditor(props: Props) {
 		e.preventDefault();
 		try {
 			if (dataKind === "ticket") {
-				// Edit exiting ticket
+				// Edit existing ticket
 				if (previousData) {
 					const patchData = {
 						...editor!,
@@ -196,26 +197,55 @@ export default function TicketEditor(props: Props) {
 						setEditor(init?.initState || initTicketEditor);
 						setEditing(false);
 
+						const previousSubtaskIds = previousData.subtasks?.map(
+							(o) => o.subtaskId
+						);
+						const updatedSubtaskIds = updatedTicket.subtasks?.map(
+							(o) => o.subtaskId
+						);
+						const previousCompletedIds = previousData.subtasks
+							.filter((o) => o.completed)
+							.map((o) => o.subtaskId);
+						const updatedCompletedIds = updatedTicket.subtasks
+							.filter((o) => o.completed)
+							.map((o) => o.subtaskId);
+
 						//if no change to subtasks length, then skip rest
 						if (
-							previousData.subtasks?.length ===
-							updatedTicket.subtasks?.length
+							arraysEqual(previousSubtaskIds!, updatedSubtaskIds!)
 						) {
 							console.log("No change to subtasks");
 							return;
+						} else if (
+							previousData.subtasks?.length ===
+							updatedTicket.subtasks?.length
+						) {
+							// Net zero tasks add and delete while editing ticket
+							console.log(
+								"Handle case net zero add and delete tasks"
+							);
 						} else if (
 							previousData.project.projectId ||
 							updatedTicket.project.projectId
 						) {
 							// moving ticket to new project
 							if (
-								previousData.project.projectId &&
-								updatedTicket.project.projectId &&
 								previousData.project.projectId !==
-									updatedTicket.project.projectId
+								updatedTicket.project.projectId
 							) {
 								try {
 									// decrease previous project, increase new project
+
+									const subtasksCompletedIds =
+										updatedTicket.subtasks
+											?.filter((o) => o.completed)
+											.map((o) => o.subtaskId);
+
+									const subtasksTotalIds =
+										updatedTicket.subtasks?.map(
+											(o) => o.subtaskId
+										);
+
 									const taskIncrement =
 										updatedTicket.subtasks?.length;
 									const res2 = await fetch(
@@ -256,17 +286,23 @@ export default function TicketEditor(props: Props) {
 								}
 							}
 							// increase/decrease current project
-							else
+							else {
+								const operation =
+									updatedTicket.subtasks!.length >
+									previousData.subtasks!.length
+										? "add"
+										: "delete";
+								const subtasksCompletedIds = arraysDiffs(
+									previousCompletedIds,
+									updatedCompletedIds
+								);
+								const subtasksTotalIds = arraysDiffs(
+									previousSubtaskIds,
+									updatedSubtaskIds
+								);
 								try {
-									const targetProject =
-										previousData.project.projectId ||
-										updatedTicket.project.projectId;
-									const updatedSubtasksIncrement =
-										updatedTicket.subtasks!.length -
-											previousData.subtasks!.length || 0;
-
 									const res2 = await fetch(
-										`/api/project/${targetProject}`,
+										`/api/project/${updatedTicket.project.projectId}`,
 										{
 											method: "PATCH",
 											headers: {
@@ -274,19 +310,21 @@ export default function TicketEditor(props: Props) {
 													"application/json",
 											},
 											body: JSON.stringify({
-												subtasksTotalIncrement:
-													updatedSubtasksIncrement,
+												operation,
+												subtasksCompletedIds,
+												subtasksTotalIds,
 											}),
 										}
 									);
 									if (res2.ok) {
 										console.log(
-											"Incremented total tasks for project"
+											`${operation} tasks for project`
 										);
 									}
 								} catch (e) {
 									console.error(e);
 								}
+							}
 						}
 					}
 				} else {
@@ -326,7 +364,10 @@ export default function TicketEditor(props: Props) {
 						!isPinned && setExpand(false);
 						if (newTicket.project.projectId) {
 							try {
-								const totalSubtasks = newTicket.subtasks.length;
+								const subtasksCompletedIds: string[] = [];
+								const subtasksTotalIds = newTicket.subtasks.map(
+									(o) => o.subtaskId
+								);
 								const res2 = await fetch(
 									`/api/project/${newTicket.project.projectId}`,
 									{
@@ -335,8 +376,9 @@ export default function TicketEditor(props: Props) {
 											"Content-Type": "application/json",
 										},
 										body: JSON.stringify({
-											subtasksTotalIncrement:
-												totalSubtasks,
+											operation: "add",
+											subtasksCompletedIds,
+											subtasksTotalIds,
 										}),
 									}
 								);
@@ -416,8 +458,8 @@ export default function TicketEditor(props: Props) {
 						...(editor as ProjectEditor),
 						timestamp: Date.now(),
 						projectId: uuidv4(),
-						subtasksCompletedCount: 0,
-						subtasksTotalCount: 0,
+						subtasksCompletedIds: [],
+						subtasksTotalIds: [],
 					};
 
 					const res = await fetch("/api/project", {
