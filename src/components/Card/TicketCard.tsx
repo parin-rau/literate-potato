@@ -165,28 +165,25 @@ export default function TicketCard(props: Props) {
 					);
 					if (project.projectId) {
 						const operation = updatedCompletion ? "add" : "delete";
-						try {
-							const res2 = await fetch(
-								`/api/project/${project.projectId}`,
-								{
-									method: "PATCH",
-									headers: {
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify({
-										operation,
-										subtasksCompletedIds,
-										subtasksTotalIds,
-									}),
-								}
-							);
-							if (res2.ok) {
-								console.log(
-									"Incremented completed tasks for project"
-								);
+
+						const res2 = await fetch(
+							`/api/project/${project.projectId}`,
+							{
+								method: "PATCH",
+								headers: {
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									operation,
+									subtasksCompletedIds,
+									subtasksTotalIds,
+								}),
 							}
-						} catch (e) {
-							console.error(e);
+						);
+						if (res2.ok) {
+							console.log(
+								"Incremented completed tasks for project"
+							);
 						}
 					}
 				}

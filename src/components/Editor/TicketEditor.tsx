@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import ProjectForm from "../Form/ProjectForm";
 import TicketForm from "../Form/TicketForm";
 import { arraysEqual } from "../../utility/arrayComparisons";
+import { useLocation } from "react-router-dom";
 
 type CommonProps = {
 	dataKind: string;
@@ -73,6 +74,9 @@ export default function TicketEditor(props: Props) {
 	const [expand, setExpand] = useState(init!.defaultExpand);
 	const [isPinned, setPinned] = useState(false);
 	const [deletedSubtaskIds, setDeletedSubtaskIds] = useState<string[]>([]);
+
+	const page = useLocation().pathname;
+	const isProjectPage = page.slice(1, 8) === "project";
 
 	function handleChange(
 		e: React.ChangeEvent<
@@ -177,6 +181,17 @@ export default function TicketEditor(props: Props) {
 		return res;
 	}
 
+	function handleProjectChange(currentViewProjectId: string) {
+		if (isProjectPage && dataKind === "ticket") {
+			setCards((prev) =>
+				prev.filter(
+					(ticket) =>
+						ticket.project.projectId === currentViewProjectId
+				)
+			);
+		}
+	}
+
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		try {
@@ -258,6 +273,10 @@ export default function TicketEditor(props: Props) {
 								);
 
 								if (res2.ok) {
+									handleProjectChange(
+										previousData.project.projectId
+									);
+
 									console.log(
 										"Deleted tasks from previous project"
 									);
@@ -277,29 +296,16 @@ export default function TicketEditor(props: Props) {
 								}
 							}
 
-							// try {
-							// 	const res2 = await subtaskIdPatch(
-							// 		updatedTicket.project.projectId,
-							// 		"add",
-							// 		updatedCompletedIds,
-							// 		updatedSubtaskIds
-							// 	);
-							// 	if (res2.ok) {
-							// 		console.log("Added subtasks to project");
-							// 	}
-							// } catch (e) {
-							// 	console.error(e);
-							// }
-
+							// Deleting tasks without moving to different project
 							if (deletedSubtaskIds.length) {
-								const res2 = await subtaskIdPatch(
+								const res4 = await subtaskIdPatch(
 									updatedTicket.project.projectId,
 									"delete",
 									deletedSubtaskIds,
 									deletedSubtaskIds
 								);
 
-								if (res2.ok) {
+								if (res4.ok) {
 									console.log(
 										`Deleted tasks for project ${updatedTicket.project.projectTitle}`
 									);
@@ -307,123 +313,6 @@ export default function TicketEditor(props: Props) {
 								}
 							}
 						}
-
-						// //if no change to subtasks length, then skip rest
-						// if (
-						// 	arraysEqual(previousSubtaskIds!, updatedSubtaskIds!)
-						// ) {
-						// 	console.log("No change to subtasks");
-						// 	return;
-						// } else if (
-						// 	previousData.subtasks?.length ===
-						// 	updatedTicket.subtasks?.length
-						// ) {
-						// 	// Net zero tasks add and delete while editing ticket
-						// 	console.log(
-						// 		"Handle case net zero add and delete tasks"
-						// 	);
-						// } else if (
-						// 	previousData.project.projectId ||
-						// 	updatedTicket.project.projectId
-						// ) {
-						// 	// moving ticket to new project
-						// 	if (
-						// 		previousData.project.projectId !==
-						// 		updatedTicket.project.projectId
-						// 	) {
-						// 		try {
-						// 			// decrease previous project, increase new project
-
-						// 			const subtasksCompletedIds =
-						// 				updatedTicket.subtasks
-						// 					?.filter((o) => o.completed)
-						// 					.map((o) => o.subtaskId);
-
-						// 			const subtasksTotalIds =
-						// 				updatedTicket.subtasks?.map(
-						// 					(o) => o.subtaskId
-						// 				);
-
-						// 			const taskIncrement =
-						// 				updatedTicket.subtasks?.length;
-						// 			const res2 = await fetch(
-						// 				`/api/project/${previousData.project.projectId}`,
-						// 				{
-						// 					method: "PATCH",
-						// 					headers: {
-						// 						"Content-Type":
-						// 							"application/json",
-						// 					},
-						// 					body: JSON.stringify({
-						// 						subtasksTotalIncrement:
-						// 							-1 * taskIncrement!,
-						// 					}),
-						// 				}
-						// 			);
-						// 			const res3 = await fetch(
-						// 				`/api/project/${updatedTicket.project.projectId}`,
-						// 				{
-						// 					method: "PATCH",
-						// 					headers: {
-						// 						"Content-Type":
-						// 							"application/json",
-						// 					},
-						// 					body: JSON.stringify({
-						// 						subtasksTotalIncrement:
-						// 							taskIncrement,
-						// 					}),
-						// 				}
-						// 			);
-						// 			if (res2.ok && res3.ok) {
-						// 				console.log(
-						// 					"Moved ticket to different project"
-						// 				);
-						// 			}
-						// 		} catch (e) {
-						// 			console.error(e);
-						// 		}
-						// 	}
-						// 	// increase/decrease current project
-						// 	else {
-						// 		const operation =
-						// 			updatedTicket.subtasks!.length >
-						// 			previousData.subtasks!.length
-						// 				? "add"
-						// 				: "delete";
-						// 		const subtasksCompletedIds = arraysDiffs(
-						// 			previousCompletedIds,
-						// 			updatedCompletedIds
-						// 		);
-						// 		const subtasksTotalIds = arraysDiffs(
-						// 			previousSubtaskIds,
-						// 			updatedSubtaskIds
-						// 		);
-						// 		try {
-						// 			const res2 = await fetch(
-						// 				`/api/project/${updatedTicket.project.projectId}`,
-						// 				{
-						// 					method: "PATCH",
-						// 					headers: {
-						// 						"Content-Type":
-						// 							"application/json",
-						// 					},
-						// 					body: JSON.stringify({
-						// 						operation,
-						// 						subtasksCompletedIds,
-						// 						subtasksTotalIds,
-						// 					}),
-						// 				}
-						// 			);
-						// 			if (res2.ok) {
-						// 				console.log(
-						// 					`${operation} tasks for project`
-						// 				);
-						// 			}
-						// 		} catch (e) {
-						// 			console.error(e);
-						// 		}
-						// 	}
-						// }
 					}
 				} else {
 					// Create new ticket
@@ -461,32 +350,28 @@ export default function TicketEditor(props: Props) {
 						setEditor(init?.initState || initTicketEditor);
 						!isPinned && setExpand(false);
 						if (newTicket.project.projectId) {
-							try {
-								const subtasksCompletedIds: string[] = [];
-								const subtasksTotalIds = newTicket.subtasks.map(
-									(o) => o.subtaskId
-								);
-								const res2 = await fetch(
-									`/api/project/${newTicket.project.projectId}`,
-									{
-										method: "PATCH",
-										headers: {
-											"Content-Type": "application/json",
-										},
-										body: JSON.stringify({
-											operation: "add",
-											subtasksCompletedIds,
-											subtasksTotalIds,
-										}),
-									}
-								);
-								if (res2.ok) {
-									console.log(
-										"Incremented completed tasks for project"
-									);
+							const subtasksCompletedIds: string[] = [];
+							const subtasksTotalIds = newTicket.subtasks.map(
+								(o) => o.subtaskId
+							);
+							const res2 = await fetch(
+								`/api/project/${newTicket.project.projectId}`,
+								{
+									method: "PATCH",
+									headers: {
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify({
+										operation: "add",
+										subtasksCompletedIds,
+										subtasksTotalIds,
+									}),
 								}
-							} catch (e) {
-								console.error(e);
+							);
+							if (res2.ok) {
+								console.log(
+									"Incremented completed tasks for project"
+								);
 							}
 						}
 					}
@@ -504,50 +389,45 @@ export default function TicketEditor(props: Props) {
 						}
 					);
 					if (res1.ok) {
-						try {
-							const ticketPatch = {
-								project: {
-									projectTitle: editor.title,
-									projectId: previousData.projectId,
+						const ticketPatch = {
+							project: {
+								projectTitle: editor.title,
+								projectId: previousData.projectId,
+							},
+						};
+						const res2 = await fetch(
+							`/api/ticket/project-edit/${previousData.projectId}`,
+							{
+								method: "PATCH",
+								headers: {
+									"Content-Type": "application/json",
 								},
+								body: JSON.stringify(ticketPatch),
+							}
+						);
+						if (res2.ok) {
+							const updatedCard: Project = {
+								...(patchData as ProjectEditor),
+								...(init!.unusedPrevData! as Project),
+								lastModified: Date.now(),
 							};
-							const res2 = await fetch(
-								`/api/ticket/project-edit/${previousData.projectId}`,
-								{
-									method: "PATCH",
-									headers: {
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(ticketPatch),
-								}
+							setCards((prevCards) =>
+								prevCards.map((card) =>
+									card.projectId === updatedCard.projectId
+										? updatedCard
+										: card
+								)
 							);
-							if (res2.ok) {
-								const updatedCard: Project = {
-									...(patchData as ProjectEditor),
-									...(init!.unusedPrevData! as Project),
-									lastModified: Date.now(),
-								};
-								setCards((prevCards) =>
-									prevCards.map((card) =>
+							setCardCache &&
+								setCardCache((prev) =>
+									prev.map((card) =>
 										card.projectId === updatedCard.projectId
 											? updatedCard
 											: card
 									)
 								);
-								setCardCache &&
-									setCardCache((prev) =>
-										prev.map((card) =>
-											card.projectId ===
-											updatedCard.projectId
-												? updatedCard
-												: card
-										)
-									);
-								setEditor(initTicketEditor);
-								setEditing(false);
-							}
-						} catch (e) {
-							console.error(e);
+							setEditor(initTicketEditor);
+							setEditing(false);
 						}
 					}
 				} else {
