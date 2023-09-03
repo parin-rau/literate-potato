@@ -6,11 +6,12 @@ import { v4 as uuidv4 } from "uuid";
 type Props = {
 	editor: EditorData;
 	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
+	setDeletedSubtaskIds: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 export default function SubtaskEditor(props: Props) {
 	const [text, setText] = useState("");
-	const { editor, setEditor } = props;
+	const { editor, setEditor, setDeletedSubtaskIds } = props;
 	const { subtasks } = editor;
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -42,6 +43,7 @@ export default function SubtaskEditor(props: Props) {
 	}
 
 	function deleteSubtask(id: string) {
+		setDeletedSubtaskIds((prev) => [...prev, id]);
 		const updatedSubtasks = subtasks.filter(
 			(item) => item.subtaskId !== id
 		);

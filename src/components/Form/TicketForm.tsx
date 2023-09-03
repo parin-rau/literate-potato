@@ -13,6 +13,7 @@ type Props = {
 		>
 	) => void;
 	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
+	setDeletedSubtaskIds: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 type ProjectList = {
@@ -21,7 +22,7 @@ type ProjectList = {
 };
 
 export default function ProjectForm(props: Props) {
-	const { editor, handleChange, setEditor } = props;
+	const { editor, handleChange, setEditor, setDeletedSubtaskIds } = props;
 	const [projectList, setProjectList] = useState<ProjectList[]>([]);
 	const { projectId } = editor.project;
 
@@ -105,7 +106,7 @@ export default function ProjectForm(props: Props) {
 				onChange={handleChange}
 				placeholder="Description"
 			/>
-			<SubtaskEditor {...{ editor, setEditor }} />
+			<SubtaskEditor {...{ editor, setEditor, setDeletedSubtaskIds }} />
 			<TagsEditor {...{ editor, setEditor }} />
 			<div className="grid grid-cols-2 place-items-stretch gap-2 sm:gap-4 rounded-md shadow-none border-inherit">
 				<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
