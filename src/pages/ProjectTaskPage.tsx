@@ -18,7 +18,7 @@ export default function ProjectTaskPage() {
 	const projectCard = project[0];
 
 	useEffect(() => {
-		async function getProjectTitle() {
+		async function fetchProject() {
 			try {
 				if (projectId) {
 					const res = await fetch(`/api/project/${projectId}`, {
@@ -33,7 +33,7 @@ export default function ProjectTaskPage() {
 				navigate("/");
 			}
 		}
-		getProjectTitle();
+		fetchProject();
 	}, [projectId, navigate]);
 
 	const handleProjectDelete = useCallback(() => {

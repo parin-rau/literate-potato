@@ -379,56 +379,61 @@ export default function TicketEditor(props: Props) {
 			} else if (dataKind === "project") {
 				// Edit existing project
 				if (previousData) {
-					const patchData = { ...editor };
-					const res1 = await fetch(
-						`/api/project/${previousData.projectId}`,
-						{
-							method: "PATCH",
-							headers: { "Content-Type": "application/json" },
-							body: JSON.stringify(patchData),
-						}
-					);
-					if (res1.ok) {
-						const ticketPatch = {
-							project: {
-								projectTitle: editor.title,
-								projectId: previousData.projectId,
-							},
-						};
-						const res2 = await fetch(
-							`/api/ticket/project-edit/${previousData.projectId}`,
+					try {
+						const patchData = { operation: "metadata", ...editor };
+						const res1 = await fetch(
+							`/api/project/${previousData.projectId}`,
 							{
 								method: "PATCH",
-								headers: {
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify(ticketPatch),
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify(patchData),
 							}
 						);
-						if (res2.ok) {
-							const updatedCard: Project = {
-								...(patchData as ProjectEditor),
-								...(init!.unusedPrevData! as Project),
-								lastModified: Date.now(),
+						if (res1.ok) {
+							const ticketPatch = {
+								project: {
+									projectTitle: editor.title,
+									projectId: previousData.projectId,
+								},
 							};
-							setCards((prevCards) =>
-								prevCards.map((card) =>
-									card.projectId === updatedCard.projectId
-										? updatedCard
-										: card
-								)
+							const res2 = await fetch(
+								`/api/ticket/project-edit/${previousData.projectId}`,
+								{
+									method: "PATCH",
+									headers: {
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(ticketPatch),
+								}
 							);
-							setCardCache &&
-								setCardCache((prev) =>
-									prev.map((card) =>
+							if (res2.ok) {
+								const updatedCard: Project = {
+									...(patchData as ProjectEditor),
+									...(init!.unusedPrevData! as Project),
+									lastModified: Date.now(),
+								};
+								setCards((prevCards) =>
+									prevCards.map((card) =>
 										card.projectId === updatedCard.projectId
 											? updatedCard
 											: card
 									)
 								);
-							setEditor(initTicketEditor);
-							setEditing(false);
+								setCardCache &&
+									setCardCache((prev) =>
+										prev.map((card) =>
+											card.projectId ===
+											updatedCard.projectId
+												? updatedCard
+												: card
+										)
+									);
+								setEditor(initTicketEditor);
+								setEditing(false);
+							}
 						}
+					} catch (e) {
+						console.error(e);
 					}
 				} else {
 					// Create new project
