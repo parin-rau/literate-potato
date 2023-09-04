@@ -97,7 +97,7 @@ app.patch("/api/project/:id", async (req, res) => {
 		const coll: mongoDB.Collection = db.collection(localProjects);
 
 		if (data.operation === "metadata") {
-			const { metadata } = data.metadata;
+			const { metadata } = data;
 			const result = await coll.updateOne(
 				{ projectId: id },
 				{ $set: { ...metadata, lastModified: Date.now() } }
@@ -134,6 +134,9 @@ app.patch("/api/project/:id", async (req, res) => {
 			);
 			await client.close();
 			res.status(200).send(result);
+		} else {
+			await client.close();
+			res.status(400).send();
 		}
 	} catch (err) {
 		console.error(err);

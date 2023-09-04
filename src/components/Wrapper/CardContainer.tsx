@@ -185,6 +185,7 @@ export default function CardContainer(props: Props) {
 					>,
 					project,
 					resetFilters,
+					setProject,
 					setCardCache: setCardCache as React.Dispatch<
 						React.SetStateAction<FetchedTicketData[]>
 					>,

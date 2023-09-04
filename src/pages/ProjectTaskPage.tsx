@@ -48,9 +48,6 @@ export default function ProjectTaskPage() {
 		<div className="flex flex-col justify-center items-stretch">
 			<div className="flex flex-col space-y-4 pt-20 items-center">
 				<div className="container flex flex-col space-y-6">
-					{/* <h1 className="font-bold text-4xl mx-2">
-						{project.length ? projectCard.title : "Project"}
-					</h1> */}
 					{project.length > 0 && (
 						<>
 							<ProjectCard

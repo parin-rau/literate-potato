@@ -10,7 +10,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import ProjectForm from "../Form/ProjectForm";
 import TicketForm from "../Form/TicketForm";
-import { arraysEqual } from "../../utility/arrayComparisons";
+import { arrayExclude, arraysEqual } from "../../utility/arrayComparisons";
 import { useLocation } from "react-router-dom";
 
 type CommonProps = {
@@ -34,24 +34,28 @@ type CreatingProjectProps = CommonProjectProps & {
 	project?: never;
 	previousData?: never;
 	setEditing?: never;
+	setProject?: never;
 };
 
 type CreatingTicketProps = CommonTicketProps & {
 	project?: { projectId: string; projectTitle: string };
 	previousData?: never;
 	setEditing?: never;
+	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
 type EditingProjectProps = CommonProjectProps & {
 	project?: never;
 	previousData: Project;
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
+	setProject?: never;
 };
 
 type EditingTicketProps = CommonTicketProps & {
 	project?: never;
 	previousData: FetchedTicketData;
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
+	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
 type Props = CommonProps &
@@ -68,6 +72,7 @@ export default function TicketEditor(props: Props) {
 		setEditing,
 		setCardCache,
 		resetFilters,
+		setProject,
 	} = props;
 	const init = handleInit(dataKind);
 	const [editor, setEditor] = useState(init!.initState);
@@ -277,6 +282,29 @@ export default function TicketEditor(props: Props) {
 										previousData.project.projectId
 									);
 
+									setProject &&
+										setProject((prev) =>
+											prev.map((proj) =>
+												proj.projectId ===
+												previousData.project.projectId
+													? {
+															...proj,
+															subtasksCompletedIds:
+																arrayExclude(
+																	proj.subtasksCompletedIds,
+																	previousCompletedIds
+																) as string[],
+
+															subtasksTotalIds:
+																arrayExclude(
+																	proj.subtasksTotalIds,
+																	previousSubtaskIds
+																) as string[],
+													  }
+													: proj
+											)
+										);
+
 									console.log(
 										"Deleted tasks from previous project"
 									);
@@ -292,6 +320,25 @@ export default function TicketEditor(props: Props) {
 									updatedSubtaskIds
 								);
 								if (res3.ok) {
+									setProject &&
+										setProject((prev) =>
+											prev.map((proj) =>
+												proj.projectId ===
+												updatedTicket.project.projectId
+													? {
+															...proj,
+															subtasksTotalIds: [
+																...proj.subtasksTotalIds,
+																...(arrayExclude(
+																	updatedSubtaskIds,
+																	proj.subtasksTotalIds
+																) as string[]),
+															],
+													  }
+													: proj
+											)
+										);
+
 									console.log("Added tasks to project");
 								}
 							}
@@ -306,6 +353,27 @@ export default function TicketEditor(props: Props) {
 								);
 
 								if (res4.ok) {
+									setProject &&
+										setProject((prev) =>
+											prev.map((proj) =>
+												proj.projectId ===
+												updatedTicket.project.projectId
+													? {
+															...proj,
+															subtasksCompletedIds:
+																arrayExclude(
+																	proj.subtasksCompletedIds,
+																	deletedSubtaskIds
+																) as string[],
+															subtasksTotalIds:
+																arrayExclude(
+																	proj.subtasksTotalIds,
+																	deletedSubtaskIds
+																) as string[],
+													  }
+													: proj
+											)
+										);
 									console.log(
 										`Deleted tasks for project ${updatedTicket.project.projectTitle}`
 									);
@@ -369,8 +437,23 @@ export default function TicketEditor(props: Props) {
 								}
 							);
 							if (res2.ok) {
+								setProject &&
+									setProject((prev) =>
+										prev.map((proj) =>
+											proj.projectId ===
+											newTicket.project.projectId
+												? {
+														...proj,
+														subtasksTotalIds: [
+															...proj.subtasksTotalIds,
+															...(subtasksTotalIds as string[]),
+														],
+												  }
+												: proj
+										)
+									);
 								console.log(
-									"Incremented completed tasks for project"
+									"Incremented total tasks for project"
 								);
 							}
 						}

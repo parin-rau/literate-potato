@@ -187,6 +187,27 @@ export default function TicketCard(props: Props) {
 					if (project.projectId) {
 						const operation = updatedCompletion ? "add" : "delete";
 
+						setProject &&
+							setProject((prev) =>
+								prev.map((proj) =>
+									proj.projectId === project.projectId
+										? {
+												...proj,
+												subtasksCompletedIds:
+													operation === "add"
+														? [
+																...proj.subtasksCompletedIds,
+																...(subtasksCompletedIds as string[]),
+														  ]
+														: (arrayExclude(
+																proj.subtasksCompletedIds,
+																subtasksCompletedIds
+														  ) as string[]),
+										  }
+										: proj
+								)
+							);
+
 						const res2 = await fetch(
 							`/api/project/${project.projectId}`,
 							{
@@ -202,26 +223,6 @@ export default function TicketCard(props: Props) {
 							}
 						);
 						if (res2.ok) {
-							setProject &&
-								setProject((prev) =>
-									prev.map((proj) =>
-										proj.projectId === project.projectId
-											? {
-													...proj,
-													subtasksCompletedIds:
-														operation === "add"
-															? [
-																	...proj.subtasksCompletedIds,
-																	...(subtasksCompletedIds as string[]),
-															  ]
-															: (arrayExclude(
-																	proj.subtasksCompletedIds,
-																	subtasksCompletedIds
-															  ) as string[]),
-											  }
-											: proj
-									)
-								);
 							console.log(
 								"Incremented completed tasks for project"
 							);
@@ -361,6 +362,7 @@ export default function TicketCard(props: Props) {
 					{...{
 						setCards,
 						setEditing,
+						setProject,
 						setCardCache: setCardCache as React.Dispatch<
 							React.SetStateAction<FetchedTicketData[]>
 						>,
