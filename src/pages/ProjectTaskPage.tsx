@@ -63,6 +63,7 @@ export default function ProjectTaskPage() {
 								containerTitle="Tasks"
 								projectTitle={projectCard.title}
 								projectId={projectId}
+								setProject={setProject}
 								styles="dark:bg-transparent"
 							/>
 						</>

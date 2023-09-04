@@ -380,7 +380,10 @@ export default function TicketEditor(props: Props) {
 				// Edit existing project
 				if (previousData) {
 					try {
-						const patchData = { operation: "metadata", ...editor };
+						const patchData = {
+							operation: "metadata",
+							metadata: { ...editor },
+						};
 						const res1 = await fetch(
 							`/api/project/${previousData.projectId}`,
 							{
@@ -408,7 +411,7 @@ export default function TicketEditor(props: Props) {
 							);
 							if (res2.ok) {
 								const updatedCard: Project = {
-									...(patchData as ProjectEditor),
+									...(patchData.metadata as ProjectEditor),
 									...(init!.unusedPrevData! as Project),
 									lastModified: Date.now(),
 								};

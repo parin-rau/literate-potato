@@ -11,6 +11,7 @@ type TicketProps = {
 	dataKind: "ticket";
 	projectId?: string;
 	projectTitle?: string;
+	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
 type ProjectProps = {
@@ -18,6 +19,7 @@ type ProjectProps = {
 	dataKind: "project";
 	projectId?: string;
 	projectTitle?: never;
+	setProject?: never;
 };
 
 type Props = {
@@ -25,7 +27,14 @@ type Props = {
 } & (TicketProps | ProjectProps);
 
 export default function CardContainer(props: Props) {
-	const { containerTitle, dataKind, styles, projectId, projectTitle } = props;
+	const {
+		containerTitle,
+		dataKind,
+		styles,
+		projectId,
+		projectTitle,
+		setProject,
+	} = props;
 	const [cards, setCards] = useState<FetchedTicketData[] | Project[]>([]);
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
@@ -219,6 +228,7 @@ export default function CardContainer(props: Props) {
 						setCardCache,
 						filters,
 						setFilters,
+						setProject,
 					}}
 				/>
 			</div>

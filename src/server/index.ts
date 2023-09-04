@@ -97,8 +97,7 @@ app.patch("/api/project/:id", async (req, res) => {
 		const coll: mongoDB.Collection = db.collection(localProjects);
 
 		if (data.operation === "metadata") {
-			// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-			const { operation, ...metadata } = data;
+			const { metadata } = data.metadata;
 			const result = await coll.updateOne(
 				{ projectId: id },
 				{ $set: { ...metadata, lastModified: Date.now() } }

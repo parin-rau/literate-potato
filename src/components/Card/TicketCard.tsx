@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FetchedTicketData, TicketData } from "../../types";
+import { FetchedTicketData, Project, TicketData } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import timestampDisplay from "../../utility/timestampDisplay";
 import TagsDisplay from "../Display/TagsDisplay";
@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import TicketEditor from "../Editor/TicketEditor";
 import ProgressBar from "../Display/ProgressBar";
 import { countCompletedSubs } from "../../utility/countCompleted";
+import { arrayExclude } from "../../utility/arrayComparisons";
 
 type Props = {
 	cardData: FetchedTicketData;
@@ -17,6 +18,7 @@ type Props = {
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
 	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
 export default function TicketCard(props: Props) {
@@ -36,7 +38,7 @@ export default function TicketCard(props: Props) {
 		comments,
 		creator,
 	} = props.cardData;
-	const { setCards, filters, setFilters, setCardCache } = props;
+	const { setCards, filters, setFilters, setCardCache, setProject } = props;
 	const moreOptions = [
 		{ name: "Delete", fn: deleteCard, ticketId },
 		{ name: "Edit", fn: editCard, ticketId },
@@ -91,6 +93,25 @@ export default function TicketCard(props: Props) {
 						}
 					);
 					if (res2.ok) {
+						setProject &&
+							setProject((prev) =>
+								prev.map((proj) =>
+									proj.projectId === project.projectId
+										? {
+												...proj,
+												subtasksCompletedIds:
+													arrayExclude(
+														proj.subtasksCompletedIds,
+														subtasksCompletedIds
+													) as string[],
+												subtasksTotalIds: arrayExclude(
+													proj.subtasksTotalIds,
+													subtasksTotalIds
+												) as string[],
+										  }
+										: proj
+								)
+							);
 						console.log("Deleted tasks from project");
 					}
 				} catch (e) {

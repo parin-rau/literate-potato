@@ -13,11 +13,19 @@ type Props = {
 	>;
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
+	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
 export default function CardSelector(props: Props) {
-	const { dataKind, cards, setCards, setCardCache, filters, setFilters } =
-		props;
+	const {
+		dataKind,
+		cards,
+		setCards,
+		setCardCache,
+		filters,
+		setFilters,
+		setProject,
+	} = props;
 
 	if (dataKind === "ticket") {
 		return (cards as FetchedTicketData[]).map((card) => (
@@ -36,10 +44,10 @@ export default function CardSelector(props: Props) {
 						React.SetStateAction<FetchedTicketData[]>
 					>
 				}
+				setProject={setProject}
 			/>
 		));
-	}
-	if (dataKind === "project") {
+	} else if (dataKind === "project") {
 		return (cards as Project[]).map((card) => (
 			<ProjectCard
 				key={card.projectId}

@@ -21,3 +21,17 @@ export function arraysEqual(arr1: unknown[], arr2: unknown[]) {
 		return true;
 	}
 }
+
+export function arrayExclude(sourceArr: string[], filterArr: string[]) {
+	if (typeof sourceArr !== typeof filterArr) {
+		return;
+	} else {
+		const returnArr: string[] = [];
+		for (let i = 0; i < sourceArr.length; i++) {
+			if (!filterArr.includes(sourceArr[i])) {
+				returnArr.push(sourceArr[i]);
+			}
+		}
+		return returnArr;
+	}
+}
