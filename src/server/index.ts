@@ -76,12 +76,22 @@ app.get("/api/project/:id/ticket", async (req, res) => {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localTickets);
-		const tickets = await coll
-			.find({ "project.projectId": id })
-			.limit(50)
-			.toArray();
-		await client.close();
-		res.status(200).send(tickets);
+
+		if (id === "uncategorized") {
+			const tickets = await coll
+				.find({ "project.projectId": "" })
+				.limit(50)
+				.toArray();
+			await client.close();
+			res.status(200).send(tickets);
+		} else {
+			const tickets = await coll
+				.find({ "project.projectId": id })
+				.limit(50)
+				.toArray();
+			await client.close();
+			res.status(200).send(tickets);
+		}
 	} catch (err) {
 		console.error(err);
 	}
@@ -179,19 +189,6 @@ app.get("/api/ticket/:id", async (req, res) => {
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localTickets);
 		const ticket = await coll.findOne({ ticketId: id });
-		await client.close();
-		res.status(200).send(ticket);
-	} catch (err) {
-		console.error(err);
-	}
-});
-
-app.get("/api/ticket/uncategorized", async (_req, res) => {
-	try {
-		const client: mongoDB.MongoClient = await connectToDatabase();
-		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localTickets);
-		const ticket = await coll.find({ ticketId: "" }).toArray();
 		await client.close();
 		res.status(200).send(ticket);
 	} catch (err) {

@@ -15,7 +15,7 @@ export default function ProjectTaskPage() {
 		console.error("Project undefined");
 	}
 
-	const projectCard = project[0] || { title: "Uncategorized" };
+	const projectCard = project[0];
 
 	useEffect(() => {
 		async function fetchProject() {
@@ -61,7 +61,7 @@ export default function ProjectTaskPage() {
 						<>
 							{projectId === "uncategorized" ? (
 								<h1 className="font-bold text-4xl mx-2">
-									Uncategorized
+									Uncategorized Tasks
 								</h1>
 							) : (
 								<ProjectCard
