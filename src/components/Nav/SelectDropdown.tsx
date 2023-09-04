@@ -10,10 +10,12 @@ type Props = {
 	}[];
 	handleChange: (_e: React.ChangeEvent<HTMLSelectElement>) => void;
 	stylesOverride?: string;
+	required?: true;
 };
 
 export default function SelectDropdown(props: Props) {
-	const { name, value, options, handleChange, stylesOverride } = props;
+	const { name, value, options, handleChange, stylesOverride, required } =
+		props;
 
 	return (
 		<select
@@ -25,6 +27,7 @@ export default function SelectDropdown(props: Props) {
 			onChange={(e) => {
 				handleChange(e);
 			}}
+			required={required}
 		>
 			{options.map((option, index) => (
 				<option

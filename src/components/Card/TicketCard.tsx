@@ -145,6 +145,10 @@ export default function TicketCard(props: Props) {
 					)
 				);
 				setStatusColors(newStatusColor);
+
+				if (newTaskStatus === "Completed") {
+					console.log();
+				}
 			}
 		} catch (err) {
 			console.error(err);

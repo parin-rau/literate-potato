@@ -121,7 +121,7 @@ export default function CardContainer(props: Props) {
 				setCardCache([]);
 			} else if (filters.length > 0 && !isFirstFilter) {
 				const filtered = getFilterMatches(cardCache);
-				setCards(filtered);
+				setCards(filtered!);
 			}
 		}
 		filterCards();
@@ -177,28 +177,42 @@ export default function CardContainer(props: Props) {
 				styles
 			}
 		>
-			<TicketEditor
-				{...{
-					dataKind,
-					setCards: setCards as React.Dispatch<
-						React.SetStateAction<FetchedTicketData[]>
-					>,
-					project,
-					resetFilters,
-					setProject,
-					setCardCache: setCardCache as React.Dispatch<
-						React.SetStateAction<FetchedTicketData[]>
-					>,
-				}}
-				// setCards={setCards}
-				// projectId={projectId}
-				// setCardCache={
-				// 	setCardCache as React.Dispatch<
-				// 		React.SetStateAction<FetchedTicketData[]>
-				// 	>
-				// }
-				// resetFilters={resetFilters}
-			/>
+			<div
+				className={
+					!projectId
+						? "grid grid-cols-1 gap-2 sm:grid-cols-2 sm:items-start"
+						: ""
+				}
+			>
+				<TicketEditor
+					{...{
+						dataKind,
+						setCards: setCards as React.Dispatch<
+							React.SetStateAction<FetchedTicketData[]>
+						>,
+						project,
+						resetFilters,
+						setProject,
+						setCardCache: setCardCache as React.Dispatch<
+							React.SetStateAction<FetchedTicketData[]>
+						>,
+					}}
+					// setCards={setCards}
+					// projectId={projectId}
+					// setCardCache={
+					// 	setCardCache as React.Dispatch<
+					// 		React.SetStateAction<FetchedTicketData[]>
+					// 	>
+					// }
+					// resetFilters={resetFilters}
+				/>
+				{!projectId && (
+					<TicketEditor
+						dataKind="ticket"
+						project={{ projectId: "", projectTitle: "" }}
+					/>
+				)}
+			</div>
 			<div className="flex flex-row justify-between items-baseline mx-1">
 				<h1 className="font-semibold text-3xl my-4">
 					{filters.length > 0

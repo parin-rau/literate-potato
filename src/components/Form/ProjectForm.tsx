@@ -39,7 +39,7 @@ export default function ProjectForm(props: Props) {
 
 			<div className="space-x-2">
 				<button
-					className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-full max-w-min"
+					className="transition duration-200 mt-2 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-md max-w-min"
 					type="submit"
 				>
 					Submit

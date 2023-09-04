@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import CardContainer from "../components/Wrapper/CardContainer";
 import ProjectCard from "../components/Card/ProjectCard";
-import { Project } from "../types";
+import { Project, uncategorizedProject } from "../types";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function ProjectTaskPage() {
@@ -12,21 +12,26 @@ export default function ProjectTaskPage() {
 
 	if (projectId === "") {
 		navigate("/");
-		console.error("Project does not exist");
+		console.error("Project undefined");
 	}
 
-	const projectCard = project[0];
+	const projectCard = project[0] || { title: "Uncategorized" };
 
 	useEffect(() => {
 		async function fetchProject() {
 			try {
-				if (projectId) {
+				if (projectId === "uncategorized") {
+					setProject([uncategorizedProject]);
+					setInitialized(true);
+				} else if (projectId) {
 					const res = await fetch(`/api/project/${projectId}`, {
 						headers: { "Content-Type": "application/json" },
 					});
-					const projectData: Project = await res.json();
-					setProject([projectData]);
-					setInitialized(true);
+					if (res.ok) {
+						const projectData: Project = await res.json();
+						setProject([projectData]);
+						setInitialized(true);
+					}
 				}
 			} catch (e) {
 				console.error(e);
@@ -37,10 +42,14 @@ export default function ProjectTaskPage() {
 	}, [projectId, navigate]);
 
 	const handleProjectDelete = useCallback(() => {
-		if (initialized && project.length === 0) {
+		if (
+			initialized &&
+			project.length === 0 &&
+			projectId !== "uncategorized"
+		) {
 			navigate("/");
 		}
-	}, [initialized, project.length, navigate]);
+	}, [initialized, project.length, navigate, projectId]);
 
 	useEffect(() => handleProjectDelete(), [handleProjectDelete]);
 
@@ -50,11 +59,17 @@ export default function ProjectTaskPage() {
 				<div className="container flex flex-col space-y-6">
 					{project.length > 0 && (
 						<>
-							<ProjectCard
-								isHeader
-								cardData={projectCard}
-								setCards={setProject}
-							/>
+							{projectId === "uncategorized" ? (
+								<h1 className="font-bold text-4xl mx-2">
+									Uncategorized
+								</h1>
+							) : (
+								<ProjectCard
+									isHeader
+									cardData={projectCard}
+									setCards={setProject}
+								/>
+							)}
 							<CardContainer
 								dataKind="ticket"
 								containerTitle="Tasks"

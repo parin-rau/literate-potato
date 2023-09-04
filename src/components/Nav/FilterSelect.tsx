@@ -26,7 +26,7 @@ export default function FilterSelect(props: Props) {
 	} = props;
 
 	return (
-		<div className="flex flex-col sm:flex-row flex-wrap rounded-md border dark:border-zinc-800 shadow-md items-center px-2 space-x-2 dark:bg-neutral-900">
+		<div className="flex flex-col items-end sm:items-center sm:flex-row flex-wrap rounded-md border dark:border-zinc-800 shadow-md px-2 space-x-2 dark:bg-neutral-900">
 			<SearchBar setFilters={setFilters} placeholder="Filter by Tags" />
 			{filters.length > 0 && (
 				<>

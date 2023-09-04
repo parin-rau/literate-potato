@@ -89,14 +89,9 @@ export default function ProjectForm(props: Props) {
 					options={projectList}
 					handleChange={handleChange}
 					stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
+					required
 				/>
 			</div>
-			{/* <input
-				type="hidden"
-				name="projectTitle"
-				value={projectTitle}
-				onChange={handleChange}
-			/> */}
 
 			<textarea
 				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"

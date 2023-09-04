@@ -21,6 +21,8 @@ export default function ProjectCard(props: Props) {
 		projectId,
 		timestamp,
 		projectNumber,
+		tasksCompletedIds,
+		tasksTotalIds,
 		subtasksCompletedIds,
 		subtasksTotalIds,
 	} = props.cardData;
@@ -32,21 +34,27 @@ export default function ProjectCard(props: Props) {
 		{ name: "Edit", fn: editCard, projectId },
 	];
 
-	const percentCompletedNum = Math.floor(
+	if (tasksCompletedIds && tasksTotalIds) {
+		const taskPercentCompletedNum = Math.floor(
+			(tasksCompletedIds!.length / tasksTotalIds!.length) * 100
+		);
+		const taskProgress = {
+			totalTasks: tasksTotalIds!.length,
+			totalCompleted: tasksCompletedIds!.length,
+			percentCompletedNum: taskPercentCompletedNum,
+			percentCompletedString: `${taskPercentCompletedNum.toString()}%`,
+		};
+	}
+
+	const subtaskPercentCompletedNum = Math.floor(
 		(subtasksCompletedIds.length / subtasksTotalIds.length) * 100
 	);
-	const progress = {
+	const subtaskProgress = {
 		totalTasks: subtasksTotalIds.length,
 		totalCompleted: subtasksCompletedIds.length,
-		percentCompletedNum,
-		percentCompletedString: `${percentCompletedNum.toString()}%`,
+		percentCompletedNum: subtaskPercentCompletedNum,
+		percentCompletedString: `${subtaskPercentCompletedNum.toString()}%`,
 	};
-
-	useEffect(() => {
-		// Update project card structure to keep count of completed tasks and increment/decrement
-		// project data field in db when related ticket subtasks are completed. Update the
-		// display bar of project card when ticket subtasks are completed.
-	}, []);
 
 	async function deleteCard(id: string) {
 		try {
@@ -133,8 +141,11 @@ export default function ProjectCard(props: Props) {
 						)}
 						{creator && <h3 className="">Creator: {creator}</h3>}
 						<span>Created: {timestampDisplay(timestamp)}</span>
+						{tasksTotalIds && tasksTotalIds.length > 0 ? (
+							<ProgressBar progress={{ ...taskProgress }} />
+						) : null}
 						{subtasksTotalIds.length > 0 ? (
-							<ProgressBar progress={{ ...progress }} />
+							<ProgressBar progress={{ ...subtaskProgress }} />
 						) : null}
 					</div>
 				)}

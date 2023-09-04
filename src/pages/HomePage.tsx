@@ -26,17 +26,17 @@ export default function HomePage() {
 		<div className="flex flex-col space-y-4 pt-20 px-2">
 			<div className="sm:container sm:mx-auto flex flex-col space-y-6">
 				<h1 className="text-bold text-4xl">Projects Home</h1>
-				<div className="flex flex-col sm:grid grid-cols-1 lg:grid-cols-2 container sm:place-items-start gap-4">
+				<div className="flex flex-col container gap-4">
 					<CardContainer
 						containerTitle="Projects"
 						dataKind="project"
 						styles={cardContainerStyles}
 					/>
-					<CardContainer
+					{/* <CardContainer
 						containerTitle="All Tasks"
 						dataKind="ticket"
 						styles={cardContainerStyles}
-					/>
+					/> */}
 				</div>
 			</div>
 		</div>

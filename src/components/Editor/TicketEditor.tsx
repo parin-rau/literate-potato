@@ -26,8 +26,8 @@ type CommonProjectProps = {
 
 type CommonTicketProps = {
 	dataKind: "ticket";
-	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	setCardCache: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	setCards?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 };
 
 type CreatingProjectProps = CommonProjectProps & {
@@ -188,12 +188,13 @@ export default function TicketEditor(props: Props) {
 
 	function handleProjectChange(currentViewProjectId: string) {
 		if (isProjectPage && dataKind === "ticket") {
-			setCards((prev) =>
-				prev.filter(
-					(ticket) =>
-						ticket.project.projectId === currentViewProjectId
-				)
-			);
+			setCards &&
+				setCards((prev) =>
+					prev.filter(
+						(ticket) =>
+							ticket.project.projectId === currentViewProjectId
+					)
+				);
 		}
 	}
 
@@ -220,13 +221,14 @@ export default function TicketEditor(props: Props) {
 							...(init!.unusedPrevData! as FetchedTicketData),
 							lastModified: Date.now(),
 						};
-						setCards((prevCards) =>
-							prevCards.map((card) =>
-								card.ticketId === updatedTicket.ticketId
-									? updatedTicket
-									: card
-							)
-						);
+						setCards &&
+							setCards((prevCards) =>
+								prevCards.map((card) =>
+									card.ticketId === updatedTicket.ticketId
+										? updatedTicket
+										: card
+								)
+							);
 						setCardCache &&
 							setCardCache((prev) =>
 								prev.map((card) =>
@@ -398,13 +400,14 @@ export default function TicketEditor(props: Props) {
 					});
 					if (res1.ok) {
 						const response = await res1.json();
-						setCards((prevCards) => [
-							{
-								...newTicket,
-								ticketNumber: response.ticketNumber,
-							},
-							...prevCards,
-						]);
+						setCards &&
+							setCards((prevCards) => [
+								{
+									...newTicket,
+									ticketNumber: response.ticketNumber,
+								},
+								...prevCards,
+							]);
 						if (setCardCache && resetFilters) {
 							setCardCache((prevCards) => [
 								{
@@ -580,12 +583,12 @@ export default function TicketEditor(props: Props) {
 			>
 				<div className="flex flex-row justify-between items-baseline">
 					{previousData ? (
-						<h1 className="font-semibold text-lg sm:text-2xl">
+						<h1 className="font-semibold text-lg sm:text-lg md:text-xl">
 							{init!.editorHeading}
 						</h1>
 					) : (
 						<button
-							className="font-semibold text-lg sm:text-2xl"
+							className="font-semibold text-lg sm:text-lg md:text-xl"
 							onClick={() => {
 								setExpand(!expand);
 							}}
@@ -595,7 +598,7 @@ export default function TicketEditor(props: Props) {
 						</button>
 					)}
 					{expand && (
-						<div className="flex text-xs sm:text-base ">
+						<div className="flex flex-col lg:flex-row items-end text-xs sm:text-base ">
 							<button
 								className="dark:hover:bg-zinc-700 rounded-md px-2 py-1"
 								type="button"
@@ -612,9 +615,7 @@ export default function TicketEditor(props: Props) {
 									type="button"
 									onClick={() => setPinned(!isPinned)}
 								>
-									{isPinned
-										? "Unpin Editor"
-										: "Pin Editor Open"}
+									{isPinned ? "Unpin Editor" : "Pin Editor"}
 								</button>
 							)}
 							{previousData ? (

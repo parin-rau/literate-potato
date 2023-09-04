@@ -6,6 +6,8 @@ export interface Project {
 	projectId: string;
 	projectNumber?: number;
 	lastModified?: number;
+	tasksCompletedIds?: string[];
+	tasksTotalIds?: string[];
 	subtasksCompletedIds: string[];
 	subtasksTotalIds: string[];
 	//[key: string]: string | number;
@@ -104,6 +106,17 @@ export const initProjectEditor: ProjectEditor = {
 	title: "",
 	description: "",
 	creator: "",
+};
+
+export const uncategorizedProject: Project = {
+	...initProjectEditor,
+	title: "Uncategorized",
+	timestamp: 0,
+	projectId: "",
+	tasksCompletedIds: [],
+	tasksTotalIds: [],
+	subtasksCompletedIds: [],
+	subtasksTotalIds: [],
 };
 
 export type SortMenu = {

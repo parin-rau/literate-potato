@@ -186,6 +186,19 @@ app.get("/api/ticket/:id", async (req, res) => {
 	}
 });
 
+app.get("/api/ticket/uncategorized", async (_req, res) => {
+	try {
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localTickets);
+		const ticket = await coll.find({ ticketId: "" }).toArray();
+		await client.close();
+		res.status(200).send(ticket);
+	} catch (err) {
+		console.error(err);
+	}
+});
+
 app.post("/api/ticket", async (req, res) => {
 	try {
 		const partialNewTicket: TicketData = await req.body;
