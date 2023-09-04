@@ -163,7 +163,7 @@ export default function TicketCard(props: Props) {
 					: subtask
 			);
 
-			const subtasksCompletedIds = [targetSubtask?.subtaskId];
+			const subtasksCompletedIds = [targetSubtask!.subtaskId];
 			const subtasksTotalIds: string[] = [];
 
 			try {
@@ -202,6 +202,26 @@ export default function TicketCard(props: Props) {
 							}
 						);
 						if (res2.ok) {
+							setProject &&
+								setProject((prev) =>
+									prev.map((proj) =>
+										proj.projectId === project.projectId
+											? {
+													...proj,
+													subtasksCompletedIds:
+														operation === "add"
+															? [
+																	...proj.subtasksCompletedIds,
+																	...(subtasksCompletedIds as string[]),
+															  ]
+															: (arrayExclude(
+																	proj.subtasksCompletedIds,
+																	subtasksCompletedIds
+															  ) as string[]),
+											  }
+											: proj
+									)
+								);
 							console.log(
 								"Incremented completed tasks for project"
 							);
