@@ -170,7 +170,9 @@ export default function TicketEditor(props: Props) {
 		projectId: string,
 		operation: "add" | "delete",
 		subtasksCompletedIds: string[],
-		subtasksTotalIds: string[]
+		subtasksTotalIds: string[],
+		tasksCompletedIds?: string[],
+		tasksTotalIds?: string[]
 	) {
 		const res = await fetch(`/api/project/${projectId}`, {
 			method: "PATCH",
@@ -181,6 +183,8 @@ export default function TicketEditor(props: Props) {
 				operation,
 				subtasksCompletedIds,
 				subtasksTotalIds,
+				tasksCompletedIds,
+				tasksTotalIds,
 			}),
 		});
 		return res;
@@ -276,7 +280,9 @@ export default function TicketEditor(props: Props) {
 									previousData.project.projectId,
 									"delete",
 									previousCompletedIds,
-									previousSubtaskIds
+									previousSubtaskIds,
+									[previousData.ticketId],
+									[previousData.ticketId]
 								);
 
 								if (res2.ok) {
@@ -291,6 +297,23 @@ export default function TicketEditor(props: Props) {
 												previousData.project.projectId
 													? {
 															...proj,
+
+															tasksCompletedIds:
+																arrayExclude(
+																	proj.tasksCompletedIds,
+																	[
+																		previousData.ticketId,
+																	]
+																) as string[],
+
+															tasksTotalIds:
+																arrayExclude(
+																	proj.tasksTotalIds,
+																	[
+																		previousData.ticketId,
+																	]
+																) as string[],
+
 															subtasksCompletedIds:
 																arrayExclude(
 																	proj.subtasksCompletedIds,
@@ -315,7 +338,11 @@ export default function TicketEditor(props: Props) {
 									updatedTicket.project.projectId,
 									"add",
 									updatedCompletedIds,
-									updatedSubtaskIds
+									updatedSubtaskIds,
+									updatedTicket.taskStatus === "Completed"
+										? [updatedTicket.ticketId]
+										: [],
+									[updatedTicket.ticketId]
 								);
 								if (res3.ok) {
 									setProject &&
