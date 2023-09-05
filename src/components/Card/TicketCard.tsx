@@ -15,8 +15,8 @@ import { arrayExclude } from "../../utility/arrayComparisons";
 type Props = {
 	cardData: FetchedTicketData;
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	filters: string[];
-	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
+	filters?: string[];
+	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
 	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
@@ -60,6 +60,118 @@ export default function TicketCard(props: Props) {
 		return optionColors;
 	}
 
+	async function handleTaskChange(
+		projectId: string,
+		taskId: string,
+		updatedTaskStatus: string
+	) {
+		type PatchData = {
+			operation: "add" | "delete";
+			tasksCompletedIds: string[];
+			tasksTotalIds: string[];
+		};
+
+		async function sendPatchData(patchData: PatchData) {
+			const res = await fetch(`/api/project/${projectId}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(patchData),
+			});
+			return res;
+		}
+
+		if (projectId && updatedTaskStatus === "Completed") {
+			const patchData: PatchData = {
+				operation: "add",
+				tasksCompletedIds: [taskId],
+				tasksTotalIds: [taskId],
+			};
+			const res = await sendPatchData(patchData);
+			if (res.ok) {
+				console.log("complete task");
+			}
+			return res;
+		} else if (projectId && updatedTaskStatus === "DELETE") {
+			const patchData: PatchData = {
+				operation: "delete",
+				tasksCompletedIds: [taskId],
+				tasksTotalIds: [taskId],
+			};
+			const res = await sendPatchData(patchData);
+			if (res.ok) {
+				console.log("deleted task");
+			}
+			return res;
+		} else if (
+			projectId &&
+			updatedTaskStatus !== "Completed" &&
+			updatedTaskStatus !== "DELETE"
+		) {
+			const patchData: PatchData = {
+				operation: "delete",
+				tasksCompletedIds: [taskId],
+				tasksTotalIds: [],
+			};
+			const res = await sendPatchData(patchData);
+			if (res.ok) {
+				console.log("incomplete task");
+			}
+			return res;
+		}
+	}
+
+	async function changeStatus(e: React.ChangeEvent<HTMLSelectElement>) {
+		const newTaskStatus = e.target.value;
+		const newStatusColor = statusColorsLookup(newTaskStatus);
+		try {
+			const res = await fetch(`/api/ticket/${ticketId}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ taskStatus: newTaskStatus }),
+			});
+			if (res.ok) {
+				const res2 = await handleTaskChange(
+					project.projectId,
+					ticketId,
+					newTaskStatus
+				);
+				if (res2?.ok) {
+					setCards((prevCards) =>
+						prevCards.map((card: TicketData) =>
+							card.ticketId === ticketId
+								? { ...card, taskStatus: newTaskStatus }
+								: card
+						)
+					);
+					setStatusColors(newStatusColor);
+
+					setProject &&
+						setProject((prev) =>
+							prev.map((proj) =>
+								proj.projectId === project.projectId
+									? {
+											...proj,
+											tasksCompletedIds:
+												newTaskStatus === "Completed"
+													? [
+															...proj.tasksCompletedIds,
+															ticketId,
+													  ]
+													: (arrayExclude(
+															proj.tasksCompletedIds,
+															[ticketId]
+													  ) as string[]),
+									  }
+									: proj
+							)
+						);
+				}
+			}
+		} catch (err) {
+			console.error(err);
+		}
+	}
+
 	async function deleteCard(id: string) {
 		try {
 			const subtasksCompletedIds = subtasks
@@ -77,45 +189,49 @@ export default function TicketCard(props: Props) {
 					setCardCache((prev) =>
 						prev.filter((card) => card.ticketId !== id)
 					);
-				try {
-					const res2 = await fetch(
-						`/api/project/${project.projectId}`,
-						{
-							method: "PATCH",
-							headers: {
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify({
-								operation: "delete",
-								subtasksCompletedIds,
-								subtasksTotalIds,
-							}),
-						}
-					);
-					if (res2.ok) {
-						setProject &&
-							setProject((prev) =>
-								prev.map((proj) =>
-									proj.projectId === project.projectId
-										? {
-												...proj,
-												subtasksCompletedIds:
-													arrayExclude(
-														proj.subtasksCompletedIds,
-														subtasksCompletedIds
-													) as string[],
-												subtasksTotalIds: arrayExclude(
-													proj.subtasksTotalIds,
-													subtasksTotalIds
-												) as string[],
-										  }
-										: proj
-								)
-							);
-						console.log("Deleted tasks from project");
-					}
-				} catch (e) {
-					console.error(e);
+
+				const res2 = await fetch(`/api/project/${project.projectId}`, {
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						operation: "delete",
+						tasksCompletedIds: [ticketId],
+						tasksTotalIds: [ticketId],
+						subtasksCompletedIds,
+						subtasksTotalIds,
+					}),
+				});
+
+				if (res2.ok) {
+					setProject &&
+						setProject((prev) =>
+							prev.map((proj) =>
+								proj.projectId === project.projectId
+									? {
+											...proj,
+											tasksCompletedIds: arrayExclude(
+												proj.tasksCompletedIds,
+												[ticketId]
+											) as string[],
+											tasksTotalIds: arrayExclude(
+												proj.tasksTotalIds,
+												[ticketId]
+											) as string[],
+											subtasksCompletedIds: arrayExclude(
+												proj.subtasksCompletedIds,
+												subtasksCompletedIds
+											) as string[],
+											subtasksTotalIds: arrayExclude(
+												proj.subtasksTotalIds,
+												subtasksTotalIds
+											) as string[],
+									  }
+									: proj
+							)
+						);
+					console.log("Deleted subtasks from project");
 				}
 			}
 		} catch (err) {
@@ -125,34 +241,6 @@ export default function TicketCard(props: Props) {
 
 	function editCard() {
 		setEditing(true);
-	}
-
-	async function changeStatus(e: React.ChangeEvent<HTMLSelectElement>) {
-		const newTaskStatus = e.target.value;
-		const newStatusColor = statusColorsLookup(newTaskStatus);
-		try {
-			const res = await fetch(`/api/ticket/${ticketId}`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ taskStatus: newTaskStatus }),
-			});
-			if (res.ok) {
-				setCards((prevCards) =>
-					prevCards.map((card: TicketData) =>
-						card.ticketId === ticketId
-							? { ...card, taskStatus: newTaskStatus }
-							: card
-					)
-				);
-				setStatusColors(newStatusColor);
-
-				if (newTaskStatus === "Completed") {
-					console.log();
-				}
-			}
-		} catch (err) {
-			console.error(err);
-		}
 	}
 
 	async function completeSubtask(id: string) {
@@ -274,8 +362,8 @@ export default function TicketCard(props: Props) {
 								<>
 									<ProgressBar
 										progress={countCompletedSubs(subtasks)}
+										caption="Subtasks"
 									/>
-									<div></div>
 								</>
 							)}
 							{priority && (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Project } from "../../types";
 import timestampDisplay from "../../utility/timestampDisplay";
@@ -34,17 +34,15 @@ export default function ProjectCard(props: Props) {
 		{ name: "Edit", fn: editCard, projectId },
 	];
 
-	if (tasksCompletedIds && tasksTotalIds) {
-		const taskPercentCompletedNum = Math.floor(
-			(tasksCompletedIds!.length / tasksTotalIds!.length) * 100
-		);
-		const taskProgress = {
-			totalTasks: tasksTotalIds!.length,
-			totalCompleted: tasksCompletedIds!.length,
-			percentCompletedNum: taskPercentCompletedNum,
-			percentCompletedString: `${taskPercentCompletedNum.toString()}%`,
-		};
-	}
+	const taskPercentCompletedNum = Math.floor(
+		(tasksCompletedIds!.length / tasksTotalIds!.length) * 100
+	);
+	const taskProgress = {
+		totalTasks: tasksTotalIds!.length,
+		totalCompleted: tasksCompletedIds!.length,
+		percentCompletedNum: taskPercentCompletedNum,
+		percentCompletedString: `${taskPercentCompletedNum.toString()}%`,
+	};
 
 	const subtaskPercentCompletedNum = Math.floor(
 		(subtasksCompletedIds.length / subtasksTotalIds.length) * 100
@@ -142,10 +140,16 @@ export default function ProjectCard(props: Props) {
 						{creator && <h3 className="">Creator: {creator}</h3>}
 						<span>Created: {timestampDisplay(timestamp)}</span>
 						{tasksTotalIds && tasksTotalIds.length > 0 ? (
-							<ProgressBar progress={{ ...taskProgress }} />
+							<ProgressBar
+								progress={{ ...taskProgress }}
+								caption="Tasks"
+							/>
 						) : null}
 						{subtasksTotalIds.length > 0 ? (
-							<ProgressBar progress={{ ...subtaskProgress }} />
+							<ProgressBar
+								progress={{ ...subtaskProgress }}
+								caption="Subtasks"
+							/>
 						) : null}
 					</div>
 				)}

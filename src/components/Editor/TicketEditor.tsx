@@ -306,10 +306,6 @@ export default function TicketEditor(props: Props) {
 													: proj
 											)
 										);
-
-									console.log(
-										"Deleted tasks from previous project"
-									);
 								}
 							}
 
@@ -340,8 +336,6 @@ export default function TicketEditor(props: Props) {
 													: proj
 											)
 										);
-
-									console.log("Added tasks to project");
 								}
 							}
 
@@ -376,9 +370,7 @@ export default function TicketEditor(props: Props) {
 													: proj
 											)
 										);
-									console.log(
-										`Deleted tasks for project ${updatedTicket.project.projectTitle}`
-									);
+
 									setDeletedSubtaskIds([]);
 								}
 							}
@@ -421,7 +413,6 @@ export default function TicketEditor(props: Props) {
 						setEditor(init?.initState || initTicketEditor);
 						!isPinned && setExpand(false);
 						if (newTicket.project.projectId) {
-							const subtasksCompletedIds: string[] = [];
 							const subtasksTotalIds = newTicket.subtasks.map(
 								(o) => o.subtaskId
 							);
@@ -434,11 +425,12 @@ export default function TicketEditor(props: Props) {
 									},
 									body: JSON.stringify({
 										operation: "add",
-										subtasksCompletedIds,
+										tasksTotalIds: [newTicket.ticketId],
 										subtasksTotalIds,
 									}),
 								}
 							);
+
 							if (res2.ok) {
 								setProject &&
 									setProject((prev) =>
@@ -447,6 +439,10 @@ export default function TicketEditor(props: Props) {
 											newTicket.project.projectId
 												? {
 														...proj,
+														tasksTotalIds: [
+															...proj.tasksTotalIds,
+															newTicket.ticketId,
+														],
 														subtasksTotalIds: [
 															...proj.subtasksTotalIds,
 															...(subtasksTotalIds as string[]),
@@ -455,9 +451,6 @@ export default function TicketEditor(props: Props) {
 												: proj
 										)
 									);
-								console.log(
-									"Incremented total tasks for project"
-								);
 							}
 						}
 					}
@@ -530,6 +523,8 @@ export default function TicketEditor(props: Props) {
 						...(editor as ProjectEditor),
 						timestamp: Date.now(),
 						projectId: uuidv4(),
+						tasksCompletedIds: [],
+						tasksTotalIds: [],
 						subtasksCompletedIds: [],
 						subtasksTotalIds: [],
 					};

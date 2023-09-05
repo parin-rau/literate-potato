@@ -6,8 +6,8 @@ export interface Project {
 	projectId: string;
 	projectNumber?: number;
 	lastModified?: number;
-	tasksCompletedIds?: string[];
-	tasksTotalIds?: string[];
+	tasksCompletedIds: string[];
+	tasksTotalIds: string[];
 	subtasksCompletedIds: string[];
 	subtasksTotalIds: string[];
 	//[key: string]: string | number;

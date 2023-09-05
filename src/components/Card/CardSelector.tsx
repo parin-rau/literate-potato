@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { FetchedTicketData, Project } from "../../types";
 import ProjectCard from "./ProjectCard";
 import TicketCard from "./TicketCard";
-import { v4 as uuidv4 } from "uuid";
 
 type Props = {
 	dataKind: string;

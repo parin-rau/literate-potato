@@ -5,6 +5,7 @@ type Props = {
 		percentCompletedString: string;
 		percentCompletedNum: number;
 	};
+	caption: string;
 };
 
 export default function ProgressBar(props: Props) {
@@ -14,6 +15,7 @@ export default function ProgressBar(props: Props) {
 		percentCompletedString,
 		percentCompletedNum,
 	} = props.progress;
+	const { caption } = props;
 
 	const colorSelection = (progress: number) => {
 		if (progress <= 0 || progress > 100) {
@@ -36,7 +38,7 @@ export default function ProgressBar(props: Props) {
 
 	return (
 		<div className="flex flex-col">
-			<h3>{`${percentCompletedString} - ${totalCompleted}/${totalTasks} Subtasks`}</h3>
+			<h3>{`${percentCompletedString} - ${totalCompleted}/${totalTasks} ${caption}`}</h3>
 			<div className="rounded-full border border-slate-200 bg-slate-200 dark:bg-zinc-700 dark:border-none z-0 ">
 				<div
 					className={`h-full rounded-full p-1 z-10 ${colorSelection(

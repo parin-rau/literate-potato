@@ -100,7 +100,20 @@ app.get("/api/project/:id/ticket", async (req, res) => {
 app.patch("/api/project/:id", async (req, res) => {
 	try {
 		const id = req.params.id;
-		const data = await req.body;
+		const data:
+			| {
+					operation: "add" | "delete";
+					tasksCompletedIds?: string[];
+					tasksTotalIds?: string[];
+					subtasksCompletedIds?: string[];
+					subtasksTotalIds?: string[];
+			  }
+			| {
+					operation: "metadata";
+					metadata: {
+						[key: string]: string | number;
+					};
+			  } = await req.body;
 
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
@@ -119,12 +132,17 @@ app.patch("/api/project/:id", async (req, res) => {
 				{ projectId: id },
 				{
 					$addToSet: {
-						subtasksCompletedIds: {
-							$each: data.subtasksCompletedIds,
+						tasksCompletedIds: {
+							$each: data.tasksCompletedIds ?? [],
 						},
-
+						tasksTotalIds: {
+							$each: data.tasksTotalIds ?? [],
+						},
+						subtasksCompletedIds: {
+							$each: data.subtasksCompletedIds ?? [],
+						},
 						subtasksTotalIds: {
-							$each: data.subtasksTotalIds,
+							$each: data.subtasksTotalIds ?? [],
 						},
 					},
 				}
@@ -136,8 +154,10 @@ app.patch("/api/project/:id", async (req, res) => {
 				{ projectId: id },
 				{
 					$pullAll: {
-						subtasksCompletedIds: data.subtasksCompletedIds,
-						subtasksTotalIds: data.subtasksTotalIds,
+						tasksCompletedIds: data.tasksCompletedIds ?? [],
+						tasksTotalIds: data.tasksTotalIds ?? [],
+						subtasksCompletedIds: data.subtasksCompletedIds ?? [],
+						subtasksTotalIds: data.subtasksTotalIds ?? [],
 					},
 					$set: { lastModified: Date.now() },
 				}
