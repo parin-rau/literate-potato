@@ -36,6 +36,17 @@ export default function ProjectForm(props: Props) {
 				onChange={handleChange}
 				placeholder="Description"
 			/>
+			<div className="flex flex-row gap-2 items-center">
+				<h4>Color:</h4>
+				<input
+					className=""
+					name="color"
+					type="color"
+					value={editor.color}
+					onChange={handleChange}
+					placeholder="Color"
+				/>
+			</div>
 
 			<div className="space-x-2">
 				<button

@@ -30,7 +30,12 @@ export default function MenuDropdown(props: Props) {
 	const [isModal, setModal] = useState(false);
 	const [modalCallback, setModalCallback] = useState<(_id: string) => void>();
 	const menuRef = useRef<HTMLDivElement>(null);
-	//const modalRef = useRef<HTMLDialogElement>(null);
+
+	function handleOpen(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+		e.preventDefault();
+		e.stopPropagation();
+		setMenu((prev) => !prev);
+	}
 
 	useEffect(() => {
 		const closeOpenMenu = (
@@ -49,35 +54,13 @@ export default function MenuDropdown(props: Props) {
 		return () => document.removeEventListener("mousedown", closeOpenMenu);
 	}, [isMenu]);
 
-	// useEffect(() => {
-	// 	const closeOpenModal = (
-	// 		e: React.MouseEvent<HTMLDialogElement, MouseEvent> | MouseEvent
-	// 	) => {
-	// 		if (
-	// 			modalRef.current?.open &&
-	// 			isModal &&
-	// 			!modalRef.current.contains(e.target as Node)
-	// 		) {
-	// 			setModal(false);
-	// 			modalRef.current.close();
-	// 		}
-	// 	};
-	// 	document.addEventListener("mousedown", closeOpenModal);
-	// }, [isModal]);
-
-	// useEffect(() => {
-	// 	if (modalRef.current?.open && !isModal) {
-	// 		setModal(false);
-	// 		modalRef.current.close();
-	// 	} else if (!modalRef.current?.open && isModal) {
-	// 		modalRef.current?.showModal();
-	// 	}
-	// }, [isModal]);
-
 	function handleOptionClick(
+		e: React.MouseEvent<HTMLDivElement, MouseEvent>,
 		optionName: string,
 		optionFn: (_id: string) => void
 	) {
+		e.preventDefault();
+		e.stopPropagation();
 		if (optionName === "Delete") {
 			setModal(true);
 			setModalCallback(() => () => optionFn(cardId!));
@@ -88,7 +71,7 @@ export default function MenuDropdown(props: Props) {
 	}
 
 	return (
-		<div className="relative" ref={menuRef}>
+		<div className="relative z-20" ref={menuRef}>
 			<Modal
 				{...{ isModal, setModal, modalCallback, cardId }}
 				text="Are you sure you want to delete this?"
@@ -99,7 +82,7 @@ export default function MenuDropdown(props: Props) {
 					"hover:bg-slate-300 dark:hover:bg-zinc-700 px-2 py-1 my-1 rounded-full " +
 					menuTitleFont
 				}
-				onClick={() => setMenu(!isMenu)}
+				onClick={handleOpen}
 			>
 				{menuTitle ? (
 					menuTitle
@@ -126,8 +109,8 @@ export default function MenuDropdown(props: Props) {
 						<div
 							className="hover:cursor-pointer hover:bg-slate-300 dark:hover:bg-zinc-700 px-3 rounded-full flex flex-row space-x-2 py-1 justify-stretch w-max"
 							key={index}
-							onClick={() =>
-								handleOptionClick(option.name, option.fn)
+							onClick={(e) =>
+								handleOptionClick(e, option.name, option.fn)
 							}
 						>
 							<span>{option.name}</span>
@@ -140,12 +123,6 @@ export default function MenuDropdown(props: Props) {
 					))}
 				</div>
 			)}
-			{/* <dialog ref={modalRef}>
-				<form>
-					<p>HIYA</p>
-					<button type="submit">Close</button>
-				</form>
-			</dialog> */}
 		</div>
 	);
 }

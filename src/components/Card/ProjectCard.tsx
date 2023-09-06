@@ -25,6 +25,7 @@ export default function ProjectCard(props: Props) {
 		tasksTotalIds,
 		subtasksCompletedIds,
 		subtasksTotalIds,
+		color,
 	} = props.cardData;
 	const { setCards, setCardCache, isHeader } = props;
 	const [isEditing, setEditing] = useState(false);
@@ -101,7 +102,15 @@ export default function ProjectCard(props: Props) {
 		<>
 			{isHeader && (
 				<div className="flex flex-row space-x-2 items-baseline">
-					<h1 className="font-bold text-4xl mx-2">{title}</h1>
+					<div className="flex flex-row space-x-2 items-center">
+						<h1 className="font-bold text-4xl mx-2">{title}</h1>
+						{color && (
+							<div
+								className="p-4 rounded-md"
+								style={{ backgroundColor: color }}
+							></div>
+						)}
+					</div>
 					<MenuDropdown options={moreOptions} cardId={projectId} />
 				</div>
 			)}
@@ -109,19 +118,34 @@ export default function ProjectCard(props: Props) {
 				className={
 					isHeader && !isEditing
 						? ""
-						: "m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600"
+						: "m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600 hover:bg-slate-50 dark:hover:border-zinc-400 "
 				}
 			>
 				{!isEditing && (
-					<div className="flex flex-col px-4 py-2 space-y-1 dark:border-neutral-700">
+					<Link
+						to={`/project/${projectId}`}
+						className={
+							"flex flex-col px-4 py-2 space-y-1 dark:border-neutral-700 z-0" +
+							(isHeader ? "pointer-events-none" : "")
+						}
+					>
 						{!isHeader && (
-							<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
+							<div className="flex flex-row flex-grow justify-between items-baseline space-x-2 z-10">
 								<div className="flex flex-col sm:flex-row sm:items-baseline space-y-1 sm:space-x-4">
-									<Link to={`project/${projectId}`}>
+									<div className="flex flex-row space-x-2 items-center">
 										<h1 className="font-semibold text-2xl sm:text-3xl hover:underline">
 											{title}
 										</h1>
-									</Link>
+										{color && (
+											<div
+												className="p-3 rounded-md"
+												style={{
+													backgroundColor: color,
+												}}
+											></div>
+										)}
+									</div>
+
 									<h2 className="text-lg sm:text-xl">
 										{projectNumber && `#${projectNumber}`}
 									</h2>
@@ -151,7 +175,7 @@ export default function ProjectCard(props: Props) {
 								caption="Subtasks"
 							/>
 						) : null}
-					</div>
+					</Link>
 				)}
 				{isEditing && (
 					<TicketEditor

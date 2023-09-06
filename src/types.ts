@@ -10,6 +10,7 @@ export interface Project {
 	tasksTotalIds: string[];
 	subtasksCompletedIds: string[];
 	subtasksTotalIds: string[];
+	color?: string;
 	//[key: string]: string | number;
 }
 
@@ -106,6 +107,7 @@ export const initProjectEditor: ProjectEditor = {
 	title: "",
 	description: "",
 	creator: "",
+	color: "",
 };
 
 export const uncategorizedProject: Project = {

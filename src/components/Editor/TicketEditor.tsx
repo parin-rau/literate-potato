@@ -142,13 +142,19 @@ export default function TicketEditor(props: Props) {
 			}
 		} else if (dataKind === "project") {
 			if (previousData) {
-				const { title, description, creator, ...unusedPrevData } =
-					previousData as Project;
+				const {
+					title,
+					description,
+					creator,
+					color,
+					...unusedPrevData
+				} = previousData as Project;
 				return {
 					initState: {
 						title,
 						description,
 						creator,
+						color,
 					},
 					unusedPrevData,
 					defaultExpand: true,
@@ -592,7 +598,8 @@ export default function TicketEditor(props: Props) {
 		<div
 			className={
 				"mx-2 sm:mx-0 bg-transparent " +
-				(!expand && " hover:cursor-pointer ") +
+				(!expand &&
+					" hover:cursor-pointer hover:bg-slate-50 dark:hover:border-zinc-400 ") +
 				(!previousData &&
 					"bg-white dark:bg-zinc-900 border-black border-2 rounded-md dark:border-zinc-600")
 			}
