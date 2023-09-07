@@ -145,6 +145,10 @@ export const optionLookup = {
 			textColor: "text-white",
 		},
 	],
+	roles: [
+		{ label: "admin", value: "0" },
+		{ label: "user", value: "1" },
+	],
 };
 
 export const menuLookup = {

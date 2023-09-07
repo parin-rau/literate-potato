@@ -132,3 +132,22 @@ export function isFilterable(
 ): arr is FetchedTicketData[] {
 	return typeof (arr[0] as FetchedTicketData).tags[0] === "string";
 }
+
+export interface Login {
+	username: string;
+	password: string;
+}
+
+export interface Register extends Login {
+	email: string;
+}
+
+export interface User {
+	userId: string;
+	username: string;
+	email: string;
+	password: string;
+	roles: number[];
+	timestamp: number;
+	lastModified?: number;
+}

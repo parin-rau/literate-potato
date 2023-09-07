@@ -1,135 +1,130 @@
 import { useState } from "react";
+import { Login, Register } from "../../types";
+import { firstLetterCap } from "../../utility/charCaseFunctions";
+import { Link } from "react-router-dom";
 
-interface Login {
-	email: string;
-	username: string;
-	password: string;
-}
-
-interface Register extends Login {
-	firstName: string;
-	lastName: string;
-}
+type Props = {
+	kind: "register" | "login";
+};
 
 const initRegister: Register = {
-	firstName: "",
-	lastName: "",
 	email: "",
 	username: "",
 	password: "",
 };
 
 const initLogin: Login = {
-	email: "",
 	username: "",
 	password: "",
 };
 
-export default function LoginForm() {
-	const [isRegister, setRegister] = useState(false);
-	const [form, setForm] = useState<Register | Login>(initLogin);
+type Form = Register | Login;
+
+export default function LoginForm(props: Props) {
+	const { kind } = props;
+	const init = kind === "register" ? initRegister : initLogin;
+	const [form, setForm] = useState<Form>(init);
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = e.target;
 		setForm({ ...form, [name]: value });
 	}
 
-	function handleFormType() {
-		setRegister(!isRegister);
-		if (isRegister === true) {
-			setForm(initRegister);
-		} else {
-			setForm(initLogin);
-		}
-	}
-
 	function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		if (isRegister) {
-			handleRegister();
-		} else {
+		if (kind === "login") {
 			handleLogin();
+		} else if (kind === "register") {
+			handleRegister();
 		}
 
-		setRegister(false);
-		setForm(initLogin);
+		setForm(init);
 	}
 
 	async function handleRegister() {
-		try {
-			const res = await fetch("");
-			if (res.ok) {
-				console.log("Registering...");
+		if (kind !== "register") {
+			return;
+		} else {
+			try {
+				const newUser = {
+					kind,
+					...(form as Register),
+				};
+				const res = await fetch("/auth/register", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(newUser),
+				});
+				if (res.ok) {
+					console.log("Registering...");
+				}
+			} catch (e) {
+				console.error(e);
 			}
-		} catch (e) {
-			console.error(e);
 		}
 	}
 
 	async function handleLogin() {
-		try {
-			const res = await fetch("");
-			if (res.ok) {
-				console.log("logging in...");
+		if (kind !== "login") {
+			return;
+		} else {
+			try {
+				const res = await fetch("");
+				if (res.ok) {
+					console.log("logging in...");
+				}
+			} catch (e) {
+				console.error(e);
 			}
-		} catch (e) {
-			console.error(e);
 		}
 	}
 
 	return (
-		<div className="flex flex-col space-y-4 items-center my-10 sm:container mx-auto py-6 border border-black">
+		<div className="flex flex-col gap-4 items-center container mt-32 mx-auto max-w-fit px-12 bg-slate-50 dark:bg-zinc-900 rounded-xl">
 			<form
-				className="flex flex-col space-y4 items-start space-y-4"
+				className="flex flex-col items-start gap-4 p-8"
 				onSubmit={handleSubmit}
 			>
-				<h1 className="text-bold text-3xl">
-					{isRegister ? "Register" : "Login"}
-				</h1>
-				{isRegister && (
-					<>
-						<input
-							name="firstName"
-							value={(form as Register).firstName}
-							onChange={handleChange}
-							placeholder="First Name"
-						/>
-						<input
-							name="lastName"
-							value={(form as Register).lastName}
-							onChange={handleChange}
-							placeholder="Last Name"
-						/>
-					</>
+				<h1 className="font-bold text-3xl">{firstLetterCap(kind)}</h1>
+				{kind === "register" && (
+					<input
+						className="text-sm sm:text-base rounded-md border px-2 py-1 shadow-sm bg-inherit border-inherit"
+						name="email"
+						value={(form as Register).email}
+						onChange={handleChange}
+						placeholder="Email"
+						required
+					/>
 				)}
+
 				<input
-					name="email"
-					value={form.email}
-					onChange={handleChange}
-					placeholder="Email"
-				/>
-				<input
+					className="text-sm sm:text-base rounded-md border px-2 py-1 shadow-sm bg-inherit border-inherit"
 					name="username"
 					value={form.username}
 					onChange={handleChange}
 					placeholder="Username"
+					required
 				/>
 				<input
+					className="text-sm sm:text-base rounded-md border px-2 py-1 shadow-sm bg-inherit border-inherit"
 					name="password"
 					value={form.password}
 					onChange={handleChange}
 					type="password"
 					placeholder="Password"
+					required
 				/>
 				<button
-					className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg"
+					className="text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-lg"
 					type="submit"
 				>
-					{isRegister ? "Register" : "Login"}
+					{firstLetterCap(kind)}
 				</button>
-				<button type="button" onClick={handleFormType}>
-					{isRegister ? "Login existing user" : "Register new user"}
-				</button>
+				<Link to={kind !== "register" ? "/register" : "/login"}>
+					{kind !== "register"
+						? "Register new user"
+						: "Login existing user"}
+				</Link>
 			</form>
 		</div>
 	);

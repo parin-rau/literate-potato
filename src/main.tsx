@@ -7,6 +7,7 @@ import ErrorPage from "./pages/error-page.tsx";
 import "./index.css";
 import TicketPage from "./pages/TicketPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
+import RegisterPage from "./pages/RegisterPage.tsx";
 import RootLayout from "./layout/RootLayout.tsx";
 import SearchResultsPage from "./pages/SearchResultsPage.tsx";
 
@@ -30,6 +31,11 @@ const router = createBrowserRouter([
 			{
 				path: "login",
 				element: <LoginPage />,
+				errorElement: <ErrorPage />,
+			},
+			{
+				path: "register",
+				element: <RegisterPage />,
 				errorElement: <ErrorPage />,
 			},
 			{

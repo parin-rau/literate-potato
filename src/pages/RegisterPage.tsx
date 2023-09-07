@@ -1,9 +1,9 @@
 import LoginForm from "../components/Form/LoginForm";
 
-export default function LoginPage() {
+export default function RegisterPage() {
 	return (
 		<div className="flex flex-col justify-center items-stretch">
-			<LoginForm kind="login" />
+			<LoginForm kind="register" />
 		</div>
 	);
 }

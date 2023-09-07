@@ -27,6 +27,10 @@ export function firstLetterCap(string: string): string {
 	return words;
 }
 
+export function hasWhiteSpace(str: string) {
+	return /\s/.test(str);
+}
+
 const noCap = [
 	"a",
 	"an",
