@@ -53,16 +53,22 @@ export default function LoginForm(props: Props) {
 			try {
 				const newUser = {
 					kind,
-					...(form as Register),
+					form: {
+						username: form.username,
+						email: (form as Register).email,
+						password: form.password,
+					},
 				};
 				const res = await fetch("/auth/register", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(newUser),
 				});
+				const resData = await res.json();
+
 				if (res.ok) {
 					setErr("");
-					console.log("Registering...");
+					console.log("Registering...", resData);
 				}
 			} catch (e) {
 				console.error(e);
@@ -78,16 +84,18 @@ export default function LoginForm(props: Props) {
 			try {
 				const user = {
 					kind,
-					...(form as Login),
+					form: form as Login,
 				};
 				const res = await fetch("/auth/login", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(user),
 				});
+				const resData = await res.json();
+
 				if (res.ok) {
 					setErr("");
-					console.log("logging in...");
+					console.log("logging in...", resData);
 				}
 			} catch (e) {
 				console.error(e);

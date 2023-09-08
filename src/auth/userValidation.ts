@@ -1,44 +1,42 @@
-import { User } from "../types";
-import { hash, compare } from "../utility/hash";
+import { Login, Register, User } from "../types";
+import { hash, compare } from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 
-type Data = {
-	kind: "register" | "login";
-	username: string;
-	email: string;
-	password: string;
+type RegisterData = {
+	kind: "register";
+	form: Omit<Register, "passwordConfirm">;
+};
+type LoginData = {
+	kind: "login";
+	form: Login;
 };
 
-export async function validateRegistrationInfo(data: Data) {
-	const { kind, password, ...details } = data;
-	if (kind !== "register" && kind !== "login") {
-		return;
-	} else {
-		const hashPass = await hash(password);
+const saltRounds = 10;
+
+export async function formatRegistration(data: RegisterData) {
+	const { kind } = data;
+	if (kind === "register") {
+		const { form } = data;
+		const { username, email, password } = form;
+		const hashPass = await hash(password, saltRounds);
 
 		const user: User = {
-			...details,
+			username,
+			email,
 			password: hashPass,
 			userId: uuidv4(),
 			timestamp: Date.now(),
 			roles: [1],
 		};
 
-		console.log("registration request received on auth server", user);
 		return user;
 	}
 }
 
-export async function validateLoginInfo(data: Data) {
-	const { kind, password } = data;
-
-	if (kind !== "login") {
-		return;
-	} else {
-		const hashPass = ""; // Lookup hash from db and compare against raw input
-		const hashCompare = await compare(password, hashPass);
-
-		console.log("log in request received on auth server", hashCompare);
+export async function validateLogin(data: LoginData, hashPass: string) {
+	const { kind, form } = data;
+	if (kind === "login") {
+		const hashCompare = await compare(form.password, hashPass);
 		return hashCompare;
 	}
 }
