@@ -146,8 +146,9 @@ export const optionLookup = {
 		},
 	],
 	roles: [
-		{ label: "admin", value: "0" },
-		{ label: "user", value: "1" },
+		{ label: "admin", value: 0 },
+		{ label: "user", value: 1 },
+		{ label: "manager", value: 2 },
 	],
 };
 

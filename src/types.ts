@@ -140,6 +140,7 @@ export interface Login {
 
 export interface Register extends Login {
 	email: string;
+	passwordConfirm: string;
 }
 
 export interface User {
