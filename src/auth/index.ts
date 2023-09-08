@@ -4,6 +4,7 @@ import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../server/mongodb";
 import { formatRegistration, validateLogin } from "./userValidation";
 import { Login } from "../types";
+import { Jwt } from "jsonwebtoken";
 
 const PORT = 4002;
 
@@ -41,10 +42,11 @@ app.post("/auth/register", async (req, res) => {
 			res.status(200).send(result);
 		} catch (e) {
 			console.error(e);
+			res.status(401).send({ message: "Unable to register new user" });
 		}
 	} else {
 		await client.close();
-		res.status(400).send("Unable to register new user");
+		res.status(401).send({ message: "Username or email already taken" });
 	}
 });
 
@@ -65,9 +67,14 @@ app.post("/auth/login", async (req, res) => {
 		await client.close();
 
 		if (storedUser) {
-			const result = await validateLogin(data, storedUser.password);
-			console.log(result);
-			res.status(200).send(result);
+			const userVerified = await validateLogin(data, storedUser.password);
+			if (userVerified) {
+				res.status(200).send(userVerified);
+			}
+		} else {
+			res.status(401)
+				.set("Content-Type", "application/json")
+				.send({ message: "Incorrect username or password" });
 		}
 	} catch (e) {
 		console.error(e);

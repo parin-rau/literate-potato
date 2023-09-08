@@ -68,11 +68,12 @@ export default function LoginForm(props: Props) {
 
 				if (res.ok) {
 					setErr("");
-					console.log("Registering...", resData);
+					console.log("Registering...", res);
+				} else {
+					setErr(resData.message);
 				}
 			} catch (e) {
 				console.error(e);
-				setErr("Unable to process registration");
 			}
 		}
 	}
@@ -96,10 +97,11 @@ export default function LoginForm(props: Props) {
 				if (res.ok) {
 					setErr("");
 					console.log("logging in...", resData);
+				} else {
+					setErr(resData.message);
 				}
 			} catch (e) {
 				console.error(e);
-				setErr("Unable to process login");
 			}
 		}
 	}
