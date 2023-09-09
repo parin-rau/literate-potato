@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 
 export default function NavBar() {
 	const [theme, setTheme] = useState<string>(localStorage.theme);
+	const navigate = useNavigate();
 
 	function handleThemeToggle() {
 		theme === "dark" ? setTheme("light") : setTheme("dark");
@@ -21,6 +22,12 @@ export default function NavBar() {
 		}
 		changeTheme();
 	}, [theme]);
+
+	async function logout() {
+		const res = await fetch("/auth/logout");
+		console.log(res);
+		navigate("/login");
+	}
 
 	return (
 		<div className="fixed top-0 z-20 w-full bg-slate-100 dark:bg-neutral-900 px-1 sm:px-2 dark:border-b dark:border-zinc-800">
@@ -69,11 +76,17 @@ export default function NavBar() {
 					</button>
 					<div className="flex flex-shrink-0 pr-4 justify-start">
 						<Link
-							to={"login"}
+							to={"/login"}
 							className="duration-200 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-lg "
 						>
 							Sign In
 						</Link>
+						<button
+							className="duration-200 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-lg "
+							onClick={logout}
+						>
+							Sign Out
+						</button>
 					</div>
 				</div>
 			</div>

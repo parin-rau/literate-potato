@@ -152,3 +152,9 @@ export interface User {
 	timestamp: number;
 	lastModified?: number;
 }
+
+export interface UserToken {
+	userId: string;
+	username: string;
+	roles: number[];
+}

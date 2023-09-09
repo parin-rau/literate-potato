@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Login, Register } from "../../types";
 import { firstLetterCap } from "../../utility/charCaseFunctions";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PasswordInput from "../Nav/PasswordInput";
 import ErrorMsg from "../Display/ErrorMsg";
 
@@ -28,6 +28,7 @@ export default function LoginForm(props: Props) {
 	const init = kind === "register" ? initRegister : initLogin;
 	const [form, setForm] = useState<Form>(init);
 	const [err, setErr] = useState("");
+	const navigate = useNavigate();
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = e.target;
@@ -92,12 +93,13 @@ export default function LoginForm(props: Props) {
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(user),
 				});
-				const resData = await res.json();
 
 				if (res.ok) {
 					setErr("");
-					console.log("logging in...", resData);
+					console.log("logging in...");
+					navigate("/");
 				} else {
+					const resData = await res.json();
 					setErr(resData.message);
 				}
 			} catch (e) {

@@ -3,8 +3,8 @@ import express from "express";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../server/mongodb";
 import { formatRegistration, validateLogin } from "./userValidation";
-import { Login } from "../types";
-import { Jwt } from "jsonwebtoken";
+import { Login, UserToken } from "../types";
+import jwt from "jsonwebtoken";
 
 const PORT = 4002;
 
@@ -21,7 +21,7 @@ app.post("/auth/register", async (req, res) => {
 	} = await req.body;
 
 	if (data.kind !== "register") {
-		res.status(400).send("Not a registration request");
+		res.status(400).send({ message: "Not a registration request" });
 		return;
 	}
 
@@ -55,7 +55,7 @@ app.post("/auth/login", async (req, res) => {
 		const data: { kind: "login"; form: Login } = await req.body;
 
 		if (data.kind !== "login") {
-			res.status(400).send("Not a login request");
+			res.status(400).send({ message: "Not a login request" });
 			return;
 		}
 
@@ -64,21 +64,66 @@ app.post("/auth/login", async (req, res) => {
 		const coll: mongoDB.Collection = db.collection(localUsers);
 
 		const storedUser = await coll.findOne({ username: data.form.username });
-		await client.close();
+		console.log(storedUser);
 
 		if (storedUser) {
 			const userVerified = await validateLogin(data, storedUser.password);
-			if (userVerified) {
-				res.status(200).send(userVerified);
+			console.log(userVerified);
+
+			if (
+				userVerified &&
+				process.env.ACCESS_JWT_SECRET &&
+				process.env.REFRESH_JWT_SECRET
+			) {
+				const user: UserToken = {
+					username: storedUser.username,
+					userId: storedUser.userId,
+					roles: storedUser.roles,
+				};
+				const accessToken = jwt.sign(
+					user,
+					process.env.ACCESS_JWT_SECRET,
+					{
+						expiresIn: "15s",
+					}
+				);
+				const refreshToken = jwt.sign(
+					user,
+					process.env.REFRESH_JWT_SECRET,
+					{ expiresIn: "1d" }
+				);
+
+				const addRefreshToken = await coll.updateOne(
+					{ userId: storedUser.userId },
+					{ $set: { refreshToken } }
+				);
+
+				await client.close();
+				if (addRefreshToken.acknowledged) {
+					return res
+						.status(200)
+						.cookie("token", refreshToken, {
+							httpOnly: true,
+						})
+						.json({ accessToken });
+				} else {
+					return res.sendStatus(500);
+				}
 			}
 		} else {
-			res.status(401)
+			await client.close();
+			return res
+				.status(401)
 				.set("Content-Type", "application/json")
 				.send({ message: "Incorrect username or password" });
 		}
 	} catch (e) {
 		console.error(e);
 	}
+});
+
+app.get("/auth/logout", async (req, res) => {
+	return res.clearCookie("token").status(200).send("Logging out");
 });
 
 app.listen(PORT, () => console.log("Listening on PORT", PORT));
