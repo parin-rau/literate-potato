@@ -58,8 +58,14 @@ export default function CardContainer(props: Props) {
 							? `/api/project/${projectId}/ticket`
 							: "/api/ticket"
 						: `/api/project`;
+				const accessToken = sessionStorage.getItem("accessToken");
+
 				const res = await fetch(endpoint, {
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
+					},
+					credentials: "include",
 				});
 				const data = await res.json();
 				if (res.ok) {

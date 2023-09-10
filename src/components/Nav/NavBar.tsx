@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
+import SignInButton from "./SignInButton";
 
 export default function NavBar() {
 	const [theme, setTheme] = useState<string>(localStorage.theme);
@@ -25,7 +26,8 @@ export default function NavBar() {
 
 	async function logout() {
 		const res = await fetch("/auth/logout");
-		console.log(res);
+		const resMsg = await res.json();
+		console.log(resMsg.message);
 		navigate("/login");
 	}
 
@@ -75,6 +77,7 @@ export default function NavBar() {
 						)}
 					</button>
 					<div className="flex flex-shrink-0 pr-4 justify-start">
+						<SignInButton />
 						<Link
 							to={"/login"}
 							className="duration-200 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-lg "

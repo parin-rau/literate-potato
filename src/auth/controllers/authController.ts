@@ -58,11 +58,9 @@ export async function loginUser(req: Request, res: Response) {
 		const coll: mongoDB.Collection = db.collection(localUsers);
 
 		const storedUser = await coll.findOne({ username: data.form.username });
-		console.log(storedUser);
 
 		if (storedUser) {
 			const userVerified = await validateLogin(data, storedUser.password);
-			console.log(userVerified);
 
 			if (
 				userVerified &&
@@ -99,7 +97,8 @@ export async function loginUser(req: Request, res: Response) {
 						.status(200)
 						.cookie("token", refreshToken, {
 							httpOnly: true,
-							sameSite: "strict",
+							sameSite: "none",
+							secure: true,
 							maxAge: 24 * 60 * 60 * 1000,
 						})
 						.json({ accessToken });
@@ -120,5 +119,12 @@ export async function loginUser(req: Request, res: Response) {
 }
 
 export async function logoutUser(_req: Request, res: Response) {
-	return res.clearCookie("token").status(200).send("Logging out");
+	return res
+		.clearCookie("token", {
+			httpOnly: true,
+			sameSite: "none",
+			secure: true,
+		})
+		.status(200)
+		.send({ message: "Logging out..." });
 }

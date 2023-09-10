@@ -26,6 +26,7 @@ export default function ProjectTaskPage() {
 				} else if (projectId) {
 					const res = await fetch(`/api/project/${projectId}`, {
 						headers: { "Content-Type": "application/json" },
+						credentials: "include",
 					});
 					if (res.ok) {
 						const projectData: Project = await res.json();

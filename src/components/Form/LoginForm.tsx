@@ -95,8 +95,10 @@ export default function LoginForm(props: Props) {
 				});
 
 				if (res.ok) {
+					const { accessToken } = await res.json();
 					setErr("");
 					console.log("logging in...");
+					sessionStorage.setItem("accessToken", accessToken);
 					navigate("/");
 				} else {
 					const resData = await res.json();
