@@ -7,7 +7,7 @@ interface UserReq extends Request {
 }
 
 export function verifyToken(req: Request, res: Response, next: NextFunction) {
-	console.log(req.cookies, req.headers);
+	//console.log(req.cookies, req.headers);
 	const authHeader = req.headers["authorization"];
 	const refreshToken = req.cookies["refreshToken"];
 

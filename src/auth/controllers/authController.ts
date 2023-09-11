@@ -103,7 +103,9 @@ export async function loginUser(req: Request, res: Response) {
 						})
 						.json({ accessToken });
 				} else {
-					return res.sendStatus(500);
+					return res
+						.status(500)
+						.send({ message: "Something went wrong" });
 				}
 			}
 		} else {
@@ -119,7 +121,6 @@ export async function loginUser(req: Request, res: Response) {
 
 export async function logoutUser(req: Request, res: Response) {
 	const cookies = req.cookies;
-	console.log(cookies);
 
 	if (!cookies.refreshToken) return res.sendStatus(204);
 	const refreshToken = cookies.refreshToken;

@@ -25,6 +25,7 @@ export default function NavBar() {
 	}, [theme]);
 
 	async function logout() {
+		sessionStorage.removeItem("accessToken");
 		const res = await fetch("/auth/logout", {
 			credentials: "include",
 		});
