@@ -76,7 +76,7 @@ export async function loginUser(req: Request, res: Response) {
 					user,
 					process.env.ACCESS_JWT_SECRET,
 					{
-						expiresIn: "15s",
+						expiresIn: "30s",
 					}
 				);
 				const refreshToken = jwt.sign(
@@ -95,7 +95,7 @@ export async function loginUser(req: Request, res: Response) {
 				if (addRefreshToken.acknowledged) {
 					return res
 						.status(200)
-						.cookie("token", refreshToken, {
+						.cookie("refreshToken", refreshToken, {
 							httpOnly: true,
 							sameSite: "none",
 							secure: true,
@@ -110,7 +110,6 @@ export async function loginUser(req: Request, res: Response) {
 			await client.close();
 			return res
 				.status(401)
-				.set("Content-Type", "application/json")
 				.send({ message: "Incorrect username or password" });
 		}
 	} catch (e) {
@@ -118,13 +117,39 @@ export async function loginUser(req: Request, res: Response) {
 	}
 }
 
-export async function logoutUser(_req: Request, res: Response) {
+export async function logoutUser(req: Request, res: Response) {
+	const cookies = req.cookies;
+	console.log(cookies);
+
+	if (!cookies.refreshToken) return res.sendStatus(204);
+	const refreshToken = cookies.refreshToken;
+
+	const client: mongoDB.MongoClient = await connectToDatabase();
+	const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+	const coll: mongoDB.Collection = db.collection(localUsers);
+	const foundUser = await coll.findOne({ refreshToken });
+
+	if (!foundUser) {
+		await client.close();
+		return res
+			.clearCookie("refreshToken", {
+				httpOnly: true,
+				sameSite: "none",
+				secure: true,
+				maxAge: 24 * 60 * 60 * 1000,
+			})
+			.sendStatus(204);
+	}
+
+	await coll.updateOne({ refreshToken }, { $unset: { refreshToken: "" } });
+	await client.close();
+
 	return res
-		.clearCookie("token", {
+		.clearCookie("refreshToken", {
 			httpOnly: true,
 			sameSite: "none",
 			secure: true,
+			maxAge: 24 * 60 * 60 * 1000,
 		})
-		.status(200)
-		.send({ message: "Logging out..." });
+		.sendStatus(204);
 }

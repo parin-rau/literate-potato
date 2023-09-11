@@ -1,13 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function SignInButton() {
 	const navigate = useNavigate();
-	const isLoggedIn = true;
+	const [isLoggedIn, setLoggedIn] = useState(false);
 
 	async function logout() {
 		const res = await fetch("/auth/logout");
 		const resMsg = await res.json();
 		console.log(resMsg.message);
+		setLoggedIn(false);
 		navigate("/login");
 	}
 

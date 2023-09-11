@@ -25,10 +25,12 @@ export default function NavBar() {
 	}, [theme]);
 
 	async function logout() {
-		const res = await fetch("/auth/logout");
-		const resMsg = await res.json();
-		console.log(resMsg.message);
-		navigate("/login");
+		const res = await fetch("/auth/logout", {
+			credentials: "include",
+		});
+		if (res.ok) {
+			navigate("/login");
+		}
 	}
 
 	return (
@@ -77,7 +79,7 @@ export default function NavBar() {
 						)}
 					</button>
 					<div className="flex flex-shrink-0 pr-4 justify-start">
-						<SignInButton />
+						{/* <SignInButton /> */}
 						<Link
 							to={"/login"}
 							className="duration-200 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-lg "

@@ -4,12 +4,14 @@ import * as projects from "./controllers/projectsController";
 import * as tickets from "./controllers/ticketsController";
 import * as search from "./controllers/searchController";
 import { verifyToken } from "../auth/middleware/verifyToken";
+import { parseCookies } from "./middleware/parseCookies";
 
 const PORT = 3002;
 
 const app = express();
 
 app.use(express.json());
+app.use(parseCookies);
 
 // PROJECTS
 
