@@ -40,7 +40,9 @@ export async function createNewUser(req: Request, res: Response) {
 		}
 	} else {
 		await client.close();
-		res.status(401).send({ message: "Username or email already taken" });
+		res.status(401).send({
+			message: "Username or email already registered",
+		});
 	}
 }
 
@@ -49,8 +51,7 @@ export async function loginUser(req: Request, res: Response) {
 		const data: { kind: "login"; form: Login } = await req.body;
 
 		if (data.kind !== "login") {
-			res.status(400).send({ message: "Not a login request" });
-			return;
+			return res.status(400).send({ message: "Not a login request" });
 		}
 
 		const client: mongoDB.MongoClient = await connectToDatabase();

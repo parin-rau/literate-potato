@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Login, Register } from "../../types";
 import { useAuth } from "../../hooks/useAuth";
 import { firstLetterCap } from "../../utility/charCaseFunctions";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import PasswordInput from "../Nav/PasswordInput";
 import ErrorMsg from "../Display/ErrorMsg";
 
@@ -28,14 +28,13 @@ export default function LoginForm(props: Props) {
 	const { kind } = props;
 	const init = kind === "register" ? initRegister : initLogin;
 	const [form, setForm] = useState<Form>(init);
-	const [err, setErr] = useState("");
-	const { signIn } = useAuth();
-	const navigate = useNavigate();
+	const { signIn, registerUser, err, setErr } = useAuth();
+	//const navigate = useNavigate();
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = e.target;
 		setForm({ ...form, [name]: value });
-		setErr("");
+		setErr(null);
 	}
 
 	function handleSubmit(e: React.FormEvent) {
@@ -53,31 +52,18 @@ export default function LoginForm(props: Props) {
 		} else if (form.password !== (form as Register).passwordConfirm) {
 			setErr("Passwords do not match");
 		} else {
-			try {
-				const newUser = {
-					kind,
-					form: {
-						username: form.username,
-						email: (form as Register).email,
-						password: form.password,
-					},
-				};
-				const res = await fetch("/auth/register", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(newUser),
-				});
-				const resData = await res.json();
+			const newUser = {
+				username: form.username,
+				email: (form as Register).email,
+				password: form.password,
+			};
+			const res = await registerUser(newUser);
 
-				if (res.ok) {
-					setErr("");
-					console.log("Registering...", res);
-				} else {
-					setErr(resData.message);
-				}
-			} catch (e) {
-				console.error(e);
+			if (!res) {
+				setErr("Unable to register new user");
 			}
+			setErr(null);
+			console.log("Registering...", res);
 		}
 	}
 
@@ -85,32 +71,10 @@ export default function LoginForm(props: Props) {
 		if (kind !== "login") {
 			setErr("Unable to process login");
 		} else {
-			try {
-				const user = {
-					kind,
-					form: form as Login,
-				};
-				const res = await fetch("/auth/login", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(user),
-				});
-
-				if (res.ok) {
-					const { accessToken, user } = await res.json();
-					setErr("");
-					console.log("logging in...");
-					signIn(accessToken);
-					// sessionStorage.setItem("accessToken", accessToken);
-					// sessionStorage.setItem("username", user.username);
-					navigate("/");
-				} else {
-					const { message } = await res.json();
-					setErr(message);
-				}
-			} catch (e) {
-				console.error(e);
-			}
+			const user = {
+				...(form as Login),
+			};
+			signIn(user);
 		}
 	}
 

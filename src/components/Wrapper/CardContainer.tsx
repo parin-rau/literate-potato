@@ -5,6 +5,7 @@ import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "../Card/CardSelector";
 import CardCategory from "./CardCategory";
+import { useAuth } from "../../hooks/useAuth";
 
 type TicketProps = {
 	containerTitle: string;
@@ -45,6 +46,7 @@ export default function CardContainer(props: Props) {
 	);
 	const [isFirstFilter, setFirstFilter] = useState(true);
 	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
+	const { user } = useAuth();
 
 	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
 	const project = { projectId, projectTitle };
@@ -58,7 +60,7 @@ export default function CardContainer(props: Props) {
 							? `/api/project/${projectId}/ticket`
 							: "/api/ticket"
 						: `/api/project`;
-				const accessToken = sessionStorage.getItem("accessToken");
+				const accessToken = user?.token;
 
 				const res = await fetch(endpoint, {
 					headers: {
