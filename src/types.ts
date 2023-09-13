@@ -143,6 +143,8 @@ export interface Register extends Login {
 	passwordConfirm: string;
 }
 
+export type RegisterData = Omit<Register, "passwordConfirm">;
+
 export interface User {
 	userId: string;
 	username: string;

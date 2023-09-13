@@ -29,7 +29,6 @@ export default function LoginForm(props: Props) {
 	const init = kind === "register" ? initRegister : initLogin;
 	const [form, setForm] = useState<Form>(init);
 	const { signIn, registerUser, err, setErr } = useAuth();
-	//const navigate = useNavigate();
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = e.target;
@@ -39,43 +38,31 @@ export default function LoginForm(props: Props) {
 
 	function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		if (kind === "login") {
-			handleLogin();
-		} else if (kind === "register") {
-			handleRegister();
+		switch (kind) {
+			case "login":
+				handleLogin();
+				break;
+			case "register":
+				handleRegister();
+				break;
+			default:
+				setErr("Not a valid request");
+				break;
 		}
 	}
 
 	async function handleRegister() {
 		if (kind !== "register") {
 			setErr("Unable to process registration");
-		} else if (form.password !== (form as Register).passwordConfirm) {
-			setErr("Passwords do not match");
-		} else {
-			const newUser = {
-				username: form.username,
-				email: (form as Register).email,
-				password: form.password,
-			};
-			const res = await registerUser(newUser);
-
-			if (!res) {
-				setErr("Unable to register new user");
-			}
-			setErr(null);
-			console.log("Registering...", res);
 		}
+		await registerUser(form as Register);
 	}
 
 	async function handleLogin() {
 		if (kind !== "login") {
 			setErr("Unable to process login");
-		} else {
-			const user = {
-				...(form as Login),
-			};
-			signIn(user);
 		}
+		await signIn(form as Login);
 	}
 
 	return (
@@ -105,6 +92,7 @@ export default function LoginForm(props: Props) {
 						value={(form as Register).email}
 						onChange={handleChange}
 						placeholder="Email"
+						type="email"
 						required
 					/>
 				)}

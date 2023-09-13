@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 type RegisterData = {
 	kind: "register";
-	form: Omit<Register, "passwordConfirm">;
+	form: Register;
 };
 type LoginData = {
 	kind: "login";

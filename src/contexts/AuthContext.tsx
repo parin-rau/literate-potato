@@ -1,7 +1,7 @@
 import { useState, createContext } from "react";
 import jwtDecode from "../utility/jwtDecode";
 import { useNavigate } from "react-router-dom";
-import { Login } from "../types";
+import { Login, Register } from "../types";
 
 interface UserDecode {
 	username: string;
@@ -15,19 +15,12 @@ interface User extends UserDecode {
 	token: string;
 }
 
-type RegisterForm = {
-	email: string;
-	username: string;
-	password: string;
-};
-
 type UserContextType = {
 	user: User | null;
-	registerUser: (_loginForm: RegisterForm) => Promise<void> | null;
+	registerUser: (_loginForm: Register) => Promise<void> | null;
 	signIn: (_loginForm: Login) => Promise<void> | null;
 	signOut: () => Promise<void> | null;
 	refreshAccessToken: () => Promise<void> | null;
-
 	err: string | null;
 	setErr: React.Dispatch<React.SetStateAction<string | null>>;
 };
@@ -39,7 +32,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [err, setErr] = useState<string | null>(null);
 	const navigate = useNavigate();
 
-	async function registerUser(formData: RegisterForm) {
+	async function registerUser(formData: Register) {
+		if (formData.password !== formData.passwordConfirm)
+			return setErr("Passwords do not match");
+
 		try {
 			const res: Response = await fetch("/auth/register", {
 				method: "POST",
@@ -47,14 +43,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				body: JSON.stringify({ kind: "register", form: formData }),
 			});
 
-			if (!res.ok) return setErr("Unable to register new user");
+			if (!res.ok) {
+				const { message }: { message: string } = await res.json();
+				console.log(message);
+				return setErr(message);
+			}
 
 			const userCredentials: Login = {
 				username: formData.username,
 				password: formData.password,
 			};
-			setErr(null);
-			signIn(userCredentials);
+
+			await signIn(userCredentials);
 		} catch (e) {
 			console.error(e);
 			setErr("Caught registerUser error");
@@ -63,19 +63,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	async function signIn(formData: Login) {
 		try {
+			setErr(null);
 			const res = await fetch("/auth/login", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ kind: "login", form: formData }),
 			});
 
-			if (!res.ok) return setErr("Unable to login");
+			if (!res.ok) {
+				const { message }: { message: string } = await res.json();
+				console.log(message);
+				return setErr(message);
+			}
 
 			const { accessToken }: { accessToken: string } = await res.json();
 			const decoded = jwtDecode<UserDecode>(accessToken);
 			if (!decoded || typeof decoded === "string") return;
 
-			setErr(null);
 			setUser({ token: accessToken, ...decoded });
 			navigate("/");
 		} catch (e) {
@@ -86,9 +90,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	async function signOut() {
 		try {
+			setErr(null);
 			const res = await fetch("/auth/logout");
 			if (res.ok) {
-				setErr(null);
 				setUser(null);
 				navigate("/login");
 			}
@@ -100,13 +104,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	async function refreshAccessToken() {
 		try {
+			setErr(null);
 			const res = await fetch("/auth/refresh", {
 				method: "POST",
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
 			});
 			if (!res.ok) {
-				signOut();
+				await signOut();
 			}
 
 			const { accessToken }: { accessToken: string } = await res.json();
@@ -114,17 +119,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			if (!decoded || typeof decoded === "string") return signOut();
 
 			setUser({ token: accessToken, ...decoded });
-			setErr(null);
 		} catch (e) {
 			console.error(e);
 			setErr("Caught refreshAccessToken error");
-			signOut();
+			await signOut();
 		}
 	}
 
 	const value = {
 		user,
-
 		registerUser,
 		signIn,
 		signOut,
