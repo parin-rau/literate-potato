@@ -1,19 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function SignInButton() {
-	const navigate = useNavigate();
-	const [isLoggedIn, setLoggedIn] = useState(false);
+	const { user, signOut } = useAuth();
 
-	async function logout() {
-		const res = await fetch("/auth/logout");
-		const resMsg = await res.json();
-		console.log(resMsg.message);
-		setLoggedIn(false);
-		navigate("/login");
-	}
-
-	return !isLoggedIn ? (
+	return !user ? (
 		<Link
 			to={"/login"}
 			className="duration-200 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-lg "
@@ -23,7 +14,7 @@ export default function SignInButton() {
 	) : (
 		<button
 			className="duration-200 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-lg "
-			onClick={logout}
+			onClick={signOut}
 		>
 			Sign Out
 		</button>

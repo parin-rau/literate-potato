@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import SignInButton from "./SignInButton";
+//import { useAuth } from "../../hooks/useAuth";
 
 export default function NavBar() {
 	const [theme, setTheme] = useState<string>(localStorage.theme);
 	const navigate = useNavigate();
+
+	const username = sessionStorage.getItem("username");
 
 	function handleThemeToggle() {
 		theme === "dark" ? setTheme("light") : setTheme("dark");
@@ -24,15 +27,16 @@ export default function NavBar() {
 		changeTheme();
 	}, [theme]);
 
-	async function logout() {
-		sessionStorage.removeItem("accessToken");
-		const res = await fetch("/auth/logout", {
-			credentials: "include",
-		});
-		if (res.ok) {
-			navigate("/login");
-		}
-	}
+	// async function logout() {
+	// 	setUser(null);
+	// 	sessionStorage.removeItem("accessToken");
+	// 	const res = await fetch("/auth/logout", {
+	// 		credentials: "include",
+	// 	});
+	// 	if (res.ok) {
+	// 		navigate("/login");
+	// 	}
+	// }
 
 	return (
 		<div className="fixed top-0 z-20 w-full bg-slate-100 dark:bg-neutral-900 px-1 sm:px-2 dark:border-b dark:border-zinc-800">
@@ -79,9 +83,10 @@ export default function NavBar() {
 							</svg>
 						)}
 					</button>
+					{username && <h2>{username}</h2>}
 					<div className="flex flex-shrink-0 pr-4 justify-start">
-						{/* <SignInButton /> */}
-						<Link
+						<SignInButton />
+						{/* <Link
 							to={"/login"}
 							className="duration-200 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-lg "
 						>
@@ -92,7 +97,7 @@ export default function NavBar() {
 							onClick={logout}
 						>
 							Sign Out
-						</button>
+						</button> */}
 					</div>
 				</div>
 			</div>

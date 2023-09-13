@@ -3,10 +3,10 @@ import "dotenv/config";
 import jwt from "jsonwebtoken";
 
 interface UserReq extends Request {
-	username: string;
+	user: { username: string; userId: string; roles: number[] };
 }
 
-export function verifyToken(req: Request, res: Response, next: NextFunction) {
+export function verifyToken(req: UserReq, res: Response, next: NextFunction) {
 	//console.log(req.cookies, req.headers);
 	const authHeader = req.headers["authorization"];
 	const refreshToken = req.cookies["refreshToken"];

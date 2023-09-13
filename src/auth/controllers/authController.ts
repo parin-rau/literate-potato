@@ -101,7 +101,7 @@ export async function loginUser(req: Request, res: Response) {
 							secure: true,
 							maxAge: 24 * 60 * 60 * 1000,
 						})
-						.json({ accessToken });
+						.json({ accessToken, user });
 				} else {
 					return res
 						.status(500)
