@@ -57,7 +57,7 @@ export default function CardContainer(props: Props) {
 				const endpoint =
 					dataKind === "ticket"
 						? projectId
-							? `/api/project/${projectId}/ticket`
+							? `/api/ticket/project/${projectId}`
 							: "/api/ticket"
 						: `/api/project`;
 				const accessToken = user?.token;

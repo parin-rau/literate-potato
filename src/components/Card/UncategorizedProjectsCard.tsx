@@ -7,7 +7,7 @@ export default function UncategorizedProjectsCard() {
 	useEffect(() => {
 		async function fetchData() {
 			try {
-				const res = await fetch("/api/project/uncategorized/ticket", {
+				const res = await fetch("/api/ticket/project/uncategorized", {
 					headers: { "Content-Type": "application/json" },
 				});
 				const parsedData = await res.json();

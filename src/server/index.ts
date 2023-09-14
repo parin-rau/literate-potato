@@ -25,7 +25,7 @@ app.delete("/api/project/:id", projects.deleteProject);
 
 app.get("/api/ticket", tickets.getAllTickets);
 app.get("/api/ticket/:id", tickets.getTicket);
-app.get("/api/project/:id/ticket", tickets.getAllTicketsForProject);
+app.get("/api/ticket/project/:projectId/", tickets.getAllTicketsForProject);
 app.post("/api/ticket", tickets.createTicket);
 app.patch("/api/ticket/:id", tickets.updateTicket);
 app.patch(

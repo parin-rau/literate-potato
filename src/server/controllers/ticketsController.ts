@@ -35,7 +35,7 @@ export async function getAllTickets(_req: Request, res: Response) {
 
 export async function getAllTicketsForProject(req: Request, res: Response) {
 	try {
-		const id = req.params.id;
+		const id = req.params.projectId;
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localTickets);
