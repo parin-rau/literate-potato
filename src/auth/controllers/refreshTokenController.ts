@@ -80,8 +80,6 @@ export async function handleRefreshToken(req: Request, res: Response) {
 		} else {
 			return res.status(500).send({ message: "Something went wrong" });
 		}
-
-		//res.status(201).send({ accessToken });
 	} catch (e) {
 		return res.sendStatus(403);
 	}

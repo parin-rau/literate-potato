@@ -1,18 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
-import { UserDecode } from "../../types";
+import { UserDecode, UserToken } from "../../types";
 
-// interface UserRequest extends Request {
-// 	user: { username: string; userId: string; roles: number[] };
-// }
+interface UserRequest extends Request {
+	user: UserToken;
+}
 
 export function verifyToken(req: Request, res: Response, next: NextFunction) {
-	//console.log(req.cookies, req.headers);
 	const authHeader = req.headers["authorization"];
-	//const refreshToken = req.cookies["refreshToken"];
-
-	//console.log(authHeader, refreshToken);
 
 	if (!authHeader || !process.env.ACCESS_JWT_SECRET)
 		return res.sendStatus(401);
@@ -20,8 +16,13 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
 	const token = authHeader.split(" ")[1];
 	jwt.verify(token, process.env.ACCESS_JWT_SECRET, (err, decoded) => {
 		if (err) return res.sendStatus(403);
+		const decodedUser: UserToken = {
+			username: (decoded as UserDecode).username,
+			userId: (decoded as UserDecode).userId,
+			roles: (decoded as UserDecode).roles,
+		};
 
-		req.user = decoded as UserDecode;
+		(req as UserRequest).user = decodedUser;
 		next();
 	});
 }
