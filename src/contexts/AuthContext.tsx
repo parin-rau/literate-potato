@@ -82,7 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	async function signOut() {
 		try {
-			setErr(null);
 			const res = await fetch("/auth/logout");
 			if (res.ok) {
 				setUser(null);
@@ -102,12 +101,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
 			});
-			if (!res.ok) {
-				await signOut();
+
+			if ([400, 401, 403].some((n) => res.status === n)) {
+				setErr("Unable to refresh access token. Signing out");
+				return await signOut();
 			}
 
-			if ([400, 401, 403].some((n) => res.status === n))
+			if (!res.ok) {
+				setErr("Something went wrong. Signing out");
 				return await signOut();
+			}
 
 			const { accessToken }: { accessToken: string } = await res.json();
 			const decoded = jwtDecode<UserDecode>(accessToken);
@@ -117,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		} catch (e) {
 			console.error(e);
 			setErr("Caught refreshAccessToken error");
-			await signOut();
+			return await signOut();
 		}
 	}
 

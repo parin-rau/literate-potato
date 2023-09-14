@@ -10,4 +10,4 @@ authRouter.use(express.json());
 authRouter.post("/register", auth.createNewUser);
 authRouter.post("/login", auth.loginUser);
 authRouter.get("/logout", parseCookies, auth.logoutUser);
-authRouter.post("/refresh", handleRefreshToken);
+authRouter.post("/refresh", parseCookies, handleRefreshToken);

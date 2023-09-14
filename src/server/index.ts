@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-//import { verifyToken } from "../auth/middleware/verifyToken";
+import { verifyToken } from "../auth/middleware/verifyToken";
 import { parseCookies } from "./middleware/parseCookies";
 import { projectsRouter } from "./routes/projects";
 import { searchRouter } from "./routes/search";

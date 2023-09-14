@@ -7,7 +7,7 @@ export function useProtectedFetch<T>(
 	customOptions?: RequestInit,
 	setter?: React.Dispatch<React.SetStateAction<T>>
 ): void {
-	const { user, refreshAccessToken } = useAuth();
+	const { user, refreshAccessToken, signOut } = useAuth();
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -33,7 +33,7 @@ export function useProtectedFetch<T>(
 				const res = await fetch(endpoint, options);
 
 				if (!res.ok) {
-					if (res.status === 401) {
+					if (res.status === 401 || res.status === 403) {
 						await refreshAccessToken();
 
 						if (user) {
@@ -44,6 +44,7 @@ export function useProtectedFetch<T>(
 							}
 						}
 					}
+					return signOut();
 				}
 
 				if (setter) {
@@ -55,5 +56,13 @@ export function useProtectedFetch<T>(
 			}
 		};
 		fetchData();
-	}, [customOptions, endpoint, navigate, refreshAccessToken, user, setter]);
+	}, [
+		customOptions,
+		endpoint,
+		navigate,
+		refreshAccessToken,
+		user,
+		signOut,
+		setter,
+	]);
 }

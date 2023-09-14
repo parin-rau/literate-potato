@@ -9,9 +9,9 @@ const localUsers = process.env.LOCAL_USERS ?? "users";
 
 export async function handleRefreshToken(req: Request, res: Response) {
 	const cookies = req.cookies;
-	if (!cookies?.token) return res.sendStatus(401);
+	if (!cookies?.refreshToken) return res.sendStatus(401);
 
-	const refreshToken: string = cookies.token;
+	const refreshToken: string = cookies.refreshToken;
 
 	const client: mongoDB.MongoClient = await connectToDatabase();
 	const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
