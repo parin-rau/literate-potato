@@ -1,8 +1,9 @@
-import { Request, Response } from "express";
 import "dotenv/config";
+import { Request, Response } from "express";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../server/mongodb";
 import jwt from "jsonwebtoken";
+import { UserDecode } from "../../types";
 
 const localUsers = process.env.LOCAL_USERS ?? "users";
 
@@ -20,21 +21,24 @@ export async function handleRefreshToken(req: Request, res: Response) {
 
 	if (!foundUser) return res.sendStatus(403);
 
-	if (!process.env.REFRESH_JWT_SECRET) return res.sendStatus(400);
+	if (!process.env.REFRESH_JWT_SECRET || !process.env.ACCESS_JWT_SECRET)
+		return res.sendStatus(500);
 
-	jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET, (err, decoded) => {
-		if (
-			err ||
-			foundUser.username !== decoded?.user.username ||
-			!process.env.ACCESS_JWT_SECRET
-		)
+	try {
+		const decoded = jwt.verify(
+			refreshToken,
+			process.env.REFRESH_JWT_SECRET
+		) as UserDecode;
+		if (foundUser.username !== decoded?.username)
 			return res.sendStatus(403);
 
 		const accessToken = jwt.sign(
-			{ username: decoded?.user.username },
+			{ username: decoded?.username },
 			process.env.ACCESS_JWT_SECRET,
 			{ expiresIn: "30s" }
 		);
-		res.send({ accessToken });
-	});
+		res.status(201).send({ accessToken });
+	} catch (e) {
+		return res.sendStatus(403);
+	}
 }

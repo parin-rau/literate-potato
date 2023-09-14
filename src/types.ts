@@ -160,3 +160,11 @@ export interface UserToken {
 	username: string;
 	roles: number[];
 }
+
+export interface UserDecode {
+	username: string;
+	userId: string;
+	roles: number[];
+	iat: number;
+	exp: number;
+}

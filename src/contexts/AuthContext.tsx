@@ -1,15 +1,7 @@
 import { useState, createContext } from "react";
 import jwtDecode from "../utility/jwtDecode";
 import { useNavigate } from "react-router-dom";
-import { Login, Register } from "../types";
-
-interface UserDecode {
-	username: string;
-	userId: string;
-	roles: number[];
-	iat: number;
-	exp: number;
-}
+import { Login, Register, UserDecode } from "../types";
 
 interface User extends UserDecode {
 	token: string;
@@ -114,9 +106,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				await signOut();
 			}
 
+			if ([400, 401, 403].some((n) => res.status === n))
+				return await signOut();
+
 			const { accessToken }: { accessToken: string } = await res.json();
 			const decoded = jwtDecode<UserDecode>(accessToken);
-			if (!decoded || typeof decoded === "string") return signOut();
+			if (!decoded || typeof decoded === "string") return await signOut();
 
 			setUser({ token: accessToken, ...decoded });
 		} catch (e) {

@@ -5,7 +5,8 @@ import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "../Card/CardSelector";
 import CardCategory from "./CardCategory";
-import { useAuth } from "../../hooks/useAuth";
+//import { useAuth } from "../../hooks/useAuth";
+import { useProtectedFetch } from "../../hooks/useProtectedFetch";
 
 type TicketProps = {
 	containerTitle: string;
@@ -46,40 +47,52 @@ export default function CardContainer(props: Props) {
 	);
 	const [isFirstFilter, setFirstFilter] = useState(true);
 	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
-	const { user } = useAuth();
+	//const { user } = useAuth();
 
 	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
 	const project = { projectId, projectTitle };
 
-	useEffect(() => {
-		async function getPosts() {
-			try {
-				const endpoint =
-					dataKind === "ticket"
-						? projectId
-							? `/api/ticket/project/${projectId}`
-							: "/api/ticket"
-						: `/api/project`;
-				const accessToken = user?.token;
+	const endpoint =
+		dataKind === "ticket"
+			? projectId
+				? `/api/ticket/project/${projectId}`
+				: "/api/ticket"
+			: `/api/project`;
 
-				const res = await fetch(endpoint, {
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${accessToken}`,
-					},
-					credentials: "include",
-				});
-				const data = await res.json();
-				if (res.ok) {
-					setCards(data);
-				}
-			} catch (err) {
-				console.error(err);
-			}
-		}
-		getPosts();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dataKind]);
+	useProtectedFetch(endpoint, undefined, setCards);
+
+	// useEffect(() => {
+	// 	async function getPosts() {
+	// 		try {
+	// 			const endpoint =
+	// 				dataKind === "ticket"
+	// 					? projectId
+	// 						? `/api/ticket/project/${projectId}`
+	// 						: "/api/ticket"
+	// 					: `/api/project`;
+	// 			//const accessToken = user?.token;
+
+	// 			// const res = await fetch(endpoint, {
+	// 			// 	headers: {
+	// 			// 		"Content-Type": "application/json",
+	// 			// 		Authorization: `Bearer ${accessToken}`,
+	// 			// 	},
+	// 			// 	credentials: "include",
+	// 			// });
+
+	// 			const res = await useProtectedFetch(endpoint)
+
+	// 			const data = await res.json();
+	// 			if (res.ok) {
+	// 				setCards(data);
+	// 			}
+	// 		} catch (err) {
+	// 			console.error(err);
+	// 		}
+	// 	}
+	// 	getPosts();
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [dataKind]);
 
 	useEffect(() => {
 		function filterCards() {
