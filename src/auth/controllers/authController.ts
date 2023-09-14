@@ -91,7 +91,7 @@ export async function loginUser(req: Request, res: Response) {
 			roles: storedUser.roles,
 		};
 		const accessToken = jwt.sign(user, process.env.ACCESS_JWT_SECRET, {
-			expiresIn: "30s",
+			expiresIn: "15s",
 		});
 		const refreshToken = jwt.sign(user, process.env.REFRESH_JWT_SECRET, {
 			expiresIn: "1d",
@@ -113,7 +113,7 @@ export async function loginUser(req: Request, res: Response) {
 					secure: true,
 					maxAge: 24 * 60 * 60 * 1000,
 				})
-				.json({ accessToken, user });
+				.json({ accessToken });
 		} else {
 			return res.status(500).send({ message: "Something went wrong" });
 		}

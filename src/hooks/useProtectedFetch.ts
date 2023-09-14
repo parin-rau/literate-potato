@@ -47,7 +47,7 @@ export function useProtectedFetch<T>(
 					return signOut();
 				}
 
-				if (setter) {
+				if (res.ok && setter) {
 					const data = await res.json();
 					return setter(data);
 				}
