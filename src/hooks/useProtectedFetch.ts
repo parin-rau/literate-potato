@@ -11,6 +11,8 @@ export function useProtectedFetch<T>(
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		const abortController = new AbortController();
+
 		const fetchData = async () => {
 			try {
 				if (!user) {
@@ -24,6 +26,7 @@ export function useProtectedFetch<T>(
 						Authorization: `Bearer ${accessToken}`,
 					},
 					credentials: "include",
+					signal: abortController.signal,
 				};
 				const options: RequestInit = {
 					...customOptions,
@@ -58,6 +61,9 @@ export function useProtectedFetch<T>(
 			}
 		};
 		fetchData();
+		return () => {
+			abortController.abort();
+		};
 	}, [
 		customOptions,
 		endpoint,

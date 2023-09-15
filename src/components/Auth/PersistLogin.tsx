@@ -17,11 +17,7 @@ export default function PersistLogin({
 			setLoading(false);
 		};
 
-		user
-			? !user?.token
-				? persistLogin()
-				: setLoading(false)
-			: setLoading(false);
+		!user?.token ? persistLogin() : setLoading(false);
 	}, []);
 
 	return <>{isLoading ? <LoadingSpinner /> : children}</>;

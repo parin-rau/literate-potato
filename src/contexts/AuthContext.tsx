@@ -94,8 +94,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	async function refreshAccessToken() {
 		try {
-			if (!user) return await signOut();
-
 			const res = await fetch("/auth/refresh", {
 				method: "POST",
 				credentials: "include",
