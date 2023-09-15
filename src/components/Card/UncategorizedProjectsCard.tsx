@@ -22,7 +22,7 @@ export default function UncategorizedProjectsCard() {
 	// 	fetchData();
 	// }, []);
 
-	const res = useProtectedFetch("/api/ticket/project/uncategorized");
+	//const res = useProtectedFetch("/api/ticket/project/uncategorized");
 	//if ((res as Response).ok) setData(true);
 
 	return (

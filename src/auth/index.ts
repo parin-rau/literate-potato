@@ -11,9 +11,4 @@ app.use(parseCookies);
 
 app.use("/auth", authRouter);
 
-app.get("/test", (_req, res) => {
-	console.log("TESTING");
-	res.send("Hiya");
-});
-
 app.listen(PORT, () => console.log("Auth server listening on PORT", PORT));

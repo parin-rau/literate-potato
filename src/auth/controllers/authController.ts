@@ -109,8 +109,8 @@ export async function loginUser(req: Request, res: Response) {
 				.status(200)
 				.cookie("refreshToken", refreshToken, {
 					httpOnly: true,
-					sameSite: "none",
-					secure: true,
+					sameSite: "lax",
+					secure: process.env.PROD ? true : false,
 					maxAge: 24 * 60 * 60 * 1000,
 				})
 				.json({ accessToken });
@@ -140,8 +140,8 @@ export async function logoutUser(req: Request, res: Response) {
 		return res
 			.clearCookie("refreshToken", {
 				httpOnly: true,
-				sameSite: "none",
-				secure: true,
+				sameSite: "lax",
+				secure: process.env.PROD ? true : false,
 				maxAge: 24 * 60 * 60 * 1000,
 			})
 			.sendStatus(204);
@@ -153,8 +153,8 @@ export async function logoutUser(req: Request, res: Response) {
 	return res
 		.clearCookie("refreshToken", {
 			httpOnly: true,
-			sameSite: "none",
-			secure: true,
+			sameSite: "lax",
+			secure: process.env.PROD ? true : false,
 			maxAge: 24 * 60 * 60 * 1000,
 		})
 		.sendStatus(204);

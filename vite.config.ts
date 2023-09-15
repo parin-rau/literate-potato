@@ -9,10 +9,10 @@ export default defineConfig({
 		port: 5173,
 		proxy: {
 			"/api": {
-				target: "http://127.0.0.1:3002",
+				target: "http://localhost:3002",
 				changeOrigin: true,
-				secure: false,
-				ws: true,
+				//secure: false,
+				//ws: true,
 				// rewrite: (path) => path.replace(/^\/api/, ""),
 				configure: (proxy, _options) => {
 					proxy.on("error", (err, _req, _res) => {
@@ -35,10 +35,10 @@ export default defineConfig({
 				},
 			},
 			"/auth": {
-				target: "http://127.0.0.1:4002",
+				target: "http://localhost:4002",
 				changeOrigin: true,
-				secure: false,
-				ws: true,
+				//secure: false,
+				//ws: true,
 				configure: (proxy, _options) => {
 					proxy.on("error", (err, _req, _res) => {
 						console.log("proxy error", err);

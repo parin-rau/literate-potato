@@ -9,28 +9,28 @@ import { arraysEqual } from "../../utility/arrayComparisons";
 const localUsers = process.env.LOCAL_USERS ?? "users";
 
 export async function handleRefreshToken(req: Request, res: Response) {
-	const cookies = req.cookies;
-	console.log(cookies);
-	if (!cookies?.refreshToken) return res.sendStatus(401);
-
-	const refreshToken: string = cookies.refreshToken;
-
-	const client: mongoDB.MongoClient = await connectToDatabase();
-	const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-	const coll: mongoDB.Collection = db.collection(localUsers);
-	const foundUser = await coll.findOne({ refreshToken });
-
-	if (!foundUser) {
-		await client.close();
-		return res.sendStatus(403);
-	}
-
-	if (!process.env.REFRESH_JWT_SECRET || !process.env.ACCESS_JWT_SECRET) {
-		await client.close();
-		return res.sendStatus(500);
-	}
-
 	try {
+		const cookies = req.cookies;
+
+		if (!cookies?.refreshToken) return res.sendStatus(401);
+
+		const refreshToken: string = cookies.refreshToken;
+
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localUsers);
+		const foundUser = await coll.findOne({ refreshToken });
+
+		if (!foundUser) {
+			await client.close();
+			return res.sendStatus(403);
+		}
+
+		if (!process.env.REFRESH_JWT_SECRET || !process.env.ACCESS_JWT_SECRET) {
+			await client.close();
+			return res.sendStatus(500);
+		}
+
 		const decoded = jwt.verify(
 			refreshToken,
 			process.env.REFRESH_JWT_SECRET
@@ -73,8 +73,8 @@ export async function handleRefreshToken(req: Request, res: Response) {
 				.status(201)
 				.cookie("refreshToken", rotatedRefreshToken, {
 					httpOnly: true,
-					sameSite: "none",
-					secure: true,
+					sameSite: "lax",
+					secure: process.env.PROD ? true : false,
 					maxAge: 24 * 60 * 60 * 1000,
 				})
 				.json({ accessToken });
@@ -82,6 +82,7 @@ export async function handleRefreshToken(req: Request, res: Response) {
 			return res.status(500).send({ message: "Something went wrong" });
 		}
 	} catch (e) {
+		console.error(e);
 		return res.sendStatus(403);
 	}
 }
