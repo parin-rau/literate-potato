@@ -124,9 +124,10 @@ export async function loginUser(req: Request, res: Response) {
 
 export async function logoutUser(req: Request, res: Response) {
 	const cookies = req.cookies;
-	console.log(cookies);
 
-	if (!cookies.refreshToken) return res.sendStatus(204);
+	if (!cookies) return res.sendStatus(204);
+	if (!("refreshToken" in cookies) || !cookies.refreshToken)
+		return res.sendStatus(204);
 	const refreshToken = cookies.refreshToken;
 
 	const client: mongoDB.MongoClient = await connectToDatabase();

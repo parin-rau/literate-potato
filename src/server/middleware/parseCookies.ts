@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 
 export function parseCookies(req: Request, _res: Response, next: NextFunction) {
+	if (!req.headers.cookie) return next();
+
 	const cookieObj: Record<string, string> = {};
 	const cookie = req.headers.cookie;
 	const cookieSplit = cookie?.split("; ");

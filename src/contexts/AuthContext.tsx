@@ -82,11 +82,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	async function signOut() {
 		try {
-			await fetch("/auth/logout");
-			navigate("/login");
+			await fetch("/auth/logout", { credentials: "include" });
 		} catch (e) {
 			console.error(e);
 			setErr("Caught signOut error");
+		} finally {
+			setUser(null);
+			navigate("/login");
 		}
 	}
 
