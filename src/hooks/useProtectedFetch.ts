@@ -6,7 +6,7 @@ export function useProtectedFetch<T>(
 	endpoint: RequestInfo | URL,
 	customOptions?: RequestInit,
 	setter?: React.Dispatch<React.SetStateAction<T>>
-): void {
+): Response | void {
 	const { user, refreshAccessToken, signOut } = useAuth();
 	const navigate = useNavigate();
 
@@ -33,21 +33,23 @@ export function useProtectedFetch<T>(
 				const res = await fetch(endpoint, options);
 
 				if (!res.ok) {
-					if (res.status === 401 || res.status === 403) {
+					if ([400, 401, 403].some((n) => res.status === n)) {
 						await refreshAccessToken();
 
 						if (user) {
 							const retryRes = await fetch(endpoint, options);
-							if (setter) {
-								const data = await retryRes.json();
-								return setter(data);
-							}
+							if (!setter) return retryRes;
+
+							const data = await retryRes.json();
+							return setter(data);
 						}
 					}
 					return signOut();
 				}
 
-				if (res.ok && setter) {
+				if (res.ok) {
+					if (!setter) return res;
+
 					const data = await res.json();
 					return setter(data);
 				}

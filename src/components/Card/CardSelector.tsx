@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { FetchedTicketData, Project } from "../../types";
 import ProjectCard from "./ProjectCard";
 import TicketCard from "./TicketCard";

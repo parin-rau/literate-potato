@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import CardContainer from "../components/Wrapper/CardContainer";
+import CardContainer from "../components/Card/CardContainer";
 import ProjectCard from "../components/Card/ProjectCard";
 import { Project, uncategorizedProject } from "../types";
 import { useNavigate, useParams } from "react-router-dom";

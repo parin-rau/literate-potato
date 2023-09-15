@@ -10,6 +10,7 @@ const localUsers = process.env.LOCAL_USERS ?? "users";
 
 export async function handleRefreshToken(req: Request, res: Response) {
 	const cookies = req.cookies;
+	console.log(cookies);
 	if (!cookies?.refreshToken) return res.sendStatus(401);
 
 	const refreshToken: string = cookies.refreshToken;

@@ -82,11 +82,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	async function signOut() {
 		try {
-			const res = await fetch("/auth/logout");
-			if (res.ok) {
-				setUser(null);
-				navigate("/login");
-			}
+			await fetch("/auth/logout");
+			navigate("/login");
 		} catch (e) {
 			console.error(e);
 			setErr("Caught signOut error");
@@ -96,6 +93,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	async function refreshAccessToken() {
 		try {
 			setErr(null);
+
+			if (!user) return await signOut();
+
 			const res = await fetch("/auth/refresh", {
 				method: "POST",
 				credentials: "include",

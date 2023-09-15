@@ -10,6 +10,13 @@ const app = express();
 app.use(express.json());
 app.use(parseCookies);
 
-app.use("/auth", authRouter);
+app.use(
+	"/auth",
+	(_req, _res, next) => {
+		console.log("auth index");
+		next();
+	},
+	authRouter
+);
 
 app.listen(PORT, () => console.log("Auth server listening on PORT", PORT));

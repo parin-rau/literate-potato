@@ -1,25 +1,29 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useProtectedFetch } from "../../hooks/useProtectedFetch";
 
 export default function UncategorizedProjectsCard() {
 	const [data, setData] = useState(false);
 
-	useEffect(() => {
-		async function fetchData() {
-			try {
-				const res = await fetch("/api/ticket/project/uncategorized", {
-					headers: { "Content-Type": "application/json" },
-				});
-				const parsedData = await res.json();
-				if (res.ok) {
-					setData(parsedData.length > 0);
-				}
-			} catch (e) {
-				console.error(e);
-			}
-		}
-		fetchData();
-	}, []);
+	// useEffect(() => {
+	// 	async function fetchData() {
+	// 		try {
+	// 			const res = await fetch("/api/ticket/project/uncategorized", {
+	// 				headers: { "Content-Type": "application/json" },
+	// 			});
+	// 			const parsedData = await res.json();
+	// 			if (res.ok) {
+	// 				setData(parsedData.length > 0);
+	// 			}
+	// 		} catch (e) {
+	// 			console.error(e);
+	// 		}
+	// 	}
+	// 	fetchData();
+	// }, []);
+
+	const res = useProtectedFetch("/api/ticket/project/uncategorized");
+	//if ((res as Response).ok) setData(true);
 
 	return (
 		data && (

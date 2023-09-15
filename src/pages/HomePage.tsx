@@ -1,4 +1,4 @@
-import CardContainer from "../components/Wrapper/CardContainer";
+import CardContainer from "../components/Card/CardContainer";
 
 export default function HomePage() {
 	const cardContainerStyles = "dark:bg-neutral-900";

@@ -3,7 +3,7 @@ import { menuLookup, sortData } from "../../utility/optionLookup";
 import { FetchedTicketData, Project, SortMenu } from "../../types";
 import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
-import CardSelector from "../Card/CardSelector";
+import CardSelector from "./CardSelector";
 import CardCategory from "./CardCategory";
 //import { useAuth } from "../../hooks/useAuth";
 import { useProtectedFetch } from "../../hooks/useProtectedFetch";

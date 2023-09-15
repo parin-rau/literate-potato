@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { LoadingSpinner } from "../Nav/Loading";
 
@@ -10,18 +10,19 @@ export default function PersistLogin({
 	const { user, refreshAccessToken } = useAuth();
 	const [isLoading, setLoading] = useState(false);
 
-	const refresh = useCallback(async () => {
-		await refreshAccessToken();
-		setLoading(false);
-	}, [refreshAccessToken]);
-
 	useEffect(() => {
 		setLoading(true);
 		const persistLogin = async () => {
-			refresh();
+			await refreshAccessToken();
+			setLoading(false);
 		};
-		!user?.token ? persistLogin() : setLoading(false);
-	}, [user]);
+
+		user
+			? !user?.token
+				? persistLogin()
+				: setLoading(false)
+			: setLoading(false);
+	}, []);
 
 	return <>{isLoading ? <LoadingSpinner /> : children}</>;
 }

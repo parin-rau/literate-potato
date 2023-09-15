@@ -1,5 +1,5 @@
 import { FetchedTicketData, Project } from "../../types";
-import TicketCard from "../Card/TicketCard";
+import TicketCard from "./TicketCard";
 import CardSelector from "./CardContainer";
 
 type Props = {

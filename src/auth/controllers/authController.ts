@@ -12,7 +12,7 @@ const localUsers = process.env.LOCAL_USERS ?? "users";
 export async function createNewUser(req: Request, res: Response) {
 	const data: {
 		kind: "register";
-		form: Register; //{ username: string; email: string; password: string };
+		form: Register;
 	} = await req.body;
 
 	if (data.kind !== "register")
@@ -83,7 +83,7 @@ export async function loginUser(req: Request, res: Response) {
 				.send({ message: "Incorrect username or password" });
 
 		if (!process.env.ACCESS_JWT_SECRET || !process.env.REFRESH_JWT_SECRET)
-			return res.status(500).send("Something went wrong");
+			return res.status(500).send("Missing secrets");
 
 		const user: UserToken = {
 			username: storedUser.username,
@@ -124,6 +124,7 @@ export async function loginUser(req: Request, res: Response) {
 
 export async function logoutUser(req: Request, res: Response) {
 	const cookies = req.cookies;
+	console.log(cookies);
 
 	if (!cookies.refreshToken) return res.sendStatus(204);
 	const refreshToken = cookies.refreshToken;
