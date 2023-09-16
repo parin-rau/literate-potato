@@ -1,14 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "./useAuth";
 import { useNavigate } from "react-router-dom";
 
-export function useProtectedFetch<T>(
+// type Return = {
+// 	data: | null;
+// 	isLoading: boolean;
+// };
+
+export function useProtectedFetch<T, D = void>(
 	endpoint: RequestInfo | URL,
 	customOptions?: RequestInit,
-	setter?: React.Dispatch<React.SetStateAction<T>>
-): Response | void {
+	// setter?: React.Dispatch<React.SetStateAction<T>>,
+	setterHelper?: (_arg: D) => T
+) {
 	const { user, refreshAccessToken, signOut } = useAuth();
 	const navigate = useNavigate();
+	const [isLoading, setLoading] = useState<boolean>(true);
+	//const [response, setResponse] = useState<Response | null>(null);
+	const [data, setData] = useState<T | null>(null);
+	const [error, setError] = useState<string | unknown | null>(null);
 
 	useEffect(() => {
 		const abortController = new AbortController();
@@ -41,22 +51,42 @@ export function useProtectedFetch<T>(
 
 						if (user) {
 							const retryRes = await fetch(endpoint, options);
-							if (!setter) return retryRes;
-
-							const data = await retryRes.json();
-							return setter(data);
+							// if (setter) {
+							// 	const data = await retryRes.json();
+							// 	setterHelper
+							// 		? setter(setterHelper(data))
+							// 		: setter(data);
+							// }
+							// setResponse(retryRes);
+							// return setLoading(false);
+							const jsonData = await retryRes.json();
+							setterHelper
+								? setData(setterHelper(jsonData))
+								: setData(jsonData);
+							return setLoading(false);
 						}
 					}
-					return signOut();
+					setError("Failed to refresh access token");
+					return await signOut();
 				}
 
 				if (res.ok) {
-					if (!setter) return res;
-
-					const data = await res.json();
-					return setter(data);
+					// if (setter) {
+					// 	const data = await res.json();
+					// 	setterHelper
+					// 		? setter(setterHelper(data))
+					// 		: setter(data);
+					// }
+					// setResponse(res);
+					// return setLoading(false);
+					const jsonData = await res.json();
+					setterHelper
+						? setData(setterHelper(jsonData))
+						: setData(jsonData);
+					return setLoading(false);
 				}
 			} catch (e) {
+				setError(e);
 				console.error(e);
 			}
 		};
@@ -71,6 +101,14 @@ export function useProtectedFetch<T>(
 		refreshAccessToken,
 		user,
 		signOut,
-		setter,
+		// setter,
+		setterHelper,
 	]);
+
+	return { data, setData, isLoading, error } as {
+		data: T;
+		setData: React.Dispatch<React.SetStateAction<T>>;
+		isLoading: boolean;
+		error: unknown;
+	};
 }

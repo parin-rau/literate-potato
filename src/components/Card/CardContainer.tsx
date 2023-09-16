@@ -5,7 +5,6 @@ import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "./CardSelector";
 import CardCategory from "./CardCategory";
-//import { useAuth } from "../../hooks/useAuth";
 import { useProtectedFetch } from "../../hooks/useProtectedFetch";
 
 type TicketProps = {
@@ -28,7 +27,9 @@ type Props = {
 	styles?: string;
 } & (TicketProps | ProjectProps);
 
-export default function CardContainer(props: Props) {
+export default function CardContainer<T extends FetchedTicketData | Project>(
+	props: Props
+) {
 	const {
 		containerTitle,
 		dataKind,
@@ -37,17 +38,14 @@ export default function CardContainer(props: Props) {
 		projectTitle,
 		setProject,
 	} = props;
-	const [cards, setCards] = useState<FetchedTicketData[] | Project[]>([]);
+	//const [cards, setCards] = useState<T[]>([]); //useState<FetchedTicketData[] | Project[]>([]);
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
 	const [filters, setFilters] = useState<string[]>([]);
-	const [cardCache, setCardCache] = useState<FetchedTicketData[] | Project[]>(
-		[]
-	);
+	const [cardCache, setCardCache] = useState<T[]>([]);
 	const [isFirstFilter, setFirstFilter] = useState(true);
 	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
-	//const { user } = useAuth();
 
 	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
 	const project = { projectId, projectTitle };
@@ -59,7 +57,18 @@ export default function CardContainer(props: Props) {
 				: "/api/ticket"
 			: `/api/project`;
 
-	useProtectedFetch(endpoint, undefined, setCards);
+	const {
+		data: cards,
+		setData: setCards,
+		isLoading,
+	} = useProtectedFetch<T[]>(endpoint);
+
+	// if (!isLoading && data) {
+	// 	console.log(data);
+	// 	setCards(data);
+	// }
+
+	console.log(cards, isLoading);
 
 	// useEffect(() => {
 	// 	async function getPosts() {
@@ -97,35 +106,31 @@ export default function CardContainer(props: Props) {
 	useEffect(() => {
 		function filterCards() {
 			function getFilterMatches(
-				cardArr: FetchedTicketData[] | Project[]
+				cardArr: T[] //FetchedTicketData[] | Project[]
 			) {
 				if (filterMode === "OR") {
-					const filteredCards: FetchedTicketData[] = [];
+					const filteredCards: T[] = []; //FetchedTicketData[] = [];
 					filters.forEach((mask) => {
-						const matches = (cardArr as FetchedTicketData[]).filter(
-							(card) => {
-								if ("tags" in card) {
-									return (
-										card.tags.includes(mask) &&
-										!filteredCards.includes(card)
-									);
-								}
+						const matches = cardArr.filter((card) => {
+							if ("tags" in card) {
+								return (
+									card.tags.includes(mask) &&
+									!filteredCards.includes(card)
+								);
 							}
-						);
+						});
 						filteredCards.push(...matches);
 					});
-					console.log(filteredCards);
 
 					return filteredCards;
 				}
 				if (filterMode === "AND") {
-					const filteredCards: FetchedTicketData[] = (
-						cardArr as FetchedTicketData[]
-					).filter((card) =>
-						filters.every((mask) => card.tags.includes(mask))
-					);
-
-					console.log(filteredCards);
+					const filteredCards: T[] = cardArr.filter((card) => {
+						if ("tags" in card)
+							return filters.every((mask) =>
+								card.tags.includes(mask)
+							);
+					});
 
 					return filteredCards;
 				}
@@ -158,7 +163,7 @@ export default function CardContainer(props: Props) {
 				sortKind,
 				direction
 			)!;
-			setCards(sortedData);
+			setCards(sortedData as FetchedTicketData[]);
 			setSortMeta(sortCategories);
 		}
 	}
@@ -192,82 +197,84 @@ export default function CardContainer(props: Props) {
 	}
 
 	return (
-		<div
-			className={
-				"@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg space-y-1 " +
-				styles
-			}
-		>
+		!isLoading && (
 			<div
 				className={
-					!projectId
-						? "grid grid-cols-1 gap-2 sm:grid-cols-2 sm:items-start"
-						: ""
+					"@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg space-y-1 " +
+					styles
 				}
 			>
-				<TicketEditor
-					{...{
-						dataKind,
-						setCards: setCards as React.Dispatch<
-							React.SetStateAction<FetchedTicketData[]>
-						>,
-						project,
-						resetFilters,
-						setProject,
-						setCardCache: setCardCache as React.Dispatch<
-							React.SetStateAction<FetchedTicketData[]>
-						>,
-					}}
-					// setCards={setCards}
-					// projectId={projectId}
-					// setCardCache={
-					// 	setCardCache as React.Dispatch<
-					// 		React.SetStateAction<FetchedTicketData[]>
-					// 	>
-					// }
-					// resetFilters={resetFilters}
-				/>
-				{!projectId && (
+				<div
+					className={
+						!projectId
+							? "grid grid-cols-1 gap-2 sm:grid-cols-2 sm:items-start"
+							: ""
+					}
+				>
 					<TicketEditor
-						dataKind="ticket"
-						project={{ projectId: "", projectTitle: "" }}
-					/>
-				)}
-			</div>
-			<div className="flex flex-row justify-between items-baseline mx-1">
-				<h1 className="font-semibold text-3xl my-4">
-					{filters.length > 0
-						? `Filtering Results (${cards.length})`
-						: containerTitle}
-				</h1>
-				<div className="flex flex-row items-baseline space-x-2">
-					<FilterSelect
 						{...{
+							dataKind,
+							setCards: setCards as React.Dispatch<
+								React.SetStateAction<FetchedTicketData[]>
+							>,
+							project,
+							resetFilters,
+							setProject,
+							setCardCache: setCardCache as React.Dispatch<
+								React.SetStateAction<FetchedTicketData[]>
+							>,
+						}}
+						// setCards={setCards}
+						// projectId={projectId}
+						// setCardCache={
+						// 	setCardCache as React.Dispatch<
+						// 		React.SetStateAction<FetchedTicketData[]>
+						// 	>
+						// }
+						// resetFilters={resetFilters}
+					/>
+					{!projectId && (
+						<TicketEditor
+							dataKind="ticket"
+							project={{ projectId: "", projectTitle: "" }}
+						/>
+					)}
+				</div>
+				<div className="flex flex-row justify-between items-baseline mx-1">
+					<h1 className="font-semibold text-3xl my-4">
+						{filters.length > 0
+							? `Filtering Results (${cards.length})`
+							: containerTitle}
+					</h1>
+					<div className="flex flex-row items-baseline space-x-2">
+						<FilterSelect
+							{...{
+								filters,
+								setFilters,
+								deleteFilterTag,
+								filterMode,
+								changeFilterMode,
+								resetFilters,
+								sortMenu,
+							}}
+						/>
+					</div>
+				</div>
+				<span>{sortMeta && getSortLabel(cards)}</span>
+				<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto ">
+					<CardSelector
+						{...{
+							dataKind,
+							cards,
+							setCards,
+							setCardCache,
 							filters,
 							setFilters,
-							deleteFilterTag,
-							filterMode,
-							changeFilterMode,
-							resetFilters,
-							sortMenu,
+							setProject,
 						}}
 					/>
 				</div>
 			</div>
-			<span>{sortMeta && getSortLabel(cards)}</span>
-			<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto ">
-				<CardSelector
-					{...{
-						dataKind,
-						cards,
-						setCards,
-						setCardCache,
-						filters,
-						setFilters,
-						setProject,
-					}}
-				/>
-			</div>
-		</div>
+		)
 	);
 }
