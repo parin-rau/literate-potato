@@ -83,7 +83,7 @@ export async function loginUser(req: Request, res: Response) {
 				.send({ message: "Incorrect username or password" });
 
 		if (!process.env.ACCESS_JWT_SECRET || !process.env.REFRESH_JWT_SECRET)
-			return res.status(500).send("Missing secrets");
+			return res.status(500).send({ message: "Missing secrets" });
 
 		const user: UserToken = {
 			username: storedUser.username,

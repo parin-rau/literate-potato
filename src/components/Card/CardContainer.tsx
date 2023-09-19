@@ -68,7 +68,7 @@ export default function CardContainer<T extends FetchedTicketData | Project>(
 	// 	setCards(data);
 	// }
 
-	console.log(cards, isLoading);
+	//console.log(cards, isLoading);
 
 	// useEffect(() => {
 	// 	async function getPosts() {

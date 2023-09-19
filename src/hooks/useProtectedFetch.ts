@@ -19,6 +19,7 @@ export function useProtectedFetch<T, D = void>(
 	//const [response, setResponse] = useState<Response | null>(null);
 	const [data, setData] = useState<T | null>(null);
 	const [error, setError] = useState<string | unknown | null>(null);
+	const [ok, setOk] = useState<boolean | null>(null);
 
 	useEffect(() => {
 		const abortController = new AbortController();
@@ -26,6 +27,8 @@ export function useProtectedFetch<T, D = void>(
 		const fetchData = async () => {
 			try {
 				if (!user) {
+					setOk(false);
+					setError("Logged in user not detected");
 					return navigate("/login");
 				}
 
@@ -59,34 +62,39 @@ export function useProtectedFetch<T, D = void>(
 							// }
 							// setResponse(retryRes);
 							// return setLoading(false);
-							const jsonData = await retryRes.json();
-							setterHelper
-								? setData(setterHelper(jsonData))
-								: setData(jsonData);
-							return setLoading(false);
+
+							if (retryRes.ok) {
+								const jsonData = await retryRes.json();
+								setterHelper
+									? setData(setterHelper(jsonData))
+									: setData(jsonData);
+								setOk(true);
+								return setLoading(false);
+							}
 						}
 					}
 					setError("Failed to refresh access token");
+					setOk(false);
 					return await signOut();
 				}
 
-				if (res.ok) {
-					// if (setter) {
-					// 	const data = await res.json();
-					// 	setterHelper
-					// 		? setter(setterHelper(data))
-					// 		: setter(data);
-					// }
-					// setResponse(res);
-					// return setLoading(false);
-					const jsonData = await res.json();
-					setterHelper
-						? setData(setterHelper(jsonData))
-						: setData(jsonData);
-					return setLoading(false);
-				}
+				// if (setter) {
+				// 	const data = await res.json();
+				// 	setterHelper
+				// 		? setter(setterHelper(data))
+				// 		: setter(data);
+				// }
+				// setResponse(res);
+				// return setLoading(false);
+				const jsonData = await res.json();
+				setterHelper
+					? setData(setterHelper(jsonData))
+					: setData(jsonData);
+				setOk(true);
+				return setLoading(false);
 			} catch (e) {
 				setError(e);
+				setOk(false);
 				console.error(e);
 			}
 		};
@@ -101,14 +109,14 @@ export function useProtectedFetch<T, D = void>(
 		refreshAccessToken,
 		user,
 		signOut,
-		// setter,
 		setterHelper,
 	]);
 
-	return { data, setData, isLoading, error } as {
+	return { data, setData, isLoading, ok, error } as {
 		data: T;
 		setData: React.Dispatch<React.SetStateAction<T>>;
 		isLoading: boolean;
+		ok: boolean;
 		error: unknown;
 	};
 }
