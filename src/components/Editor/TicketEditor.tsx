@@ -12,6 +12,10 @@ import ProjectForm from "../Form/ProjectForm";
 import TicketForm from "../Form/TicketForm";
 import { arrayExclude, arraysEqual } from "../../utility/arrayComparisons";
 import { useLocation } from "react-router-dom";
+//import { useProtectedFetch } from "../../hooks/useProtectedFetch";
+//import { useAuth } from "../../hooks/useAuth";
+//import { useProtectedSubmit } from "../../hooks/useProtectedSubmit";
+import { useProtectedSubmit } from "../../hooks/useProtectedSubmit";
 
 type CommonProps = {
 	dataKind: string;
@@ -79,6 +83,7 @@ export default function TicketEditor(props: Props) {
 	const [expand, setExpand] = useState(init!.defaultExpand);
 	const [isPinned, setPinned] = useState(false);
 	const [deletedSubtaskIds, setDeletedSubtaskIds] = useState<string[]>([]);
+	const { ok, isLoading, executeSubmit } = useProtectedSubmit();
 
 	const page = useLocation().pathname;
 	const isProjectPage = page.slice(1, 8) === "project";
@@ -562,12 +567,24 @@ export default function TicketEditor(props: Props) {
 						subtasksTotalIds: [],
 					};
 
-					const res = await fetch("/api/project", {
+					await executeSubmit("/api/project", {
 						method: "POST",
-						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify(newCard),
 					});
-					if (res.ok) {
+
+					// const res = await fetch("/api/project", {
+					// 	method: "POST",
+					// 	headers: { "Content-Type": "application/json" },
+					// 	body: JSON.stringify(newCard),
+					// });
+
+					// refreshAccessToken()
+					// const postProject = useProtectedFetch("/api/project", {
+					// 	method: "POST",
+					// 	headers: { "Content-Type": "application/json" },
+					// 	body: JSON.stringify(newCard)})
+
+					if (ok && !isLoading) {
 						setCards((prevCards) => [newCard, ...prevCards]);
 						setEditor(initProjectEditor);
 						!isPinned && setExpand(false);
