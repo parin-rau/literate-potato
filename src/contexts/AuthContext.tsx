@@ -9,10 +9,10 @@ interface User extends UserDecode {
 
 type UserContextType = {
 	user: User | null;
-	registerUser: (_loginForm: Register) => Promise<void> | null;
-	signIn: (_loginForm: Login) => Promise<void> | null;
-	signOut: () => Promise<void> | null;
-	refreshAccessToken: () => Promise<void> | null;
+	registerUser: (_loginForm: Register) => Promise<void>;
+	signIn: (_loginForm: Login) => Promise<void>;
+	signOut: () => Promise<void>;
+	refreshAccessToken: () => Promise<void>;
 	err: string | null;
 	setErr: React.Dispatch<React.SetStateAction<string | null>>;
 };

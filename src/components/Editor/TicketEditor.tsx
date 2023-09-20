@@ -567,24 +567,12 @@ export default function TicketEditor(props: Props) {
 						subtasksTotalIds: [],
 					};
 
-					await executeSubmit("/api/project", {
+					const { res } = await executeSubmit("/api/project", {
 						method: "POST",
 						body: JSON.stringify(newCard),
 					});
 
-					// const res = await fetch("/api/project", {
-					// 	method: "POST",
-					// 	headers: { "Content-Type": "application/json" },
-					// 	body: JSON.stringify(newCard),
-					// });
-
-					// refreshAccessToken()
-					// const postProject = useProtectedFetch("/api/project", {
-					// 	method: "POST",
-					// 	headers: { "Content-Type": "application/json" },
-					// 	body: JSON.stringify(newCard)})
-
-					if (ok && !isLoading) {
+					if (res.ok) {
 						setCards((prevCards) => [newCard, ...prevCards]);
 						setEditor(initProjectEditor);
 						!isPinned && setExpand(false);
