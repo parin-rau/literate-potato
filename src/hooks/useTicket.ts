@@ -1,22 +1,13 @@
 import { useCallback, useState } from "react";
 import { useProtectedFetch } from "./useProtectedFetch";
 import { optionLookup } from "../utility/optionLookup";
-import { FetchedTicketData, Project, TicketData } from "../types";
+import { TicketData, TicketCardProps } from "../types";
 import { arrayExclude } from "../utility/arrayComparisons";
 
-export function useTicket(
-	taskStatus: string,
-	ticketId: string,
-	project: { projectTitle: string; projectId: string },
-	subtasks: {
-		subtaskId: string;
-		description: string;
-		completed: boolean;
-	}[],
-	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>,
-	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>,
-	setProject?: React.Dispatch<React.SetStateAction<Project[]>>
-) {
+export function useTicket(props: TicketCardProps) {
+	const { taskStatus, ticketId, project, subtasks } = props.cardData;
+	const { setCards, setCardCache, setProject } = props;
+
 	const [statusColors, setStatusColors] = useState(
 		statusColorsLookup(taskStatus)
 	);
@@ -98,14 +89,7 @@ export function useTicket(
 	);
 
 	const changeStatus = useCallback(
-		async (
-			e: React.ChangeEvent<HTMLSelectElement>
-			//project: Project,
-			//ticketId: string
-			//setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>,
-			//setStatusColors: React.Dispatch<React.SetStateAction<string>>,
-			//setProject: React.Dispatch<React.SetStateAction<Project[]>>
-		) => {
+		async (e: React.ChangeEvent<HTMLSelectElement>) => {
 			const newTaskStatus = e.target.value;
 			const newStatusColor = statusColorsLookup(newTaskStatus);
 			try {
@@ -168,14 +152,7 @@ export function useTicket(
 	);
 
 	const deleteCard = useCallback(
-		async (
-			id: string
-			// subtasks: {
-			// 	subtaskId: string;
-			// 	description: string;
-			// 	completed: boolean;
-			// }[]
-		) => {
+		async (id: string) => {
 			try {
 				const subtasksCompletedIds = subtasks
 					?.filter((o) => o.completed)

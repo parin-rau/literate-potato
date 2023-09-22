@@ -184,7 +184,7 @@ export default function TicketEditor(props: Props) {
 		tasksCompletedIds?: string[],
 		tasksTotalIds?: string[]
 	) {
-		const res = await fetch(`/api/project/${projectId}`, {
+		const res = await protectedFetch(`/api/project/${projectId}`, {
 			method: "PATCH",
 			headers: {
 				"Content-Type": "application/json",
@@ -222,7 +222,7 @@ export default function TicketEditor(props: Props) {
 					const patchData = {
 						...editor!,
 					};
-					const res1 = await fetch(
+					const res1 = await protectedFetch(
 						`/api/ticket/${previousData.ticketId}`,
 						{
 							method: "PATCH",
@@ -497,7 +497,7 @@ export default function TicketEditor(props: Props) {
 							operation: "metadata",
 							metadata: { ...editor },
 						};
-						const res1 = await fetch(
+						const res1 = await protectedFetch(
 							`/api/project/${previousData.projectId}`,
 							{
 								method: "PATCH",
@@ -512,7 +512,7 @@ export default function TicketEditor(props: Props) {
 									projectId: previousData.projectId,
 								},
 							};
-							const res2 = await fetch(
+							const res2 = await protectedFetch(
 								`/api/ticket/project-edit/${previousData.projectId}`,
 								{
 									method: "PATCH",
