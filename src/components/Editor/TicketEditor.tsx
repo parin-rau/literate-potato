@@ -423,9 +423,8 @@ export default function TicketEditor(props: Props) {
 						taskStatus: "Not Started",
 						comments: [],
 					};
-					const res1 = await fetch("/api/ticket", {
+					const res1 = await protectedFetch("/api/ticket", {
 						method: "POST",
-						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify(newTicket),
 					});
 					if (res1.ok) {
@@ -454,13 +453,10 @@ export default function TicketEditor(props: Props) {
 							const subtasksTotalIds = newTicket.subtasks.map(
 								(o) => o.subtaskId
 							);
-							const res2 = await fetch(
+							const res2 = await protectedFetch(
 								`/api/project/${newTicket.project.projectId}`,
 								{
 									method: "PATCH",
-									headers: {
-										"Content-Type": "application/json",
-									},
 									body: JSON.stringify({
 										operation: "add",
 										tasksTotalIds: [newTicket.ticketId],

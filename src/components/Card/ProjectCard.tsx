@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Project } from "../../types";
 import timestampDisplay from "../../utility/timestampDisplay";
 import MenuDropdown from "../Nav/MenuDropdown";
 import TicketEditor from "../Editor/TicketEditor";
 import ProgressBar from "../Display/ProgressBar";
+import { useProtectedFetch } from "../../hooks/useProtectedFetch";
 
 type Props = {
 	isHeader?: boolean;
@@ -29,6 +30,8 @@ export default function ProjectCard(props: Props) {
 	} = props.cardData;
 	const { setCards, setCardCache, isHeader } = props;
 	const [isEditing, setEditing] = useState(false);
+	const { protectedFetch } = useProtectedFetch();
+	const navigate = useNavigate();
 
 	const moreOptions = [
 		{ name: "Delete", fn: deleteCard, projectId },
@@ -57,7 +60,7 @@ export default function ProjectCard(props: Props) {
 
 	async function deleteCard(id: string) {
 		try {
-			const res1 = await fetch(`/api/project/${projectId}`, {
+			const res1 = await protectedFetch(`/api/project/${projectId}`, {
 				method: "DELETE",
 			});
 			if (res1.ok) {
@@ -68,11 +71,10 @@ export default function ProjectCard(props: Props) {
 							projectTitle: "No project assigned",
 						},
 					};
-					const res2 = await fetch(
+					const res2 = await protectedFetch(
 						`/api/ticket/project-edit/${projectId}`,
 						{
 							method: "PATCH",
-							headers: { "Content-Type": "application/json" },
 							body: JSON.stringify(ticketPatch),
 						}
 					);
@@ -84,6 +86,7 @@ export default function ProjectCard(props: Props) {
 							setCardCache((prev) =>
 								prev.filter((card) => card.projectId !== id)
 							);
+						navigate("/");
 					}
 				} catch (e) {
 					console.error(e);

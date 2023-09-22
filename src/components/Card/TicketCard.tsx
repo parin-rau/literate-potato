@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { FetchedTicketData, Project, TicketData } from "../../types";
+//import { useState } from "react";
+import { FetchedTicketData, Project } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import timestampDisplay from "../../utility/timestampDisplay";
 import TagsDisplay from "../Display/TagsDisplay";
@@ -10,7 +10,9 @@ import { Link } from "react-router-dom";
 import TicketEditor from "../Editor/TicketEditor";
 import ProgressBar from "../Display/ProgressBar";
 import { countCompletedSubs } from "../../utility/countCompleted";
-import { arrayExclude } from "../../utility/arrayComparisons";
+import { useTicket } from "../../hooks/useTicket";
+//import { arrayExclude } from "../../utility/arrayComparisons";
+//import { useProtectedFetch } from "../../hooks/useProtectedFetch";
 
 type Props = {
 	cardData: FetchedTicketData;
@@ -39,293 +41,319 @@ export default function TicketCard(props: Props) {
 		creator,
 	} = props.cardData;
 	const { setCards, filters, setFilters, setCardCache, setProject } = props;
+	const {
+		deleteCard,
+		editCard,
+		changeStatus,
+		completeSubtask,
+		isEditing,
+		setEditing,
+		statusColors,
+	} = useTicket(
+		taskStatus,
+		ticketId,
+		project,
+		subtasks,
+		setCards,
+		setCardCache,
+		setProject
+	);
 	const moreOptions = [
 		{ name: "Delete", fn: deleteCard, ticketId },
 		{ name: "Edit", fn: editCard, ticketId },
 	];
 
-	const [statusColors, setStatusColors] = useState(
-		statusColorsLookup(taskStatus)
-	);
-	const [isEditing, setEditing] = useState(false);
+	// const moreOptions = [
+	// 	{ name: "Delete", fn: deleteCard, ticketId },
+	// 	{ name: "Edit", fn: editCard, ticketId },
+	// ];
 
-	function statusColorsLookup(currentStatus: string) {
-		const currentOption = optionLookup.taskStatus.find(
-			(option) => option.value === currentStatus
-		);
-		const optionColors =
-			currentOption?.bgColor && currentOption?.textColor
-				? `${currentOption.bgColor} ${currentOption.textColor}`
-				: "bg-slate-100 text-black";
-		return optionColors;
-	}
+	// const [statusColors, setStatusColors] = useState(
+	// 	statusColorsLookup(taskStatus)
+	// );
+	// const [isEditing, setEditing] = useState(false);
+	// const { protectedFetch } = useProtectedFetch();
 
-	async function handleTaskChange(
-		projectId: string,
-		taskId: string,
-		updatedTaskStatus: string
-	) {
-		type PatchData = {
-			operation: "add" | "delete";
-			tasksCompletedIds: string[];
-			tasksTotalIds: string[];
-		};
+	// function statusColorsLookup(currentStatus: string) {
+	// 	const currentOption = optionLookup.taskStatus.find(
+	// 		(option) => option.value === currentStatus
+	// 	);
+	// 	const optionColors =
+	// 		currentOption?.bgColor && currentOption?.textColor
+	// 			? `${currentOption.bgColor} ${currentOption.textColor}`
+	// 			: "bg-slate-100 text-black";
+	// 	return optionColors;
+	// }
 
-		async function sendPatchData(patchData: PatchData) {
-			const res = await fetch(`/api/project/${projectId}`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(patchData),
-			});
-			return res;
-		}
+	// async function handleTaskChange(
+	// 	projectId: string,
+	// 	taskId: string,
+	// 	updatedTaskStatus: string
+	// ) {
+	// 	type PatchData = {
+	// 		operation: "add" | "delete";
+	// 		tasksCompletedIds: string[];
+	// 		tasksTotalIds: string[];
+	// 	};
 
-		if (projectId && updatedTaskStatus === "Completed") {
-			const patchData: PatchData = {
-				operation: "add",
-				tasksCompletedIds: [taskId],
-				tasksTotalIds: [taskId],
-			};
-			const res = await sendPatchData(patchData);
-			if (res.ok) {
-				console.log("complete task");
-			}
-			return res;
-		} else if (projectId && updatedTaskStatus === "DELETE") {
-			const patchData: PatchData = {
-				operation: "delete",
-				tasksCompletedIds: [taskId],
-				tasksTotalIds: [taskId],
-			};
-			const res = await sendPatchData(patchData);
-			if (res.ok) {
-				console.log("deleted task");
-			}
-			return res;
-		} else if (
-			projectId &&
-			updatedTaskStatus !== "Completed" &&
-			updatedTaskStatus !== "DELETE"
-		) {
-			const patchData: PatchData = {
-				operation: "delete",
-				tasksCompletedIds: [taskId],
-				tasksTotalIds: [],
-			};
-			const res = await sendPatchData(patchData);
-			if (res.ok) {
-				console.log("incomplete task");
-			}
-			return res;
-		}
-	}
+	// 	async function sendPatchData(patchData: PatchData) {
+	// 		const res = await protectedFetch(`/api/project/${projectId}`, {
+	// 			method: "PATCH",
+	// 			headers: { "Content-Type": "application/json" },
+	// 			body: JSON.stringify(patchData),
+	// 		});
+	// 		return res;
+	// 	}
 
-	async function changeStatus(e: React.ChangeEvent<HTMLSelectElement>) {
-		const newTaskStatus = e.target.value;
-		const newStatusColor = statusColorsLookup(newTaskStatus);
-		try {
-			const res = await fetch(`/api/ticket/${ticketId}`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ taskStatus: newTaskStatus }),
-			});
-			if (res.ok) {
-				const res2 = await handleTaskChange(
-					project.projectId,
-					ticketId,
-					newTaskStatus
-				);
-				if (res2?.ok) {
-					setCards((prevCards) =>
-						prevCards.map((card: TicketData) =>
-							card.ticketId === ticketId
-								? { ...card, taskStatus: newTaskStatus }
-								: card
-						)
-					);
-					setStatusColors(newStatusColor);
+	// 	if (projectId && updatedTaskStatus === "Completed") {
+	// 		const patchData: PatchData = {
+	// 			operation: "add",
+	// 			tasksCompletedIds: [taskId],
+	// 			tasksTotalIds: [taskId],
+	// 		};
+	// 		const res = await sendPatchData(patchData);
+	// 		if (res.ok) {
+	// 			console.log("complete task");
+	// 		}
+	// 		return res;
+	// 	} else if (projectId && updatedTaskStatus === "DELETE") {
+	// 		const patchData: PatchData = {
+	// 			operation: "delete",
+	// 			tasksCompletedIds: [taskId],
+	// 			tasksTotalIds: [taskId],
+	// 		};
+	// 		const res = await sendPatchData(patchData);
+	// 		if (res.ok) {
+	// 			console.log("deleted task");
+	// 		}
+	// 		return res;
+	// 	} else if (
+	// 		projectId &&
+	// 		updatedTaskStatus !== "Completed" &&
+	// 		updatedTaskStatus !== "DELETE"
+	// 	) {
+	// 		const patchData: PatchData = {
+	// 			operation: "delete",
+	// 			tasksCompletedIds: [taskId],
+	// 			tasksTotalIds: [],
+	// 		};
+	// 		const res = await sendPatchData(patchData);
+	// 		if (res.ok) {
+	// 			console.log("incomplete task");
+	// 		}
+	// 		return res;
+	// 	}
+	// }
 
-					setProject &&
-						setProject((prev) =>
-							prev.map((proj) =>
-								proj.projectId === project.projectId
-									? {
-											...proj,
-											tasksCompletedIds:
-												newTaskStatus === "Completed"
-													? [
-															...proj.tasksCompletedIds,
-															ticketId,
-													  ]
-													: (arrayExclude(
-															proj.tasksCompletedIds,
-															[ticketId]
-													  ) as string[]),
-									  }
-									: proj
-							)
-						);
-				}
-			}
-		} catch (err) {
-			console.error(err);
-		}
-	}
+	// async function changeStatus(e: React.ChangeEvent<HTMLSelectElement>) {
+	// 	const newTaskStatus = e.target.value;
+	// 	const newStatusColor = statusColorsLookup(newTaskStatus);
+	// 	try {
+	// 		const res = await protectedFetch(`/api/ticket/${ticketId}`, {
+	// 			method: "PATCH",
+	// 			headers: { "Content-Type": "application/json" },
+	// 			body: JSON.stringify({ taskStatus: newTaskStatus }),
+	// 		});
+	// 		if (res.ok) {
+	// 			const res2 = await handleTaskChange(
+	// 				project.projectId,
+	// 				ticketId,
+	// 				newTaskStatus
+	// 			);
+	// 			if (res2?.ok) {
+	// 				setCards((prevCards) =>
+	// 					prevCards.map((card: TicketData) =>
+	// 						card.ticketId === ticketId
+	// 							? { ...card, taskStatus: newTaskStatus }
+	// 							: card
+	// 					)
+	// 				);
+	// 				setStatusColors(newStatusColor);
 
-	async function deleteCard(id: string) {
-		try {
-			const subtasksCompletedIds = subtasks
-				?.filter((o) => o.completed)
-				.map((o) => o.subtaskId);
-			const subtasksTotalIds = subtasks?.map((o) => o.subtaskId);
-			const res1 = await fetch(`/api/ticket/${ticketId}`, {
-				method: "DELETE",
-			});
-			if (res1.ok) {
-				setCards((prevCards) =>
-					prevCards.filter((card) => card.ticketId !== id)
-				);
-				setCardCache &&
-					setCardCache((prev) =>
-						prev.filter((card) => card.ticketId !== id)
-					);
+	// 				setProject &&
+	// 					setProject((prev) =>
+	// 						prev.map((proj) =>
+	// 							proj.projectId === project.projectId
+	// 								? {
+	// 										...proj,
+	// 										tasksCompletedIds:
+	// 											newTaskStatus === "Completed"
+	// 												? [
+	// 														...proj.tasksCompletedIds,
+	// 														ticketId,
+	// 												  ]
+	// 												: (arrayExclude(
+	// 														proj.tasksCompletedIds,
+	// 														[ticketId]
+	// 												  ) as string[]),
+	// 								  }
+	// 								: proj
+	// 						)
+	// 					);
+	// 			}
+	// 		}
+	// 	} catch (err) {
+	// 		console.error(err);
+	// 	}
+	// }
 
-				const res2 = await fetch(`/api/project/${project.projectId}`, {
-					method: "PATCH",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						operation: "delete",
-						tasksCompletedIds: [ticketId],
-						tasksTotalIds: [ticketId],
-						subtasksCompletedIds,
-						subtasksTotalIds,
-					}),
-				});
+	// async function deleteCard(id: string) {
+	// 	try {
+	// 		const subtasksCompletedIds = subtasks
+	// 			?.filter((o) => o.completed)
+	// 			.map((o) => o.subtaskId);
+	// 		const subtasksTotalIds = subtasks?.map((o) => o.subtaskId);
+	// 		const res1 = await protectedFetch(`/api/ticket/${ticketId}`, {
+	// 			method: "DELETE",
+	// 		});
+	// 		if (res1.ok) {
+	// 			setCards((prevCards) =>
+	// 				prevCards.filter((card) => card.ticketId !== id)
+	// 			);
+	// 			setCardCache &&
+	// 				setCardCache((prev) =>
+	// 					prev.filter((card) => card.ticketId !== id)
+	// 				);
 
-				if (res2.ok) {
-					setProject &&
-						setProject((prev) =>
-							prev.map((proj) =>
-								proj.projectId === project.projectId
-									? {
-											...proj,
-											tasksCompletedIds: arrayExclude(
-												proj.tasksCompletedIds,
-												[ticketId]
-											) as string[],
-											tasksTotalIds: arrayExclude(
-												proj.tasksTotalIds,
-												[ticketId]
-											) as string[],
-											subtasksCompletedIds: arrayExclude(
-												proj.subtasksCompletedIds,
-												subtasksCompletedIds
-											) as string[],
-											subtasksTotalIds: arrayExclude(
-												proj.subtasksTotalIds,
-												subtasksTotalIds
-											) as string[],
-									  }
-									: proj
-							)
-						);
-					console.log("Deleted subtasks from project");
-				}
-			}
-		} catch (err) {
-			console.error(err);
-		}
-	}
+	// 			const res2 = await protectedFetch(
+	// 				`/api/project/${project.projectId}`,
+	// 				{
+	// 					method: "PATCH",
+	// 					headers: {
+	// 						"Content-Type": "application/json",
+	// 					},
+	// 					body: JSON.stringify({
+	// 						operation: "delete",
+	// 						tasksCompletedIds: [ticketId],
+	// 						tasksTotalIds: [ticketId],
+	// 						subtasksCompletedIds,
+	// 						subtasksTotalIds,
+	// 					}),
+	// 				}
+	// 			);
 
-	function editCard() {
-		setEditing(true);
-	}
+	// 			if (res2.ok) {
+	// 				setProject &&
+	// 					setProject((prev) =>
+	// 						prev.map((proj) =>
+	// 							proj.projectId === project.projectId
+	// 								? {
+	// 										...proj,
+	// 										tasksCompletedIds: arrayExclude(
+	// 											proj.tasksCompletedIds,
+	// 											[ticketId]
+	// 										) as string[],
+	// 										tasksTotalIds: arrayExclude(
+	// 											proj.tasksTotalIds,
+	// 											[ticketId]
+	// 										) as string[],
+	// 										subtasksCompletedIds: arrayExclude(
+	// 											proj.subtasksCompletedIds,
+	// 											subtasksCompletedIds
+	// 										) as string[],
+	// 										subtasksTotalIds: arrayExclude(
+	// 											proj.subtasksTotalIds,
+	// 											subtasksTotalIds
+	// 										) as string[],
+	// 								  }
+	// 								: proj
+	// 						)
+	// 					);
+	// 				console.log("Deleted subtasks from project");
+	// 			}
+	// 		}
+	// 	} catch (err) {
+	// 		console.error(err);
+	// 	}
+	// }
 
-	async function completeSubtask(id: string) {
-		if (subtasks) {
-			const targetSubtask = subtasks.find(
-				(subtask) => subtask.subtaskId === id
-			);
-			const updatedCompletion = !targetSubtask?.completed;
-			const updatedSubtasks = subtasks.map((subtask) =>
-				subtask.subtaskId === id
-					? { ...subtask, completed: updatedCompletion }
-					: subtask
-			);
+	// function editCard() {
+	// 	setEditing(true);
+	// }
 
-			const subtasksCompletedIds = [targetSubtask!.subtaskId];
-			const subtasksTotalIds: string[] = [];
+	// async function completeSubtask(id: string) {
+	// 	if (subtasks) {
+	// 		const targetSubtask = subtasks.find(
+	// 			(subtask) => subtask.subtaskId === id
+	// 		);
+	// 		const updatedCompletion = !targetSubtask?.completed;
+	// 		const updatedSubtasks = subtasks.map((subtask) =>
+	// 			subtask.subtaskId === id
+	// 				? { ...subtask, completed: updatedCompletion }
+	// 				: subtask
+	// 		);
 
-			try {
-				const res1 = await fetch(`/api/ticket/${ticketId}`, {
-					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ subtasks: updatedSubtasks }),
-				});
-				if (res1.ok) {
-					setCards((prevCards) =>
-						prevCards.map((card) =>
-							card.ticketId === ticketId
-								? {
-										...card,
-										subtasks: updatedSubtasks,
-										lastModified: Date.now(),
-								  }
-								: card
-						)
-					);
-					if (project.projectId) {
-						const operation = updatedCompletion ? "add" : "delete";
+	// 		const subtasksCompletedIds = [targetSubtask!.subtaskId];
+	// 		const subtasksTotalIds: string[] = [];
 
-						setProject &&
-							setProject((prev) =>
-								prev.map((proj) =>
-									proj.projectId === project.projectId
-										? {
-												...proj,
-												subtasksCompletedIds:
-													operation === "add"
-														? [
-																...proj.subtasksCompletedIds,
-																...(subtasksCompletedIds as string[]),
-														  ]
-														: (arrayExclude(
-																proj.subtasksCompletedIds,
-																subtasksCompletedIds
-														  ) as string[]),
-										  }
-										: proj
-								)
-							);
+	// 		try {
+	// 			const res1 = await protectedFetch(`/api/ticket/${ticketId}`, {
+	// 				method: "PATCH",
+	// 				headers: { "Content-Type": "application/json" },
+	// 				body: JSON.stringify({ subtasks: updatedSubtasks }),
+	// 			});
+	// 			if (res1.ok) {
+	// 				setCards((prevCards) =>
+	// 					prevCards.map((card) =>
+	// 						card.ticketId === ticketId
+	// 							? {
+	// 									...card,
+	// 									subtasks: updatedSubtasks,
+	// 									lastModified: Date.now(),
+	// 							  }
+	// 							: card
+	// 					)
+	// 				);
+	// 				if (project.projectId) {
+	// 					const operation = updatedCompletion ? "add" : "delete";
 
-						const res2 = await fetch(
-							`/api/project/${project.projectId}`,
-							{
-								method: "PATCH",
-								headers: {
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify({
-									operation,
-									subtasksCompletedIds,
-									subtasksTotalIds,
-								}),
-							}
-						);
-						if (res2.ok) {
-							console.log(
-								"Incremented completed tasks for project"
-							);
-						}
-					}
-				}
-			} catch (e) {
-				console.error(e);
-			}
-		}
-	}
+	// 					setProject &&
+	// 						setProject((prev) =>
+	// 							prev.map((proj) =>
+	// 								proj.projectId === project.projectId
+	// 									? {
+	// 											...proj,
+	// 											subtasksCompletedIds:
+	// 												operation === "add"
+	// 													? [
+	// 															...proj.subtasksCompletedIds,
+	// 															...(subtasksCompletedIds as string[]),
+	// 													  ]
+	// 													: (arrayExclude(
+	// 															proj.subtasksCompletedIds,
+	// 															subtasksCompletedIds
+	// 													  ) as string[]),
+	// 									  }
+	// 									: proj
+	// 							)
+	// 						);
+
+	// 					const res2 = await protectedFetch(
+	// 						`/api/project/${project.projectId}`,
+	// 						{
+	// 							method: "PATCH",
+	// 							headers: {
+	// 								"Content-Type": "application/json",
+	// 							},
+	// 							body: JSON.stringify({
+	// 								operation,
+	// 								subtasksCompletedIds,
+	// 								subtasksTotalIds,
+	// 							}),
+	// 						}
+	// 					);
+	// 					if (res2.ok) {
+	// 						console.log(
+	// 							"Incremented completed tasks for project"
+	// 						);
+	// 					}
+	// 				}
+	// 			}
+	// 		} catch (e) {
+	// 			console.error(e);
+	// 		}
+	// 	}
+	// }
 
 	return (
 		<div className="m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600">

@@ -34,19 +34,31 @@ export function useInitialFetch<T, D = void>(
 					credentials: "include",
 					signal: abortController.signal,
 				};
-				const options: RequestInit = {
+				const initOptions: RequestInit = {
 					...customOptions,
 					...defaultOptions,
 				};
 
-				const res = await fetch(endpoint, options);
+				const res = await fetch(endpoint, initOptions);
 
 				if (!res.ok) {
 					if ([400, 401, 403].some((n) => res.status === n)) {
 						await refreshAccessToken();
 
+						const retryAccessToken = user.current.token;
+						const retryOptions = {
+							...initOptions,
+							headers: {
+								...initOptions.headers,
+								Authorization: `Bearer ${retryAccessToken}`,
+							},
+						};
+
 						if (user.current) {
-							const retryRes = await fetch(endpoint, options);
+							const retryRes = await fetch(
+								endpoint,
+								retryOptions
+							);
 
 							if (retryRes.ok) {
 								const jsonData = await retryRes.json();
