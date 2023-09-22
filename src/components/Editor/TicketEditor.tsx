@@ -12,10 +12,9 @@ import ProjectForm from "../Form/ProjectForm";
 import TicketForm from "../Form/TicketForm";
 import { arrayExclude, arraysEqual } from "../../utility/arrayComparisons";
 import { useLocation } from "react-router-dom";
-//import { useProtectedFetch } from "../../hooks/useProtectedFetch";
 //import { useAuth } from "../../hooks/useAuth";
 //import { useProtectedSubmit } from "../../hooks/useProtectedSubmit";
-import { useProtectedSubmit } from "../../hooks/useProtectedSubmit";
+import { useProtectedFetch } from "../../hooks/useProtectedFetch";
 
 type CommonProps = {
 	dataKind: string;
@@ -83,7 +82,7 @@ export default function TicketEditor(props: Props) {
 	const [expand, setExpand] = useState(init!.defaultExpand);
 	const [isPinned, setPinned] = useState(false);
 	const [deletedSubtaskIds, setDeletedSubtaskIds] = useState<string[]>([]);
-	const { ok, isLoading, executeSubmit } = useProtectedSubmit();
+	const { protectedFetch } = useProtectedFetch();
 
 	const page = useLocation().pathname;
 	const isProjectPage = page.slice(1, 8) === "project";
@@ -215,6 +214,7 @@ export default function TicketEditor(props: Props) {
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
+
 		try {
 			if (dataKind === "ticket") {
 				// Edit existing ticket
@@ -567,7 +567,7 @@ export default function TicketEditor(props: Props) {
 						subtasksTotalIds: [],
 					};
 
-					const { res } = await executeSubmit("/api/project", {
+					const res = await protectedFetch("/api/project", {
 						method: "POST",
 						body: JSON.stringify(newCard),
 					});

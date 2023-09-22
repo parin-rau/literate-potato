@@ -19,7 +19,9 @@ export async function handleRefreshToken(req: Request, res: Response) {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localUsers);
-		const foundUser = await coll.findOne({ refreshToken });
+		const foundUser = await coll.findOne({
+			$or: [{ refreshToken }, { gracePeriodToken: refreshToken }],
+		});
 
 		if (!foundUser) {
 			await client.close();
@@ -35,6 +37,56 @@ export async function handleRefreshToken(req: Request, res: Response) {
 			refreshToken,
 			process.env.REFRESH_JWT_SECRET
 		) as UserDecode;
+
+		// const decodeToken = () => {
+		// 	if (!process.env.REFRESH_JWT_SECRET) return;
+		// 	try {
+		// 		const decoded = jwt.verify(
+		// 			refreshToken,
+		// 			process.env.REFRESH_JWT_SECRET
+		// 		) as UserDecode;
+		// 		return decoded;
+		// 	} catch (e1) {
+		// 		if (foundUser.gracePeriodEnd - Date.now() <= 0)
+		// 			return console.error(e1);
+
+		// 		console.log(foundUser.gracePeriodEnd - Date.now());
+
+		// 		try {
+		// 			const gracePeriodDecoded = jwt.verify(
+		// 				foundUser.gracePeriodToken,
+		// 				process.env.REFRESH_JWT_SECRET
+		// 			) as UserDecode;
+		// 			return gracePeriodDecoded;
+		// 		} catch (e2) {
+		// 			return console.error(e2);
+		// 		}
+		// 	}
+		// };
+
+		// const decoded = decodeToken();
+		// if (!decoded) return res.sendStatus(403);
+
+		// const decoded = jwt.verify(
+		// 	refreshToken,
+		// 	process.env.REFRESH_JWT_SECRET,
+		// 	(err, originalDecoded) => {
+		// 		if (err) {
+		// 			if (
+		// 				foundUser.gracePeriodEnd - Date.now() > 0 &&
+		// 				process.env.REFRESH_JWT_SECRET
+		// 			) {
+		// 				console.log(foundUser.gracePeriodEnd - Date.now());
+		// 				const gracePeriodDecoded = jwt.verify(
+		// 					foundUser.gracePeriodToken,
+		// 					process.env.REFRESH_JWT_SECRET
+		// 				);
+		// 				return gracePeriodDecoded;
+		// 			}
+		// 		}
+		// 		return originalDecoded;
+		// 	}
+		// );
 
 		if (
 			foundUser.username !== decoded.username ||
@@ -63,7 +115,13 @@ export async function handleRefreshToken(req: Request, res: Response) {
 
 		const addRefreshToken = await coll.updateOne(
 			{ userId: user.userId },
-			{ $set: { refreshToken: rotatedRefreshToken } }
+			{
+				$set: {
+					refreshToken: rotatedRefreshToken,
+					// gracePeriodToken: refreshToken,
+					// gracePeriodEnd: Date.now() + 10 * 1000,
+				},
+			}
 		);
 
 		await client.close();
@@ -83,6 +141,6 @@ export async function handleRefreshToken(req: Request, res: Response) {
 		}
 	} catch (e) {
 		console.error(e);
-		return res.sendStatus(403);
+		return res.sendStatus(500);
 	}
 }

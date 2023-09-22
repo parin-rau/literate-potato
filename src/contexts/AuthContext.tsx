@@ -1,4 +1,4 @@
-import { useState, createContext } from "react";
+import { useState, createContext, useRef } from "react";
 import jwtDecode from "../utility/jwtDecode";
 import { useNavigate } from "react-router-dom";
 import { Login, Register, UserDecode } from "../types";
@@ -8,7 +8,7 @@ interface User extends UserDecode {
 }
 
 type UserContextType = {
-	user: User | null;
+	user: React.MutableRefObject<User | null>; // User | null
 	registerUser: (_loginForm: Register) => Promise<void>;
 	signIn: (_loginForm: Login) => Promise<void>;
 	signOut: () => Promise<void>;
@@ -20,7 +20,8 @@ type UserContextType = {
 export const AuthContext = createContext<UserContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-	const [user, setUser] = useState<User | null>(null);
+	//const [user, setUser] = useState<User | null>(null);
+	const user = useRef<User | null>(null);
 	const [err, setErr] = useState<string | null>(null);
 	const navigate = useNavigate();
 
@@ -37,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 			if (!res.ok) {
 				const { message }: { message: string } = await res.json();
-				console.log(message);
+				//console.log(message);
 				return setErr(message);
 			}
 
@@ -64,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 			if (!res.ok) {
 				const { message }: { message: string } = await res.json();
-				console.log(message);
+				//console.log(message);
 				return setErr(message);
 			}
 
@@ -72,7 +73,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			const decoded = jwtDecode<UserDecode>(accessToken);
 			if (!decoded || typeof decoded === "string") return;
 
-			setUser({ token: accessToken, ...decoded });
+			user.current = { token: accessToken, ...decoded };
+			//setUser({ token: accessToken, ...decoded });
 			navigate("/");
 		} catch (e) {
 			console.error(e);
@@ -87,7 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			console.error(e);
 			setErr("Caught signOut error");
 		} finally {
-			setUser(null);
+			user.current = null;
+			//setUser(null);
 			navigate("/login");
 		}
 	}
@@ -114,7 +117,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			const decoded = jwtDecode<UserDecode>(accessToken);
 			if (!decoded || typeof decoded === "string") return await signOut();
 
-			setUser({ token: accessToken, ...decoded });
+			user.current = { token: accessToken, ...decoded };
+
+			return;
+			//setUser({ token: accessToken, ...decoded });
 		} catch (e) {
 			console.error(e);
 			setErr("Caught refreshAccessToken error");

@@ -4,6 +4,7 @@ import TagsEditor from "../Editor/TagsEditor";
 import SubtaskEditor from "../Editor/SubtaskEditor";
 import SelectDropdown from "../Nav/SelectDropdown";
 import { optionLookup } from "../../utility/optionLookup";
+import { useProtectedFetch } from "../../hooks/useProtectedFetch";
 
 type Props = {
 	editor: EditorData;
@@ -25,13 +26,16 @@ export default function ProjectForm(props: Props) {
 	const { editor, handleChange, setEditor, setDeletedSubtaskIds } = props;
 	const [projectList, setProjectList] = useState<ProjectList[]>([]);
 	const { projectId } = editor.project;
+	const { protectedFetch } = useProtectedFetch();
 
 	useEffect(() => {
+		const abortController = new AbortController();
+
 		async function getProjectTitles() {
 			const defaultProject = { value: "", label: "No project assigned" };
 			try {
-				const res = await fetch("/api/project", {
-					headers: { "Content-Type": "application/json" },
+				const res = await protectedFetch("/api/project", {
+					signal: abortController.signal,
 				});
 				if (res.ok) {
 					const fetchedProjects: Project[] = await res.json();
@@ -48,7 +52,11 @@ export default function ProjectForm(props: Props) {
 			}
 		}
 		getProjectTitles();
-	}, []);
+
+		return () => {
+			abortController.abort();
+		};
+	}, [protectedFetch]);
 
 	const updateProjectTitle = useCallback(() => {
 		const updatedTitle =

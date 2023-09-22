@@ -5,7 +5,7 @@ import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "./CardSelector";
 import CardCategory from "./CardCategory";
-import { useProtectedFetch } from "../../hooks/useProtectedFetch";
+import { useInitialFetch } from "../../hooks/useInitialFetch";
 
 type TicketProps = {
 	containerTitle: string;
@@ -61,7 +61,7 @@ export default function CardContainer<T extends FetchedTicketData | Project>(
 		data: cards,
 		setData: setCards,
 		isLoading,
-	} = useProtectedFetch<T[]>(endpoint);
+	} = useInitialFetch<T[]>(endpoint);
 
 	// if (!isLoading && data) {
 	// 	console.log(data);
@@ -89,7 +89,7 @@ export default function CardContainer<T extends FetchedTicketData | Project>(
 	// 			// 	credentials: "include",
 	// 			// });
 
-	// 			const res = await useProtectedFetch(endpoint)
+	// 			const res = await useInitialFetch(endpoint)
 
 	// 			const data = await res.json();
 	// 			if (res.ok) {

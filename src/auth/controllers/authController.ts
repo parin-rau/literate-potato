@@ -147,7 +147,16 @@ export async function logoutUser(req: Request, res: Response) {
 			.sendStatus(204);
 	}
 
-	await coll.updateOne({ refreshToken }, { $unset: { refreshToken: "" } });
+	await coll.updateOne(
+		{ refreshToken },
+		{
+			$unset: {
+				refreshToken: "",
+				gracePeriodToken: "",
+				gracePeriodEnd: "",
+			},
+		}
+	);
 	await client.close();
 
 	return res

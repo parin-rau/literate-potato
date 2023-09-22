@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useProtectedFetch } from "../../hooks/useProtectedFetch";
+import { useInitialFetch } from "../../hooks/useInitialFetch";
 
 export default function UncategorizedProjectsCard() {
 	// useEffect(() => {
@@ -19,9 +19,7 @@ export default function UncategorizedProjectsCard() {
 	// 	fetchData();
 	// }, []);
 
-	const { isLoading } = useProtectedFetch(
-		"/api/ticket/project/uncategorized"
-	);
+	const { isLoading } = useInitialFetch("/api/ticket/project/uncategorized");
 
 	//if ((res as Response).ok) setData(true);
 

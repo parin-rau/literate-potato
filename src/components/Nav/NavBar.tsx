@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import SignInButton from "./SignInButton";
 //import { useAuth } from "../../hooks/useAuth";
 
 export default function NavBar() {
 	const [theme, setTheme] = useState<string>(localStorage.theme);
-	const navigate = useNavigate();
+	//const navigate = useNavigate();
 
 	const username = sessionStorage.getItem("username");
 

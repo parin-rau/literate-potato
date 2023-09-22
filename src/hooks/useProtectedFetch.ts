@@ -1,122 +1,98 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useAuth } from "./useAuth";
-import { useNavigate } from "react-router-dom";
 
-// type Return = {
-// 	data: | null;
-// 	isLoading: boolean;
-// };
-
-export function useProtectedFetch<T, D = void>(
-	endpoint: RequestInfo | URL,
-	customOptions?: RequestInit,
-	// setter?: React.Dispatch<React.SetStateAction<T>>,
-	setterHelper?: (_arg: D) => T
-) {
-	const { user, refreshAccessToken, signOut } = useAuth();
-	const navigate = useNavigate();
-	const [isLoading, setLoading] = useState<boolean>(true);
-	//const [response, setResponse] = useState<Response | null>(null);
-	const [data, setData] = useState<T | null>(null);
+export function useProtectedFetch() {
+	const [isLoading, setLoading] = useState<boolean | null>(null);
 	const [error, setError] = useState<string | unknown | null>(null);
 	const [ok, setOk] = useState<boolean | null>(null);
+	const { user, refreshAccessToken, signOut } = useAuth();
 
-	useEffect(() => {
-		const abortController = new AbortController();
-
-		const fetchData = async () => {
+	const protectedFetch = useCallback(
+		async (
+			endpoint: RequestInfo | URL,
+			customOptions?: RequestInit
+		): Promise<Response> => {
 			try {
-				if (!user) {
+				setLoading(true);
+
+				if (!user.current) {
 					setOk(false);
 					setError("Logged in user not detected");
-					return navigate("/login");
+					setLoading(false);
+					await signOut();
+					return new Response(undefined, {
+						status: 401,
+						statusText: "Logged in user not detected",
+					});
 				}
 
-				const accessToken = user.token;
+				const initAccessToken = user.current.token;
 				const defaultOptions: RequestInit = {
 					headers: {
 						"Content-Type": "application/json",
-						Authorization: `Bearer ${accessToken}`,
+						Authorization: `Bearer ${initAccessToken}`,
 					},
 					credentials: "include",
-					signal: abortController.signal,
 				};
-				const options: RequestInit = {
-					...customOptions,
+				const initOptions = {
 					...defaultOptions,
+					...customOptions,
 				};
 
-				const res = await fetch(endpoint, options);
+				const res = await fetch(endpoint, initOptions);
 
 				if (!res.ok) {
 					if ([400, 401, 403].some((n) => res.status === n)) {
 						await refreshAccessToken();
 
-						if (user) {
-							const retryRes = await fetch(endpoint, options);
-							// if (setter) {
-							// 	const data = await retryRes.json();
-							// 	setterHelper
-							// 		? setter(setterHelper(data))
-							// 		: setter(data);
-							// }
-							// setResponse(retryRes);
-							// return setLoading(false);
+						const retryAccessToken = user.current.token;
+						const retryOptions = {
+							...initOptions,
+							headers: {
+								...initOptions.headers,
+								Authorization: `Bearer ${retryAccessToken}`,
+							},
+						};
+
+						if (user.current) {
+							const retryRes = await fetch(
+								endpoint,
+								retryOptions
+							);
 
 							if (retryRes.ok) {
-								const jsonData = await retryRes.json();
-								setterHelper
-									? setData(setterHelper(jsonData))
-									: setData(jsonData);
+								// setError("Failed to refresh access token");
+								// setOk(false);
+								// await signOut();
+								// return res;
 								setOk(true);
-								return setLoading(false);
+								setLoading(false);
+								return retryRes;
 							}
 						}
 					}
-					setError("Failed to refresh access token");
+
+					setError("Expired refresh token");
 					setOk(false);
-					return await signOut();
+					await signOut();
+					return res;
 				}
 
-				// if (setter) {
-				// 	const data = await res.json();
-				// 	setterHelper
-				// 		? setter(setterHelper(data))
-				// 		: setter(data);
-				// }
-				// setResponse(res);
-				// return setLoading(false);
-				const jsonData = await res.json();
-				setterHelper
-					? setData(setterHelper(jsonData))
-					: setData(jsonData);
 				setOk(true);
-				return setLoading(false);
+				setLoading(false);
+				return res;
 			} catch (e) {
 				setError(e);
 				setOk(false);
 				console.error(e);
+				return new Response(undefined, {
+					status: 500,
+					statusText: "Internal server error",
+				});
 			}
-		};
-		fetchData();
-		return () => {
-			abortController.abort();
-		};
-	}, [
-		customOptions,
-		endpoint,
-		navigate,
-		refreshAccessToken,
-		user,
-		signOut,
-		setterHelper,
-	]);
+		},
+		[user, refreshAccessToken, signOut]
+	);
 
-	return { data, setData, isLoading, ok, error } as {
-		data: T;
-		setData: React.Dispatch<React.SetStateAction<T>>;
-		isLoading: boolean;
-		ok: boolean;
-		error: unknown;
-	};
+	return { ok, error, isLoading, protectedFetch };
 }
