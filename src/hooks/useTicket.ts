@@ -1,10 +1,19 @@
 import { useCallback, useState } from "react";
 import { useProtectedFetch } from "./useProtectedFetch";
 import { optionLookup } from "../utility/optionLookup";
-import { TicketData, TicketCardProps } from "../types";
+import { FetchedTicketData, Project, TicketData } from "../types";
 import { arrayExclude } from "../utility/arrayComparisons";
 
-export function useTicket(props: TicketCardProps) {
+export type Props = {
+	cardData: FetchedTicketData;
+	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	filters?: string[];
+	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
+	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
+};
+
+export function useTicket(props: Props) {
 	const { taskStatus, ticketId, project, subtasks } = props.cardData;
 	const { setCards, setCardCache, setProject } = props;
 

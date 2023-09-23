@@ -12,60 +12,8 @@ import ProjectForm from "../Form/ProjectForm";
 import TicketForm from "../Form/TicketForm";
 import { arrayExclude, arraysEqual } from "../../utility/arrayComparisons";
 import { useLocation } from "react-router-dom";
-//import { useAuth } from "../../hooks/useAuth";
-//import { useProtectedSubmit } from "../../hooks/useProtectedSubmit";
 import { useProtectedFetch } from "../../hooks/useProtectedFetch";
-
-type CommonProps = {
-	dataKind: string;
-	resetFilters?: () => void;
-};
-
-type CommonProjectProps = {
-	dataKind: "project";
-	setCards: React.Dispatch<React.SetStateAction<Project[]>>;
-	setCardCache: React.Dispatch<React.SetStateAction<Project[]>>;
-};
-
-type CommonTicketProps = {
-	dataKind: "ticket";
-	setCards?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-};
-
-type CreatingProjectProps = CommonProjectProps & {
-	project?: never;
-	previousData?: never;
-	setEditing?: never;
-	setProject?: never;
-};
-
-type CreatingTicketProps = CommonTicketProps & {
-	project?: { projectId: string; projectTitle: string };
-	previousData?: never;
-	setEditing?: never;
-	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
-};
-
-type EditingProjectProps = CommonProjectProps & {
-	project?: never;
-	previousData: Project;
-	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
-	setProject?: never;
-};
-
-type EditingTicketProps = CommonTicketProps & {
-	project?: never;
-	previousData: FetchedTicketData;
-	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
-	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
-};
-
-type Props = CommonProps &
-	(
-		| (CreatingTicketProps | EditingTicketProps)
-		| (CreatingProjectProps | EditingProjectProps)
-	);
+import { useCardEditor, Props } from "../../hooks/useCardEditor";
 
 export default function TicketEditor(props: Props) {
 	const {
@@ -77,104 +25,49 @@ export default function TicketEditor(props: Props) {
 		resetFilters,
 		setProject,
 	} = props;
-	const init = handleInit(dataKind);
-	const [editor, setEditor] = useState(init!.initState);
-	const [expand, setExpand] = useState(init!.defaultExpand);
-	const [isPinned, setPinned] = useState(false);
+
+	const { handlers, state } = useCardEditor(props);
+	const {
+		handleExpand,
+		handleReset,
+		handleEditCancel,
+		handleChange,
+		handleKeyDown,
+	} = handlers;
+	const { init, editor, setEditor, isPinned, setPinned, expand, setExpand } =
+		state;
+
+	//const init = handleInit(dataKind);
+	//const [editor, setEditor] = useState(init!.initState);
+	//const [expand, setExpand] = useState(init!.defaultExpand);
+	//const [isPinned, setPinned] = useState(false);
 	const [deletedSubtaskIds, setDeletedSubtaskIds] = useState<string[]>([]);
 	const { protectedFetch } = useProtectedFetch();
 
 	const page = useLocation().pathname;
 	const isProjectPage = page.slice(1, 8) === "project";
 
-	function handleChange(
-		e: React.ChangeEvent<
-			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-		>
-	) {
-		const { value, name } = e.target;
-		if (name === "projectId" || name === "projectTitle") {
-			setEditor({
-				...(editor as EditorData),
-				project: { ...(editor as EditorData).project, [name]: value },
-			});
-		} else {
-			setEditor({ ...editor, [name]: value });
-		}
-	}
+	// function handleChange(
+	// 	e: React.ChangeEvent<
+	// 		HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+	// 	>
+	// ) {
+	// 	const { value, name } = e.target;
+	// 	if (name === "projectId" || name === "projectTitle") {
+	// 		setEditor({
+	// 			...(editor as EditorData),
+	// 			project: { ...(editor as EditorData).project, [name]: value },
+	// 		});
+	// 	} else {
+	// 		setEditor({ ...editor, [name]: value });
+	// 	}
+	// }
 
-	function handleKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
-		if (e.code === "Enter" && e.ctrlKey === false) {
-			e.preventDefault();
-		}
-	}
-
-	function handleInit(dataKind: "ticket" | "project") {
-		if (dataKind === "ticket") {
-			if (previousData) {
-				const {
-					title,
-					description,
-					due,
-					tags,
-					subtasks,
-					priority,
-					project,
-					...unusedPrevData
-				} = previousData as FetchedTicketData;
-				return {
-					initState: {
-						title,
-						description,
-						priority,
-						due,
-						subtasks,
-						tags,
-						project,
-					},
-					unusedPrevData,
-					defaultExpand: true,
-					editorHeading: "Edit Task",
-				};
-			} else {
-				const { project } = props;
-				return {
-					initState: { ...initTicketEditor, project },
-					defaultExpand: false,
-					editorHeading: "Create New Task",
-				};
-			}
-		} else if (dataKind === "project") {
-			if (previousData) {
-				const {
-					title,
-					description,
-					creator,
-					color,
-					...unusedPrevData
-				} = previousData as Project;
-				return {
-					initState: {
-						title,
-						description,
-						creator,
-						color,
-					},
-					unusedPrevData,
-					defaultExpand: true,
-					editorHeading: "Edit Project",
-				};
-			} else {
-				return {
-					initState: initProjectEditor,
-					defaultExpand: false,
-					editorHeading: "Create New Project",
-				};
-			}
-		} else {
-			console.error("Init undefined");
-		}
-	}
+	// function handleKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
+	// 	if (e.code === "Enter" && e.ctrlKey === false) {
+	// 		e.preventDefault();
+	// 	}
+	// }
 
 	async function subtaskIdPatch(
 		projectId: string,
@@ -580,20 +473,20 @@ export default function TicketEditor(props: Props) {
 		}
 	}
 
-	function handleExpand() {
-		setExpand(!expand);
-		isPinned && setPinned(false);
-	}
+	// function handleExpand() {
+	// 	setExpand(!expand);
+	// 	isPinned && setPinned(false);
+	// }
 
-	function handleReset() {
-		setEditor(init?.initState || initTicketEditor);
-	}
+	// function handleReset() {
+	// 	setEditor(init?.initState || initTicketEditor);
+	// }
 
-	function handleEditCancel() {
-		if (previousData) {
-			setEditing(false);
-		}
-	}
+	// function handleEditCancel() {
+	// 	if (previousData) {
+	// 		setEditing(false);
+	// 	}
+	// }
 
 	return (
 		<div

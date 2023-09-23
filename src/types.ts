@@ -92,15 +92,6 @@ export interface FetchedTicketData extends TicketData {
 	// timestamp: number;
 }
 
-export type TicketCardProps = {
-	cardData: FetchedTicketData;
-	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	filters?: string[];
-	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
-	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
-};
-
 export const initTicketEditor: EditorData = {
 	title: "",
 	description: "",

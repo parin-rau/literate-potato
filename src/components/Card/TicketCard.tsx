@@ -1,4 +1,4 @@
-import { FetchedTicketData, TicketCardProps } from "../../types";
+import { FetchedTicketData } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import timestampDisplay from "../../utility/timestampDisplay";
 import TagsDisplay from "../Display/TagsDisplay";
@@ -9,9 +9,9 @@ import { Link } from "react-router-dom";
 import TicketEditor from "../Editor/TicketEditor";
 import ProgressBar from "../Display/ProgressBar";
 import { countCompletedSubs } from "../../utility/countCompleted";
-import { useTicket } from "../../hooks/useTicket";
+import { useTicket, Props } from "../../hooks/useTicket";
 
-export default function TicketCard(props: TicketCardProps) {
+export default function TicketCard(props: Props) {
 	const {
 		title,
 		description,

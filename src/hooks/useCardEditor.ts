@@ -1,10 +1,12 @@
 import { useState, useCallback } from "react";
 import {
+	EditorData,
 	FetchedTicketData,
 	Project,
 	initProjectEditor,
 	initTicketEditor,
 } from "../types";
+import { useProtectedFetch } from "./useProtectedFetch";
 
 type CommonProps = {
 	dataKind: string;
@@ -51,7 +53,7 @@ type EditingTicketProps = CommonTicketProps & {
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
-type Props = CommonProps &
+export type Props = CommonProps &
 	(
 		| (CreatingTicketProps | EditingTicketProps)
 		| (CreatingProjectProps | EditingProjectProps)
@@ -65,81 +67,176 @@ type SubmitMetadata = {
 };
 
 export function useCardEditor(props: Props) {
+	const {
+		dataKind,
+		setCards,
+		previousData,
+		setEditing,
+		setCardCache,
+		resetFilters,
+		setProject,
+	} = props;
+
+	const [isPinned, setPinned] = useState(false);
 	const [submitMeta, setMeta] = useState<SubmitMetadata | null>(null);
+	const { protectedFetch } = useProtectedFetch();
+
+	// LOCAL HELPERS
 
 	const handleInit = useCallback(
+		// REFACTOR TO BE LOCAL ONLY
 		(dataKind: "ticket" | "project") => {
 			const { previousData } = props;
 
-			if (dataKind === "ticket") {
-				if (previousData) {
-					const {
-						title,
-						description,
-						due,
-						tags,
-						subtasks,
-						priority,
-						project,
-						...unusedPrevData
-					} = previousData as FetchedTicketData;
-					return {
-						initState: {
+			switch (dataKind) {
+				case "ticket": {
+					if (previousData) {
+						const {
 							title,
 							description,
-							priority,
 							due,
-							subtasks,
 							tags,
+							subtasks,
+							priority,
 							project,
-						},
-						unusedPrevData,
-						defaultExpand: true,
-						editorHeading: "Edit Task",
-					};
-				} else {
-					const { project } = props;
-					return {
-						initState: { ...initTicketEditor, project },
-						defaultExpand: false,
-						editorHeading: "Create New Task",
-					};
+							...unusedPrevData
+						} = previousData as FetchedTicketData;
+						return {
+							initState: {
+								title,
+								description,
+								priority,
+								due,
+								subtasks,
+								tags,
+								project,
+							},
+							unusedPrevData,
+							defaultExpand: true,
+							editorHeading: "Edit Task",
+						};
+					} else {
+						const { project } = props;
+						return {
+							initState: { ...initTicketEditor, project },
+							defaultExpand: false,
+							editorHeading: "Create New Task",
+						};
+					}
 				}
-			} else if (dataKind === "project") {
-				if (previousData) {
-					const {
-						title,
-						description,
-						creator,
-						color,
-						...unusedPrevData
-					} = previousData as Project;
-					return {
-						initState: {
+				case "project": {
+					if (previousData) {
+						const {
 							title,
 							description,
 							creator,
 							color,
-						},
-						unusedPrevData,
-						defaultExpand: true,
-						editorHeading: "Edit Project",
-					};
-				} else {
-					return {
-						initState: initProjectEditor,
-						defaultExpand: false,
-						editorHeading: "Create New Project",
-					};
+							...unusedPrevData
+						} = previousData as Project;
+						return {
+							initState: {
+								title,
+								description,
+								creator,
+								color,
+							},
+							unusedPrevData,
+							defaultExpand: true,
+							editorHeading: "Edit Project",
+						};
+					} else {
+						return {
+							initState: initProjectEditor,
+							defaultExpand: false,
+							editorHeading: "Create New Project",
+						};
+					}
 				}
-			} else {
-				console.error("Init undefined");
+				default: {
+					return console.error("Init undefined");
+				}
 			}
 		},
 		[props]
 	);
 
-	const submitHelper = useCallback(async (input: SubmitMetadata) => {
+	const init = handleInit(dataKind);
+	const [editor, setEditor] = useState(init!.initState);
+	const [expand, setExpand] = useState(init!.defaultExpand);
+
+	const subtaskIdPatch = useCallback(
+		async (
+			projectId: string,
+			operation: "add" | "delete",
+			subtasksCompletedIds: string[],
+			subtasksTotalIds: string[],
+			tasksCompletedIds?: string[],
+			tasksTotalIds?: string[]
+		) => {
+			const res = await protectedFetch(`/api/project/${projectId}`, {
+				method: "PATCH",
+				body: JSON.stringify({
+					operation,
+					subtasksCompletedIds,
+					subtasksTotalIds,
+					tasksCompletedIds,
+					tasksTotalIds,
+				}),
+			});
+			return res;
+		},
+		[protectedFetch]
+	);
+
+	//EXPORTS
+
+	const handleExpand = useCallback(() => {
+		setExpand(!expand);
+		isPinned && setPinned(false);
+	}, [isPinned, expand]);
+
+	const handleReset = useCallback(() => {
+		setEditor(init?.initState || initTicketEditor);
+	}, [init?.initState]);
+
+	const handleEditCancel = useCallback(() => {
+		if (previousData) {
+			setEditing(false);
+		}
+	}, [previousData, setEditing]);
+
+	const handleChange = useCallback(
+		(
+			e: React.ChangeEvent<
+				HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+			>
+		) => {
+			const { value, name } = e.target;
+			if (name === "projectId" || name === "projectTitle") {
+				setEditor({
+					...(editor as EditorData),
+					project: {
+						...(editor as EditorData).project,
+						[name]: value,
+					},
+				});
+			} else {
+				setEditor({ ...editor, [name]: value });
+			}
+		},
+		[editor]
+	);
+
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLFormElement>) => {
+			if (e.code === "Enter" && e.ctrlKey === false) {
+				e.preventDefault();
+			}
+		},
+		[]
+	);
+
+	const handleSubmit = useCallback(async (input: SubmitMetadata) => {
 		switch (input) {
 			case { dataKind: "project", isEdit: true }:
 				// Edit project
@@ -164,5 +261,24 @@ export function useCardEditor(props: Props) {
 		}
 	}, []);
 
-	return { handleInit, setMeta, submitHelper };
+	return {
+		handlers: {
+			setMeta,
+			handleSubmit,
+			handleExpand,
+			handleReset,
+			handleEditCancel,
+			handleChange,
+			handleKeyDown,
+		},
+		state: {
+			init,
+			editor,
+			setEditor,
+			isPinned,
+			setPinned,
+			expand,
+			setExpand,
+		},
+	};
 }
