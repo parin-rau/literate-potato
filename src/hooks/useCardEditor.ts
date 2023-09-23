@@ -3,10 +3,14 @@ import {
 	EditorData,
 	FetchedTicketData,
 	Project,
+	ProjectEditor,
 	initProjectEditor,
 	initTicketEditor,
 } from "../types";
+import { useLocation } from "react-router-dom";
 import { useProtectedFetch } from "./useProtectedFetch";
+import { v4 as uuidv4 } from "uuid";
+import { arrayExclude, arraysEqual } from "../utility/arrayComparisons";
 
 type CommonProps = {
 	dataKind: string;
@@ -59,13 +63,6 @@ export type Props = CommonProps &
 		| (CreatingProjectProps | EditingProjectProps)
 	);
 
-type SubmitMetadata = {
-	dataKind: "ticket" | "project";
-	isEdit?: boolean;
-	isProjectMove?: boolean;
-	isTasksEdit?: boolean;
-};
-
 export function useCardEditor(props: Props) {
 	const {
 		dataKind,
@@ -77,14 +74,16 @@ export function useCardEditor(props: Props) {
 		setProject,
 	} = props;
 
+	const [deletedSubtaskIds, setDeletedSubtaskIds] = useState<string[]>([]);
 	const [isPinned, setPinned] = useState(false);
-	const [submitMeta, setMeta] = useState<SubmitMetadata | null>(null);
 	const { protectedFetch } = useProtectedFetch();
 
-	// LOCAL HELPERS
+	const url = useLocation().pathname;
+	const isProjectPage = url.slice(1, 8) === "project";
+
+	// INITIALIZER
 
 	const handleInit = useCallback(
-		// REFACTOR TO BE LOCAL ONLY
 		(dataKind: "ticket" | "project") => {
 			const { previousData } = props;
 
@@ -164,6 +163,8 @@ export function useCardEditor(props: Props) {
 	const [editor, setEditor] = useState(init!.initState);
 	const [expand, setExpand] = useState(init!.defaultExpand);
 
+	// LOCAL HELPERS
+
 	const subtaskIdPatch = useCallback(
 		async (
 			projectId: string,
@@ -188,7 +189,420 @@ export function useCardEditor(props: Props) {
 		[protectedFetch]
 	);
 
-	//EXPORTS
+	const handleProjectChange = useCallback(
+		(currentViewProjectId: string) => {
+			if (isProjectPage && dataKind === "ticket") {
+				setCards &&
+					setCards((prev) =>
+						prev.filter(
+							(ticket) =>
+								ticket.project.projectId ===
+								currentViewProjectId
+						)
+					);
+			}
+		},
+		[dataKind, setCards, isProjectPage]
+	);
+
+	const createTicket = useCallback(async () => {
+		if (dataKind !== "ticket") return;
+
+		const newTicket = {
+			...(editor as EditorData),
+			timestamp: Date.now(),
+			ticketId: uuidv4(),
+			taskStatus: "Not Started",
+			comments: [],
+		};
+		const res1 = await protectedFetch("/api/ticket", {
+			method: "POST",
+			body: JSON.stringify(newTicket),
+		});
+		if (res1.ok) {
+			const response = await res1.json();
+			setCards &&
+				setCards((prevCards) => [
+					{
+						...newTicket,
+						ticketNumber: response.ticketNumber,
+					},
+					...prevCards,
+				]);
+			if (setCardCache && resetFilters) {
+				setCardCache((prevCards) => [
+					{
+						...newTicket,
+						ticketNumber: response.ticketNumber,
+					},
+					...prevCards,
+				]);
+				resetFilters();
+			}
+			setEditor(init?.initState || initTicketEditor);
+			!isPinned && setExpand(false);
+			if (newTicket.project.projectId) {
+				const subtasksTotalIds = newTicket.subtasks.map(
+					(o) => o.subtaskId
+				);
+				const res2 = await protectedFetch(
+					`/api/project/${newTicket.project.projectId}`,
+					{
+						method: "PATCH",
+						body: JSON.stringify({
+							operation: "add",
+							tasksTotalIds: [newTicket.ticketId],
+							subtasksTotalIds,
+						}),
+					}
+				);
+
+				if (res2.ok) {
+					setProject &&
+						setProject((prev) =>
+							prev.map((proj) =>
+								proj.projectId === newTicket.project.projectId
+									? {
+											...proj,
+											tasksTotalIds: [
+												...proj.tasksTotalIds,
+												newTicket.ticketId,
+											],
+											subtasksTotalIds: [
+												...proj.subtasksTotalIds,
+												...(subtasksTotalIds as string[]),
+											],
+									  }
+									: proj
+							)
+						);
+				}
+			}
+		}
+	}, [
+		dataKind,
+		editor,
+		init?.initState,
+		isPinned,
+		protectedFetch,
+		resetFilters,
+		setCardCache,
+		setCards,
+		setProject,
+	]);
+
+	const editTicket = useCallback(async () => {
+		if (dataKind !== "ticket" || !previousData) return;
+
+		const patchData = {
+			...editor!,
+		};
+
+		try {
+			const res1 = await protectedFetch(
+				`/api/ticket/${previousData.ticketId}`,
+				{
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(patchData),
+				}
+			);
+			if (res1.ok) {
+				const updatedTicket: FetchedTicketData = {
+					...(patchData as EditorData),
+					...(init!.unusedPrevData! as FetchedTicketData),
+					lastModified: Date.now(),
+				};
+				setCards &&
+					setCards((prevCards) =>
+						prevCards.map((card) =>
+							card.ticketId === updatedTicket.ticketId
+								? updatedTicket
+								: card
+						)
+					);
+				setCardCache &&
+					setCardCache((prev) =>
+						prev.map((card) =>
+							card.ticketId === updatedTicket.ticketId
+								? updatedTicket
+								: card
+						)
+					);
+				setEditor(init?.initState || initTicketEditor);
+				setEditing(false);
+
+				// Updating subtask IDs stored on projects
+
+				const previousSubtaskIds = previousData.subtasks?.map(
+					(o) => o.subtaskId
+				);
+				const updatedSubtaskIds = updatedTicket.subtasks?.map(
+					(o) => o.subtaskId
+				);
+				const previousCompletedIds = previousData.subtasks
+					.filter((o) => o.completed)
+					.map((o) => o.subtaskId);
+				const updatedCompletedIds = updatedTicket.subtasks
+					.filter((o) => o.completed)
+					.map((o) => o.subtaskId);
+
+				if (
+					arraysEqual(previousSubtaskIds!, updatedSubtaskIds!) &&
+					previousData.project.projectId ===
+						updatedTicket.project.projectId
+				) {
+					console.log("No change to subtasks");
+					return;
+				} else {
+					// Moving ticket between projects
+					if (
+						previousData.project.projectId &&
+						previousData.project.projectId !==
+							updatedTicket.project.projectId
+					) {
+						const res2 = await subtaskIdPatch(
+							previousData.project.projectId,
+							"delete",
+							previousCompletedIds,
+							previousSubtaskIds,
+							[previousData.ticketId],
+							[previousData.ticketId]
+						);
+
+						if (res2.ok) {
+							handleProjectChange(previousData.project.projectId);
+
+							setProject &&
+								setProject((prev) =>
+									prev.map((proj) =>
+										proj.projectId ===
+										previousData.project.projectId
+											? {
+													...proj,
+
+													tasksCompletedIds:
+														arrayExclude(
+															proj.tasksCompletedIds,
+															[
+																previousData.ticketId,
+															]
+														) as string[],
+
+													tasksTotalIds: arrayExclude(
+														proj.tasksTotalIds,
+														[previousData.ticketId]
+													) as string[],
+
+													subtasksCompletedIds:
+														arrayExclude(
+															proj.subtasksCompletedIds,
+															previousCompletedIds
+														) as string[],
+
+													subtasksTotalIds:
+														arrayExclude(
+															proj.subtasksTotalIds,
+															previousSubtaskIds
+														) as string[],
+											  }
+											: proj
+									)
+								);
+						}
+					}
+
+					// Add new tasks to project
+					if (updatedTicket.project.projectId) {
+						const res3 = await subtaskIdPatch(
+							updatedTicket.project.projectId,
+							"add",
+							updatedCompletedIds,
+							updatedSubtaskIds,
+							updatedTicket.taskStatus === "Completed"
+								? [updatedTicket.ticketId]
+								: [],
+							[updatedTicket.ticketId]
+						);
+						if (res3.ok) {
+							setProject &&
+								setProject((prev) =>
+									prev.map((proj) =>
+										proj.projectId ===
+										updatedTicket.project.projectId
+											? {
+													...proj,
+													subtasksTotalIds: [
+														...proj.subtasksTotalIds,
+														...(arrayExclude(
+															updatedSubtaskIds,
+															proj.subtasksTotalIds
+														) as string[]),
+													],
+											  }
+											: proj
+									)
+								);
+						}
+					}
+
+					// Deleting tasks without moving to different project
+					if (deletedSubtaskIds.length) {
+						const res4 = await subtaskIdPatch(
+							updatedTicket.project.projectId,
+							"delete",
+							deletedSubtaskIds,
+							deletedSubtaskIds
+						);
+
+						if (res4.ok) {
+							setProject &&
+								setProject((prev) =>
+									prev.map((proj) =>
+										proj.projectId ===
+										updatedTicket.project.projectId
+											? {
+													...proj,
+													subtasksCompletedIds:
+														arrayExclude(
+															proj.subtasksCompletedIds,
+															deletedSubtaskIds
+														) as string[],
+													subtasksTotalIds:
+														arrayExclude(
+															proj.subtasksTotalIds,
+															deletedSubtaskIds
+														) as string[],
+											  }
+											: proj
+									)
+								);
+
+							setDeletedSubtaskIds([]);
+						}
+					}
+				}
+			}
+		} catch (e) {
+			console.error(e);
+		}
+	}, [
+		dataKind,
+		deletedSubtaskIds,
+		editor,
+		handleProjectChange,
+		init,
+		previousData,
+		protectedFetch,
+		setCardCache,
+		setCards,
+		setEditing,
+		setProject,
+		subtaskIdPatch,
+	]);
+
+	const createProject = useCallback(async () => {
+		if (dataKind !== "project") return;
+
+		const newCard: Project = {
+			...(editor as ProjectEditor),
+			timestamp: Date.now(),
+			projectId: uuidv4(),
+			tasksCompletedIds: [],
+			tasksTotalIds: [],
+			subtasksCompletedIds: [],
+			subtasksTotalIds: [],
+		};
+
+		try {
+			const res = await protectedFetch("/api/project", {
+				method: "POST",
+				body: JSON.stringify(newCard),
+			});
+
+			if (res.ok) {
+				setCards((prevCards) => [newCard, ...prevCards]);
+				setEditor(initProjectEditor);
+				!isPinned && setExpand(false);
+			}
+		} catch (e) {
+			console.error(e);
+		}
+	}, [dataKind, editor, isPinned, protectedFetch, setCards]);
+
+	const editProject = useCallback(async () => {
+		if (dataKind !== "project" || !previousData) return;
+
+		try {
+			const patchData = {
+				operation: "metadata",
+				metadata: { ...editor },
+			};
+			const res1 = await protectedFetch(
+				`/api/project/${previousData.projectId}`,
+				{
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(patchData),
+				}
+			);
+			if (res1.ok) {
+				const ticketPatch = {
+					project: {
+						projectTitle: editor.title,
+						projectId: previousData.projectId,
+					},
+				};
+				const res2 = await protectedFetch(
+					`/api/ticket/project-edit/${previousData.projectId}`,
+					{
+						method: "PATCH",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(ticketPatch),
+					}
+				);
+				if (res2.ok) {
+					const updatedCard: Project = {
+						...(patchData.metadata as ProjectEditor),
+						...(init!.unusedPrevData! as Project),
+						lastModified: Date.now(),
+					};
+					setCards((prevCards) =>
+						prevCards.map((card) =>
+							card.projectId === updatedCard.projectId
+								? updatedCard
+								: card
+						)
+					);
+					setCardCache &&
+						setCardCache((prev) =>
+							prev.map((card) =>
+								card.projectId === updatedCard.projectId
+									? updatedCard
+									: card
+							)
+						);
+					setEditor(initTicketEditor);
+					setEditing(false);
+				}
+			}
+		} catch (e) {
+			console.error(e);
+		}
+	}, [
+		dataKind,
+		editor,
+		init,
+		previousData,
+		protectedFetch,
+		setCardCache,
+		setCards,
+		setEditing,
+	]);
+
+	// EXPOSED FUNCTIONS
 
 	const handleExpand = useCallback(() => {
 		setExpand(!expand);
@@ -236,34 +650,34 @@ export function useCardEditor(props: Props) {
 		[]
 	);
 
-	const handleSubmit = useCallback(async (input: SubmitMetadata) => {
-		switch (input) {
-			case { dataKind: "project", isEdit: true }:
-				// Edit project
-				break;
-			case { dataKind: "project", isEdit: false }:
-				// create project
-				break;
-			case { dataKind: "ticket", isEdit: true }:
-				// edit ticket
-				break;
-			case { dataKind: "ticket", isProjectMove: true }:
-				// move ticket to different project
-				break;
-			case { dataKind: "ticket", isTasksEdit: true }:
-				// edit/add/delete tasks from ticket and project
-				break;
-			case { dataKind: "ticket", isEdit: false }:
-				// create ticket
-				break;
+	const handleSubmit = useCallback(async () => {
+		switch (true) {
+			case dataKind === "ticket" && !previousData:
+				return await createTicket();
+
+			case dataKind === "ticket":
+				return await editTicket();
+
+			case dataKind === "project" && !previousData:
+				return await createProject();
+
+			case dataKind === "project":
+				return await editProject();
+
 			default:
-				break;
+				return console.error("Unable to submit editor data");
 		}
-	}, []);
+	}, [
+		createProject,
+		createTicket,
+		dataKind,
+		editProject,
+		editTicket,
+		previousData,
+	]);
 
 	return {
 		handlers: {
-			setMeta,
 			handleSubmit,
 			handleExpand,
 			handleReset,
@@ -279,6 +693,7 @@ export function useCardEditor(props: Props) {
 			setPinned,
 			expand,
 			setExpand,
+			setDeletedSubtaskIds,
 		},
 	};
 }
