@@ -303,7 +303,6 @@ export function useCardEditor(props: Props) {
 				`/api/ticket/${previousData.ticketId}`,
 				{
 					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(patchData),
 				}
 			);
@@ -650,31 +649,36 @@ export function useCardEditor(props: Props) {
 		[]
 	);
 
-	const handleSubmit = useCallback(async () => {
-		switch (true) {
-			case dataKind === "ticket" && !previousData:
-				return await createTicket();
+	const handleSubmit = useCallback(
+		async (e: React.FormEvent) => {
+			e.preventDefault();
 
-			case dataKind === "ticket":
-				return await editTicket();
-
-			case dataKind === "project" && !previousData:
-				return await createProject();
-
-			case dataKind === "project":
-				return await editProject();
-
-			default:
-				return console.error("Unable to submit editor data");
-		}
-	}, [
-		createProject,
-		createTicket,
-		dataKind,
-		editProject,
-		editTicket,
-		previousData,
-	]);
+			switch (true) {
+				case dataKind === "ticket" && !previousData:
+					await createTicket();
+					return console.log("creating ticket");
+				case dataKind === "ticket":
+					await editTicket();
+					return console.log("editing ticket");
+				case dataKind === "project" && !previousData:
+					await createProject();
+					return console.log("creating project");
+				case dataKind === "project":
+					await editProject();
+					return console.log("editing project");
+				default:
+					return console.error("Unable to submit editor data");
+			}
+		},
+		[
+			createProject,
+			createTicket,
+			dataKind,
+			editProject,
+			editTicket,
+			previousData,
+		]
+	);
 
 	return {
 		handlers: {

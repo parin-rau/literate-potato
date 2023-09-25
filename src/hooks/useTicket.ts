@@ -9,6 +9,7 @@ export type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	filters?: string[];
 	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
+	//filterCards?: () => void;
 	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
@@ -49,7 +50,6 @@ export function useTicket(props: Props) {
 			async function sendPatchData(patchData: PatchData) {
 				const res = await protectedFetch(`/api/project/${projectId}`, {
 					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(patchData),
 				});
 				return res;
@@ -104,7 +104,6 @@ export function useTicket(props: Props) {
 			try {
 				const res = await protectedFetch(`/api/ticket/${ticketId}`, {
 					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ taskStatus: newTaskStatus }),
 				});
 				if (res.ok) {
@@ -183,9 +182,6 @@ export function useTicket(props: Props) {
 						`/api/project/${project.projectId}`,
 						{
 							method: "PATCH",
-							headers: {
-								"Content-Type": "application/json",
-							},
 							body: JSON.stringify({
 								operation: "delete",
 								tasksCompletedIds: [ticketId],
@@ -267,7 +263,6 @@ export function useTicket(props: Props) {
 						`/api/ticket/${ticketId}`,
 						{
 							method: "PATCH",
-							headers: { "Content-Type": "application/json" },
 							body: JSON.stringify({ subtasks: updatedSubtasks }),
 						}
 					);
@@ -313,9 +308,6 @@ export function useTicket(props: Props) {
 								`/api/project/${project.projectId}`,
 								{
 									method: "PATCH",
-									headers: {
-										"Content-Type": "application/json",
-									},
 									body: JSON.stringify({
 										operation,
 										subtasksCompletedIds,

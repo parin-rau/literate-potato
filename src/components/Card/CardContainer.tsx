@@ -6,6 +6,7 @@ import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "./CardSelector";
 import CardCategory from "./CardCategory";
 import { useInitialFetch } from "../../hooks/useInitialFetch";
+import { useGetter } from "../../hooks/useGetter";
 
 type TicketProps = {
 	containerTitle: string;
@@ -27,9 +28,11 @@ type Props = {
 	styles?: string;
 } & (TicketProps | ProjectProps);
 
-export default function CardContainer<T extends FetchedTicketData | Project>(
-	props: Props
-) {
+export default function CardContainer<
+	T extends
+		| (FetchedTicketData & { dataKind: "ticket" })
+		| (Project & { dataKind: "project" })
+>(props: Props) {
 	const {
 		containerTitle,
 		dataKind,
@@ -62,6 +65,7 @@ export default function CardContainer<T extends FetchedTicketData | Project>(
 		setData: setCards,
 		isLoading,
 	} = useInitialFetch<T[]>(endpoint);
+	const getCards = useGetter({ cards, cardCache });
 
 	// if (!isLoading && data) {
 	// 	console.log(data);
@@ -105,53 +109,69 @@ export default function CardContainer<T extends FetchedTicketData | Project>(
 
 	useEffect(() => {
 		function filterCards() {
+			const { cards: stableCards, cardCache: stableCardCache } =
+				getCards();
+
 			function getFilterMatches(
 				cardArr: T[] //FetchedTicketData[] | Project[]
 			) {
-				if (filterMode === "OR") {
-					const filteredCards: T[] = []; //FetchedTicketData[] = [];
-					filters.forEach((mask) => {
-						const matches = cardArr.filter((card) => {
-							if ("tags" in card) {
-								return (
-									card.tags.includes(mask) &&
-									!filteredCards.includes(card)
-								);
-							}
+				switch (filterMode) {
+					case "OR": {
+						const filteredCards: T[] = []; //FetchedTicketData[] = [];
+						filters.forEach((mask) => {
+							const matches = cardArr.filter((card) => {
+								if ("tags" in card) {
+									return (
+										card.tags.includes(mask) &&
+										!filteredCards.includes(card)
+									);
+								}
+							});
+							filteredCards.push(...matches);
 						});
-						filteredCards.push(...matches);
-					});
-
-					return filteredCards;
-				}
-				if (filterMode === "AND") {
-					const filteredCards: T[] = cardArr.filter((card) => {
-						if ("tags" in card)
-							return filters.every((mask) =>
-								card.tags.includes(mask)
-							);
-					});
-
-					return filteredCards;
+						return filteredCards;
+					}
+					case "AND": {
+						const filteredCards: T[] = cardArr.filter((card) => {
+							if ("tags" in card)
+								return filters.every((mask) =>
+									card.tags.includes(mask)
+								);
+						});
+						return filteredCards;
+					}
+					default:
+						return stableCards;
 				}
 			}
 
-			if (filters.length === 1 && isFirstFilter) {
-				const filtered = getFilterMatches(cards)!;
-				setCardCache(cards);
-				setFirstFilter(false);
-				setCards(filtered);
-			} else if (filters.length === 0 && !isFirstFilter) {
-				setCards(cardCache);
-				setFirstFilter(true);
-				setCardCache([]);
-			} else if (filters.length > 0 && !isFirstFilter) {
-				const filtered = getFilterMatches(cardCache);
-				setCards(filtered!);
+			//setFilters((prev) => [...prev, tag]);
+
+			switch (true) {
+				case filters.length === 1 && isFirstFilter: {
+					const filtered = getFilterMatches(stableCards);
+					setCardCache(stableCards);
+					setFirstFilter(false);
+					setCards(filtered);
+					break;
+				}
+				case filters.length === 0 && !isFirstFilter: {
+					setCards(stableCardCache);
+					setFirstFilter(true);
+					setCardCache([]);
+					break;
+				}
+				case filters.length > 0 && !isFirstFilter: {
+					const filtered = getFilterMatches(stableCardCache);
+					setCards(filtered);
+					break;
+				}
+				default:
+					break;
 			}
 		}
 		filterCards();
-	}, [filters, filterMode, setCardCache, setCards]);
+	}, [filters, filterMode, setCardCache, setCards, isFirstFilter, getCards]);
 
 	function handleSort(
 		sortKind: "priority" | "taskStatus" | "timestamp",
@@ -163,7 +183,7 @@ export default function CardContainer<T extends FetchedTicketData | Project>(
 				sortKind,
 				direction
 			)!;
-			setCards(sortedData as FetchedTicketData[]);
+			setCards(sortedData as T[]);
 			setSortMeta(sortCategories);
 		}
 	}
@@ -171,8 +191,7 @@ export default function CardContainer<T extends FetchedTicketData | Project>(
 	function getSortLabel(cardDataArr: typeof cards) {
 		if (sortMeta) {
 			const labels = cardDataArr.map((cardData) => {
-				const targetProperty =
-					cardData[sortMeta.property as keyof FetchedTicketData];
+				const targetProperty = cardData[sortMeta.property as keyof T];
 				const sortLabel =
 					sortMeta.categories.find(
 						(category) => category === targetProperty
@@ -214,15 +233,17 @@ export default function CardContainer<T extends FetchedTicketData | Project>(
 					<TicketEditor
 						{...{
 							dataKind,
-							setCards: setCards as React.Dispatch<
-								React.SetStateAction<FetchedTicketData[]>
-							>,
+							setCards,
+							//setCards as React.Dispatch<
+							//	React.SetStateAction<T[]>
+							//>,
 							project,
 							resetFilters,
 							setProject,
-							setCardCache: setCardCache as React.Dispatch<
-								React.SetStateAction<FetchedTicketData[]>
-							>,
+							setCardCache,
+							// : setCardCache as React.Dispatch<
+							// 	React.SetStateAction<T[]>
+							// >,
 						}}
 						// setCards={setCards}
 						// projectId={projectId}
@@ -251,6 +272,7 @@ export default function CardContainer<T extends FetchedTicketData | Project>(
 							{...{
 								filters,
 								setFilters,
+								//filterCards,
 								deleteFilterTag,
 								filterMode,
 								changeFilterMode,
@@ -270,6 +292,7 @@ export default function CardContainer<T extends FetchedTicketData | Project>(
 							setCardCache,
 							filters,
 							setFilters,
+							//filterCards,
 							setProject,
 						}}
 					/>

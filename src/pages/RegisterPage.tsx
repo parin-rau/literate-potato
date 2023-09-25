@@ -8,7 +8,7 @@ export default function RegisterPage() {
 	const { user } = useAuth();
 
 	useEffect(() => {
-		if (user) navigate("/");
+		if (user.current) navigate("/");
 	}, [user, navigate]);
 
 	return (

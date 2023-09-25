@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 type Props = {
 	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
+	//filterCards?: (_tag: string) => void;
 	placeholder?: string;
 	linkTo?: string;
 };
@@ -15,7 +16,7 @@ export default function SearchBar(props: Props) {
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const { value } = e.target;
-		setSearch(titleCap(value));
+		linkTo ? setSearch(value) : setSearch(titleCap(value));
 	}
 
 	function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -28,9 +29,13 @@ export default function SearchBar(props: Props) {
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+
 		if (linkTo && search) {
-			navigate(`${linkTo}/${search}`);
+			return navigate(`${linkTo}/${search}`);
 		}
+		//else if (filterCards) {
+		// 	filterCards(search);
+		// }
 	}
 
 	return (
