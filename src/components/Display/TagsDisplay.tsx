@@ -3,7 +3,6 @@ type Props = {
 	deleteTag?: (_id: number) => void;
 	filters?: string[];
 	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
-	//filterCards?: (_tag: string) => void;
 };
 
 export default function TagsDisplay(props: Props) {
@@ -15,10 +14,6 @@ export default function TagsDisplay(props: Props) {
 		} else if (deleteTag) {
 			deleteTag(id);
 		}
-
-		// if (filterCards && tag) {
-		// 	filterCards(tag);
-		// }
 	}
 
 	return (

@@ -41,7 +41,7 @@ export default function CardContainer<
 		projectTitle,
 		setProject,
 	} = props;
-	//const [cards, setCards] = useState<T[]>([]); //useState<FetchedTicketData[] | Project[]>([]);
+
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
@@ -65,59 +65,18 @@ export default function CardContainer<
 		setData: setCards,
 		isLoading,
 	} = useInitialFetch<T[]>(endpoint);
-	const getCards = useGetter({ cards, cardCache });
 
-	// if (!isLoading && data) {
-	// 	console.log(data);
-	// 	setCards(data);
-	// }
-
-	//console.log(cards, isLoading);
-
-	// useEffect(() => {
-	// 	async function getPosts() {
-	// 		try {
-	// 			const endpoint =
-	// 				dataKind === "ticket"
-	// 					? projectId
-	// 						? `/api/ticket/project/${projectId}`
-	// 						: "/api/ticket"
-	// 					: `/api/project`;
-	// 			//const accessToken = user?.token;
-
-	// 			// const res = await fetch(endpoint, {
-	// 			// 	headers: {
-	// 			// 		"Content-Type": "application/json",
-	// 			// 		Authorization: `Bearer ${accessToken}`,
-	// 			// 	},
-	// 			// 	credentials: "include",
-	// 			// });
-
-	// 			const res = await useInitialFetch(endpoint)
-
-	// 			const data = await res.json();
-	// 			if (res.ok) {
-	// 				setCards(data);
-	// 			}
-	// 		} catch (err) {
-	// 			console.error(err);
-	// 		}
-	// 	}
-	// 	getPosts();
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [dataKind]);
+	const getStableCards = useGetter({ cards, cardCache });
 
 	useEffect(() => {
 		function filterCards() {
 			const { cards: stableCards, cardCache: stableCardCache } =
-				getCards();
+				getStableCards();
 
-			function getFilterMatches(
-				cardArr: T[] //FetchedTicketData[] | Project[]
-			) {
+			function getFilterMatches(cardArr: T[]) {
 				switch (filterMode) {
 					case "OR": {
-						const filteredCards: T[] = []; //FetchedTicketData[] = [];
+						const filteredCards: T[] = [];
 						filters.forEach((mask) => {
 							const matches = cardArr.filter((card) => {
 								if ("tags" in card) {
@@ -145,8 +104,6 @@ export default function CardContainer<
 				}
 			}
 
-			//setFilters((prev) => [...prev, tag]);
-
 			switch (true) {
 				case filters.length === 1 && isFirstFilter: {
 					const filtered = getFilterMatches(stableCards);
@@ -171,7 +128,14 @@ export default function CardContainer<
 			}
 		}
 		filterCards();
-	}, [filters, filterMode, setCardCache, setCards, isFirstFilter, getCards]);
+	}, [
+		filters,
+		filterMode,
+		setCardCache,
+		setCards,
+		isFirstFilter,
+		getStableCards,
+	]);
 
 	function handleSort(
 		sortKind: "priority" | "taskStatus" | "timestamp",
@@ -245,14 +209,6 @@ export default function CardContainer<
 							// 	React.SetStateAction<T[]>
 							// >,
 						}}
-						// setCards={setCards}
-						// projectId={projectId}
-						// setCardCache={
-						// 	setCardCache as React.Dispatch<
-						// 		React.SetStateAction<FetchedTicketData[]>
-						// 	>
-						// }
-						// resetFilters={resetFilters}
 					/>
 					{!projectId && (
 						<TicketEditor
@@ -272,7 +228,7 @@ export default function CardContainer<
 							{...{
 								filters,
 								setFilters,
-								//filterCards,
+
 								deleteFilterTag,
 								filterMode,
 								changeFilterMode,
@@ -292,7 +248,7 @@ export default function CardContainer<
 							setCardCache,
 							filters,
 							setFilters,
-							//filterCards,
+
 							setProject,
 						}}
 					/>

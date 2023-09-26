@@ -9,7 +9,7 @@ export type Props = {
 	setCards: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	filters?: string[];
 	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
-	//filterCards?: () => void;
+
 	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };

@@ -1,26 +1,8 @@
+import CalendarContainer from "../components/Calendar/CalendarContainer";
 import CardContainer from "../components/Card/CardContainer";
 
 export default function HomePage() {
 	const cardContainerStyles = "dark:bg-neutral-900";
-
-	// useEffect(() => {
-	// 	async function getCompletion() {
-	// 		try {
-	// 			const res = await fetch("", {
-	// 				headers: { "Content-Type": "appliction/json" },
-	// 			});
-	// 		} catch (e) {
-	// 			console.error(e);
-	// 		}
-	// 	}
-	// 	getCompletion();
-	// }, []);
-
-	// useEffect(() => {
-	// 	async function get() {
-
-	// 	}
-	// }, [])
 
 	return (
 		<div className="flex flex-col space-y-4 pt-20 px-2">
@@ -37,6 +19,7 @@ export default function HomePage() {
 						dataKind="ticket"
 						styles={cardContainerStyles}
 					/> */}
+					<CalendarContainer />
 				</div>
 			</div>
 		</div>

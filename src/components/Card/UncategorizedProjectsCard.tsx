@@ -19,12 +19,15 @@ export default function UncategorizedProjectsCard() {
 	// 	fetchData();
 	// }, []);
 
-	const { isLoading } = useInitialFetch("/api/ticket/project/uncategorized");
+	const { isLoading, ok } = useInitialFetch(
+		"/api/ticket/project/uncategorized"
+	);
 
 	//if ((res as Response).ok) setData(true);
 
 	return (
-		!isLoading && (
+		!isLoading &&
+		ok && (
 			<Link
 				className="m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600 hover:bg-slate-50 dark:hover:border-zinc-400"
 				to={`project/uncategorized`}

@@ -33,7 +33,7 @@ export default function TicketCard(props: Props) {
 		setCards,
 		filters,
 		setFilters,
-		//filterCards,
+
 		setCardCache,
 		setProject,
 	} = props;
@@ -139,7 +139,6 @@ export default function TicketCard(props: Props) {
 											tags,
 											filters,
 											setFilters,
-											//filterCards,
 										}}
 									/>
 								</div>

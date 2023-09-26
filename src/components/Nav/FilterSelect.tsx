@@ -7,7 +7,7 @@ import { firstLetterCap } from "../../utility/charCaseFunctions";
 type Props = {
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
-	//filterCards: () => void;
+
 	deleteFilterTag: (_id: number) => void;
 	filterMode: string;
 	changeFilterMode: () => void;
@@ -19,7 +19,7 @@ export default function FilterSelect(props: Props) {
 	const {
 		filters,
 		setFilters,
-		//filterCards,
+
 		deleteFilterTag,
 		filterMode,
 		changeFilterMode,
@@ -29,11 +29,7 @@ export default function FilterSelect(props: Props) {
 
 	return (
 		<div className="flex flex-col items-end sm:items-center sm:flex-row flex-wrap rounded-md border dark:border-zinc-800 shadow-md px-2 space-x-2 dark:bg-neutral-900">
-			<SearchBar
-				setFilters={setFilters}
-				//filterCards={filterCards}
-				placeholder="Filter by Tags"
-			/>
+			<SearchBar setFilters={setFilters} placeholder="Filter by Tags" />
 			{filters.length > 0 && (
 				<>
 					<TagsDisplay tags={filters} deleteTag={deleteFilterTag} />

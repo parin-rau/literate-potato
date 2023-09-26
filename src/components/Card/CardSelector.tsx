@@ -11,7 +11,7 @@ type TicketProps = {
 	setCardCache: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
-	//filterCards: () => void;
+
 	setProject?: never;
 };
 
@@ -22,7 +22,7 @@ type ProjectProps = {
 	setCardCache: React.Dispatch<React.SetStateAction<Project[]>>;
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
-	//filterCards: () => void;
+
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
@@ -40,7 +40,7 @@ export default function CardSelector(
 		setCardCache,
 		filters,
 		setFilters,
-		//filterCards,
+
 		setProject,
 	} = props;
 	//const [isLoading, setLoading] = useState(true);
@@ -62,7 +62,6 @@ export default function CardSelector(
 						}
 						filters={filters}
 						setFilters={setFilters}
-						//filterCards={filterCards}
 						setCardCache={
 							setCardCache as React.Dispatch<
 								React.SetStateAction<FetchedTicketData[]>
@@ -92,6 +91,7 @@ export default function CardSelector(
 						/>
 					))}
 
+					<UncategorizedProjectsCard />
 					{/* {!isLoading && <UncategorizedProjectsCard />} */}
 				</>
 			);

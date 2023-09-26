@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 type Props = {
 	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
-	//filterCards?: (_tag: string) => void;
 	placeholder?: string;
 	linkTo?: string;
 };
@@ -33,9 +32,6 @@ export default function SearchBar(props: Props) {
 		if (linkTo && search) {
 			return navigate(`${linkTo}/${search}`);
 		}
-		//else if (filterCards) {
-		// 	filterCards(search);
-		// }
 	}
 
 	return (
