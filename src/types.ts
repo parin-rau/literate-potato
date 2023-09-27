@@ -40,6 +40,12 @@ export type EditorData = {
 	};
 };
 
+export interface Comment {
+	commentId: string;
+	timestamp: number;
+	content: string;
+}
+
 export interface TicketData {
 	ticketId: string;
 	title: string;
@@ -52,11 +58,7 @@ export interface TicketData {
 		description: string;
 		completed: boolean;
 	}[];
-	comments?: {
-		commentId: string;
-		timestamp: number;
-		content: string;
-	}[];
+	commentIds?: string[];
 	timestamp: number;
 	taskStatus: string;
 	project: { projectTitle: string; projectId: string };
@@ -167,4 +169,9 @@ export interface UserDecode {
 	roles: number[];
 	iat: number;
 	exp: number;
+}
+
+export interface SearchResult {
+	title: string;
+	description?: string;
 }
