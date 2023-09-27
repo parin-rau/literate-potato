@@ -171,7 +171,12 @@ export interface UserDecode {
 	exp: number;
 }
 
-export interface SearchResult {
-	title: string;
-	description?: string;
+export interface SearchResultProps {
+	data: {
+		title: string;
+		id: string;
+		description?: string;
+		timestamp?: number;
+	};
+	meta: { kind: "ticket" | "project" | "user" };
 }

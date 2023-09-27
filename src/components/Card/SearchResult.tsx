@@ -1,18 +1,19 @@
-import { Project } from "../../types";
+import { Link } from "react-router-dom";
+import { SearchResultProps } from "../../types";
 
-type Props = {
-	//kind: "project" | "ticket"
-	data: Project;
-};
-
-export default function SearchResult(props: Props) {
-	const { data } = props;
+export default function SearchResult(props: SearchResultProps) {
+	const { data, meta } = props;
 
 	return (
-		<div>
-			<p>{data.title}</p>
-			<p>{data.timestamp}</p>
-			<p>{data.projectId}</p>
-		</div>
+		<Link
+			className="p-4 rounded-md border-2 dark:border-zinc-400 border-black"
+			to={`/${meta.kind}/${data.id}`}
+		>
+			<p>title: {data.title}</p>
+			<p>type: {meta.kind}</p>
+			<p>id: {data.id}</p>
+			{data.timestamp && <p>timestamp: {data.timestamp}</p>}
+			{data.description && <p>description: {data.description}</p>}
+		</Link>
 	);
 }

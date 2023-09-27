@@ -6,10 +6,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useInitialFetch } from "../hooks/useInitialFetch";
 
 export default function ProjectTaskPage() {
-	//const [project, setProject] = useState<Project[]>([]);
-	//const [initialized, setInitialized] = useState(false);
-	//const [projectCard, setProjectCard] = useState<Project | null>(null);
-
 	const projectId = useParams().id || "";
 	const navigate = useNavigate();
 
@@ -34,55 +30,6 @@ export default function ProjectTaskPage() {
 		arrayTransform,
 		uncategorizedProjectTransform
 	);
-
-	// useEffect(() => {
-	// 	setInitialized(false);
-	// 	if (!isLoading) {
-	// 		//console.log(project);
-	// 		//setProjectCard(project[0]);
-	// 		setInitialized(true);
-	// 	}
-	// }, [isLoading]);
-
-	//console.log(project, isLoading);
-
-	// useEffect(() => {
-	// 	async function fetchProject() {
-	// 		try {
-	// 			if (projectId === "uncategorized") {
-	// 				setProject([uncategorizedProject]);
-	// 				setInitialized(true);
-	// 			} else if (projectId) {
-
-	// 				const res = await fetch(`/api/project/${projectId}`, {
-	// 					headers: { "Content-Type": "application/json" },
-	// 					credentials: "include",
-	// 				});
-	// 				if (res.ok) {
-	// 					const projectData: Project = await res.json();
-	// 					setProject([projectData]);
-	// 					setInitialized(true);
-	// 				}
-	// 			}
-	// 		} catch (e) {
-	// 			console.error(e);
-	// 			navigate("/");
-	// 		}
-	// 	}
-	// 	fetchProject();
-	// }, [projectId, navigate]);
-
-	// const handleProjectDelete = useCallback(() => {
-	// 	if (
-	// 		!isLoading &&
-	// 		project.length === 0 &&
-	// 		projectId !== "uncategorized"
-	// 	) {
-	// 		navigate("/");
-	// 	}
-	// }, [isLoading, project.length, navigate, projectId]);
-
-	// useEffect(() => handleProjectDelete(), [handleProjectDelete]);
 
 	return (
 		<div className="flex flex-col justify-center items-stretch">

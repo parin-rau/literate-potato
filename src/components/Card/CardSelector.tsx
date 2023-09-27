@@ -1,4 +1,3 @@
-//import { useState } from "react";
 import { FetchedTicketData, Project } from "../../types";
 import ProjectCard from "./ProjectCard";
 import TicketCard from "./TicketCard";
@@ -27,12 +26,7 @@ type ProjectProps = {
 };
 
 type Props = TicketProps | ProjectProps;
-export default function CardSelector(
-	// <T extends
-	// | (FetchedTicketData & { dataKind: "ticket" })
-	// | (Project & { dataKind: "project" })>
-	props: Props
-) {
+export default function CardSelector(props: Props) {
 	const {
 		dataKind,
 		cards,
@@ -43,34 +37,28 @@ export default function CardSelector(
 
 		setProject,
 	} = props;
-	//const [isLoading, setLoading] = useState(true);
 
-	switch (
-		dataKind //setLoading(false);
-	) {
+	switch (dataKind) {
 		case "ticket":
-			return (
-				//!isLoading &&
-				cards.map((card) => (
-					<TicketCard
-						key={card.ticketId}
-						cardData={{ ...card }}
-						setCards={
-							setCards as React.Dispatch<
-								React.SetStateAction<FetchedTicketData[]>
-							>
-						}
-						filters={filters}
-						setFilters={setFilters}
-						setCardCache={
-							setCardCache as React.Dispatch<
-								React.SetStateAction<FetchedTicketData[]>
-							>
-						}
-						setProject={setProject}
-					/>
-				))
-			);
+			return cards.map((card) => (
+				<TicketCard
+					key={card.ticketId}
+					cardData={{ ...card }}
+					setCards={
+						setCards as React.Dispatch<
+							React.SetStateAction<FetchedTicketData[]>
+						>
+					}
+					filters={filters}
+					setFilters={setFilters}
+					setCardCache={
+						setCardCache as React.Dispatch<
+							React.SetStateAction<FetchedTicketData[]>
+						>
+					}
+					setProject={setProject}
+				/>
+			));
 		case "project":
 			return (
 				<>
@@ -92,7 +80,6 @@ export default function CardSelector(
 					))}
 
 					<UncategorizedProjectsCard />
-					{/* {!isLoading && <UncategorizedProjectsCard />} */}
 				</>
 			);
 	}

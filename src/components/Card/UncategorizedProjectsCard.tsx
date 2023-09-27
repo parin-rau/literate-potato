@@ -2,28 +2,9 @@ import { Link } from "react-router-dom";
 import { useInitialFetch } from "../../hooks/useInitialFetch";
 
 export default function UncategorizedProjectsCard() {
-	// useEffect(() => {
-	// 	async function fetchData() {
-	// 		try {
-	// 			const res = await fetch("/api/ticket/project/uncategorized", {
-	// 				headers: { "Content-Type": "application/json" },
-	// 			});
-	// 			const parsedData = await res.json();
-	// 			if (res.ok) {
-	// 				setData(parsedData.length > 0);
-	// 			}
-	// 		} catch (e) {
-	// 			console.error(e);
-	// 		}
-	// 	}
-	// 	fetchData();
-	// }, []);
-
 	const { isLoading, ok } = useInitialFetch(
 		"/api/ticket/project/uncategorized"
 	);
-
-	//if ((res as Response).ok) setData(true);
 
 	return (
 		!isLoading &&
