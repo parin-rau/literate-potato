@@ -195,7 +195,7 @@ export function useCalendar() {
 
 			setCalendar((prev) => ({
 				...prev,
-				//currentTime: new Date(),
+				currentTime: new Date(),
 				currentView: {
 					year: newMonthIndex.year,
 					month: newMonth,

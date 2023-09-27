@@ -87,7 +87,26 @@ export function useInitialFetch<T, D = void>(
 				console.error(e);
 			}
 		};
-		fetchData();
+
+		function ignoreFetch(defaultData: T) {
+			setData(defaultData);
+			setOk(true);
+			setLoading(false);
+		}
+
+		const ignoreUrls = [
+			{
+				url: "/api/project/uncategorized",
+				defaultData: [{}],
+			},
+		];
+
+		ignoreUrls.some((u) => endpoint === u.url)
+			? ignoreFetch(
+					ignoreUrls.find((u) => endpoint === u.url)?.defaultData
+			  )
+			: fetchData();
+
 		return () => {
 			abortController.abort();
 		};
