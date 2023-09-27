@@ -37,11 +37,11 @@ export default function ProgressBar(props: Props) {
 	};
 
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col z-0">
 			<h3>{`${percentCompletedString} - ${totalCompleted}/${totalTasks} ${caption}`}</h3>
 			<div className="rounded-full border border-slate-200 bg-slate-200 dark:bg-zinc-700 dark:border-none z-0 ">
 				<div
-					className={`h-full rounded-full p-1 z-10 ${colorSelection(
+					className={`h-full rounded-full p-1 z-0 ${colorSelection(
 						percentCompletedNum
 					)}`}
 					style={child}

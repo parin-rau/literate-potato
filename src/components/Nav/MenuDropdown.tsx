@@ -71,7 +71,7 @@ export default function MenuDropdown(props: Props) {
 	}
 
 	return (
-		<div className="relative z-20" ref={menuRef}>
+		<div className="relative z-50" ref={menuRef}>
 			<Modal
 				{...{ isModal, setModal, modalCallback, cardId }}
 				text="Are you sure you want to delete this item?"
@@ -79,7 +79,7 @@ export default function MenuDropdown(props: Props) {
 			/>
 			<button
 				className={
-					"z-0 hover:bg-slate-300 dark:hover:bg-zinc-700 px-2 py-1 my-1 rounded-full " +
+					"z-20 hover:bg-slate-300 dark:hover:bg-zinc-700 px-2 py-1 my-1 rounded-full " +
 					menuTitleFont
 				}
 				onClick={handleOpen}
@@ -106,8 +106,8 @@ export default function MenuDropdown(props: Props) {
 			{isMenu && (
 				<div
 					className={
-						"absolute right-0 bg-slate-200 dark:bg-neutral-800 px-1 py-1 rounded-md border-black border dark:border-none " +
-						(cardId ? "z-20" : "z-30")
+						"absolute right-0 bg-slate-200 dark:bg-neutral-800 px-1 py-1 rounded-md border-black border dark:border-none z-50 "
+						//+(cardId ? "z-30" : "z-40")
 					}
 				>
 					{options.map((option, index: number) => (
