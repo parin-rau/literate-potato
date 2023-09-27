@@ -5,15 +5,19 @@ import CalendarGrid from "./CalendarGrid";
 export default function CalendarContainer() {
 	const { handlers, state } = useCalendar();
 
-	const { view } = state;
+	const { calendar } = state;
 	const { handleMonthChange, handleCalendarReset } = handlers;
 
 	return (
 		<div className="bg-slate-100 dark:bg-neutral-900 rounded-lg">
 			<CalendarHeader
-				{...{ handleMonthChange, handleCalendarReset, view }}
+				{...{
+					handleMonthChange,
+					handleCalendarReset,
+					view: calendar.currentView,
+				}}
 			/>
-			<CalendarGrid {...{ view }} />
+			<CalendarGrid {...{ calendar }} />
 		</div>
 	);
 }
