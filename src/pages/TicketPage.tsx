@@ -6,8 +6,6 @@ import TicketCard from "../components/Card/TicketCard";
 
 export default function TicketPage() {
 	const ticketId = useParams().id || "";
-	//const [card, setCard] = useState<FetchedTicketData[]>([]);
-	//const [initialized, setInitialized] = useState(false);
 
 	const arrayTransform = useCallback((p: FetchedTicketData) => [p], []);
 
@@ -20,22 +18,6 @@ export default function TicketPage() {
 		undefined,
 		arrayTransform
 	);
-
-	// useEffect(() => {
-	// 	async function getTicket() {
-	// 		try {
-	// 			const res = await fetch(`/api/ticket/${ticketId}`, {
-	// 				headers: { "content-type": "application/json" },
-	// 			});
-	// 			const data = await res.json();
-	// 			setCard([data]);
-	// 			setInitialized(true);
-	// 		} catch (e) {
-	// 			console.error(e);
-	// 		}
-	// 	}
-	// 	getTicket();
-	// }, [ticketId]);
 
 	return (
 		<div className="pt-20">

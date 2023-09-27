@@ -65,7 +65,7 @@ export default function TicketCard(props: Props) {
 							{title}
 						</Link>
 
-						<div className="flex flex-row space-x-2 items-center">
+						<div className="flex flex-row space-x-2 items-center z-0">
 							<h2 className="text-lg sm:text-xl pr-2">
 								{ticketNumber && `#${ticketNumber}`}
 							</h2>

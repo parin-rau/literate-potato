@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useProtectedFetch } from "./useProtectedFetch";
 import { optionLookup } from "../utility/optionLookup";
 import { FetchedTicketData, Project, TicketData } from "../types";
@@ -17,6 +18,7 @@ export type Props = {
 export function useTicket(props: Props) {
 	const { taskStatus, ticketId, project, subtasks } = props.cardData;
 	const { setCards, setCardCache, setProject } = props;
+	const navigate = useNavigate();
 
 	const [statusColors, setStatusColors] = useState(
 		statusColorsLookup(taskStatus)
@@ -62,9 +64,9 @@ export function useTicket(props: Props) {
 					tasksTotalIds: [taskId],
 				};
 				const res = await sendPatchData(patchData);
-				if (res.ok) {
-					console.log("complete task");
-				}
+				// if (res.ok) {
+				// 	console.log("complete task");
+				// }
 				return res;
 			} else if (projectId && updatedTaskStatus === "DELETE") {
 				const patchData: PatchData = {
@@ -73,9 +75,9 @@ export function useTicket(props: Props) {
 					tasksTotalIds: [taskId],
 				};
 				const res = await sendPatchData(patchData);
-				if (res.ok) {
-					console.log("deleted task");
-				}
+				// if (res.ok) {
+				// 	console.log("deleted task");
+				// }
 				return res;
 			} else if (
 				projectId &&
@@ -88,9 +90,9 @@ export function useTicket(props: Props) {
 					tasksTotalIds: [],
 				};
 				const res = await sendPatchData(patchData);
-				if (res.ok) {
-					console.log("incomplete task");
-				}
+				// if (res.ok) {
+				// 	console.log("incomplete task");
+				// }
 				return res;
 			}
 		},
@@ -170,14 +172,6 @@ export function useTicket(props: Props) {
 					method: "DELETE",
 				});
 				if (res1.ok) {
-					setCards((prevCards) =>
-						prevCards.filter((card) => card.ticketId !== id)
-					);
-					setCardCache &&
-						setCardCache((prev) =>
-							prev.filter((card) => card.ticketId !== id)
-						);
-
 					const res2 = await protectedFetch(
 						`/api/project/${project.projectId}`,
 						{
@@ -193,6 +187,16 @@ export function useTicket(props: Props) {
 					);
 
 					if (res2.ok) {
+						if (!setProject) return navigate("/");
+
+						setCards((prevCards) =>
+							prevCards.filter((card) => card.ticketId !== id)
+						);
+						setCardCache &&
+							setCardCache((prev) =>
+								prev.filter((card) => card.ticketId !== id)
+							);
+
 						setProject &&
 							setProject((prev) =>
 								prev.map((proj) =>
@@ -220,7 +224,8 @@ export function useTicket(props: Props) {
 										: proj
 								)
 							);
-						console.log("Deleted subtasks from project");
+
+						//console.log("Deleted subtasks from project");
 					}
 				}
 			} catch (err) {
@@ -235,6 +240,7 @@ export function useTicket(props: Props) {
 			ticketId,
 			project,
 			subtasks,
+			navigate,
 		]
 	);
 
@@ -304,7 +310,8 @@ export function useTicket(props: Props) {
 									)
 								);
 
-							const res2 = await protectedFetch(
+							//const res2 =
+							await protectedFetch(
 								`/api/project/${project.projectId}`,
 								{
 									method: "PATCH",
@@ -315,11 +322,11 @@ export function useTicket(props: Props) {
 									}),
 								}
 							);
-							if (res2.ok) {
-								console.log(
-									"Incremented completed tasks for project"
-								);
-							}
+							// if (res2.ok) {
+							// 	console.log(
+							// 		"Incremented completed tasks for project"
+							// 	);
+							// }
 						}
 					}
 				} catch (e) {
