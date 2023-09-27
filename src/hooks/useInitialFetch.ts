@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 export function useInitialFetch<T, D = void>(
 	endpoint: RequestInfo | URL,
 	customOptions?: RequestInit,
-	setterHelper?: (_arg: D) => T
+	setterHelper?: (_arg: D) => T,
+	defaultData?: T
 ) {
 	const { user, refreshAccessToken, signOut } = useAuth();
 	const navigate = useNavigate();
@@ -88,23 +89,16 @@ export function useInitialFetch<T, D = void>(
 			}
 		};
 
-		function ignoreFetch(defaultData: T) {
-			setData(defaultData);
+		function ignoreFetch(fallbackData: T) {
+			setData(fallbackData);
 			setOk(true);
 			setLoading(false);
 		}
 
-		const ignoreUrls = [
-			{
-				url: "/api/project/uncategorized",
-				defaultData: [{}],
-			},
-		];
+		const ignoreUrls = ["/api/project/uncategorized"];
 
-		ignoreUrls.some((u) => endpoint === u.url)
-			? ignoreFetch(
-					ignoreUrls.find((u) => endpoint === u.url)?.defaultData
-			  )
+		ignoreUrls.some((u) => endpoint === u)
+			? defaultData && ignoreFetch(defaultData)
 			: fetchData();
 
 		return () => {
@@ -118,6 +112,7 @@ export function useInitialFetch<T, D = void>(
 		user,
 		signOut,
 		setterHelper,
+		defaultData,
 	]);
 
 	return { data, setData, isLoading, ok, error } as {

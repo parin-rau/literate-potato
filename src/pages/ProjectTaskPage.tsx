@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import CardContainer from "../components/Card/CardContainer";
 import ProjectCard from "../components/Card/ProjectCard";
 import { FetchedTicketData, Project, uncategorizedProject } from "../types";
@@ -19,6 +19,10 @@ export default function ProjectTaskPage() {
 	}
 
 	const arrayTransform = useCallback((p: Project) => [p], []);
+	const uncategorizedProjectTransform = useMemo(
+		() => arrayTransform(uncategorizedProject),
+		[arrayTransform]
+	);
 
 	const {
 		data: project,
@@ -27,7 +31,8 @@ export default function ProjectTaskPage() {
 	} = useInitialFetch<Project[], Project>(
 		`/api/project/${projectId}`,
 		undefined,
-		arrayTransform
+		arrayTransform,
+		uncategorizedProjectTransform
 	);
 
 	// useEffect(() => {
