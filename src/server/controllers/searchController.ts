@@ -17,7 +17,7 @@ export async function getSearchResults(req: Request, res: Response) {
 		const projectColl: mongoDB.Collection = db.collection(projects);
 		const userColl: mongoDB.Collection = db.collection(users);
 		const foundTickets = await ticketColl
-			//.aggregate([$match: {}])
+
 			.find({
 				$or: [
 					{ title: query },
@@ -25,6 +25,7 @@ export async function getSearchResults(req: Request, res: Response) {
 					{ creator: query },
 					{ description: query },
 					{ tags: titleCap(query) },
+					{ due: query },
 				],
 			})
 			.limit(50)

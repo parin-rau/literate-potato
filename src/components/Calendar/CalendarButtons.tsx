@@ -13,7 +13,7 @@ export function CalendarMonthButton(props: CalendarMonthProps) {
 	return (
 		<>
 			<button
-				className="p-1 rounded-md  hover:bg-white dark:hover:bg-zinc-700"
+				className="p-1 rounded-md  hover:bg-slate-300 dark:hover:bg-neutral-700"
 				onClick={() => handleMonthChange(direction)}
 				type="button"
 			>

@@ -6,7 +6,8 @@ export default function CalendarContainer() {
 	const { handlers, state } = useCalendar();
 
 	const { calendar } = state;
-	const { handleMonthChange, handleCalendarReset } = handlers;
+	const { handleMonthChange, handleCalendarReset, handleDateClick } =
+		handlers;
 
 	return (
 		<div className="bg-slate-100 dark:bg-neutral-900 rounded-lg">
@@ -17,7 +18,7 @@ export default function CalendarContainer() {
 					view: calendar.currentView,
 				}}
 			/>
-			<CalendarGrid {...{ calendar }} />
+			<CalendarGrid {...{ calendar, handleDateClick }} />
 		</div>
 	);
 }

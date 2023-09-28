@@ -94,15 +94,13 @@ export default function TicketCard(props: Props) {
 									className={
 										" " +
 										(taskStatus !== "Completed" &&
-											// new Date().getDate() >
-											// 	new Date(due).getTime()
-											isOverdue(due).r &&
+											isOverdue(due) &&
 											"text-red-500 font-semibold")
 									}
 								>
 									Due: {due}
 									{taskStatus !== "Completed" &&
-										isOverdue(due).r && <i> Overdue</i>}
+										isOverdue(due) && <i> Overdue</i>}
 								</p>
 							)}
 						</div>

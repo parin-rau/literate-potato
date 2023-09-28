@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../mongodb";
 import { TicketData } from "../../types";
+import { dateStrToTime } from "../../utility/dateConversion";
 
 const localTickets = process.env.LOCAL_TICKETS ?? "tickets";
 
@@ -57,6 +58,25 @@ export async function getAllTicketsForProject(req: Request, res: Response) {
 		}
 	} catch (err) {
 		console.error(err);
+	}
+}
+
+export async function getAllTicketsForCalendar(req: Request, res: Response) {
+	try {
+		const { startDate, endDate } = req.params;
+		const start = dateStrToTime(startDate);
+		const end = dateStrToTime(endDate);
+
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(localTickets);
+
+		const tickets = coll.aggregate({});
+
+		await client.close();
+		res.status(200).send();
+	} catch (e) {
+		console.error(e);
 	}
 }
 

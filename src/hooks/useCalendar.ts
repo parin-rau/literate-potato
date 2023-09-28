@@ -1,4 +1,8 @@
 import { useState, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+//import { useInitialFetch } from "./useInitialFetch";
+import { dateToStr } from "../utility/dateConversion";
+import { useProtectedFetch } from "./useProtectedFetch";
 
 const monthLookup = [
 	"January",
@@ -19,6 +23,10 @@ const monthLookup = [
 const d = new Date();
 
 export function useCalendar() {
+	const navigate = useNavigate();
+	const { protectedFetch } = useProtectedFetch();
+	//const {data: } = useInitialFetch();
+
 	// LOCAL HELPERS
 
 	// const getDatesOfMonthUTC = useCallback((year: number, month: number) => {
@@ -169,7 +177,7 @@ export function useCalendar() {
 	const [calendar, setCalendar] = useState(initCalendar);
 
 	const handleMonthChange = useCallback(
-		(direction: 1 | -1) => {
+		async (direction: 1 | -1) => {
 			const monthIndex = monthLookup.indexOf(calendar.currentView.month);
 			const getNewIndex = () => {
 				const rawIndex = monthIndex + direction;
@@ -188,8 +196,20 @@ export function useCalendar() {
 				newMonthIndex.year,
 				newMonthIndex.month
 			);
+
+			const calendarViewDates = monthDisplayFormat(newDates);
+			const res = await protectedFetch(
+				`/api/ticket/calendar/${calendarViewDates[0]}/${
+					calendarViewDates[length - 1]
+				}`
+			);
+			if (res.ok) {
+				const resData = await res.json();
+				console.log(resData);
+			}
+
 			const newDislayDates = dateStyles(
-				monthDisplayFormat(newDates),
+				calendarViewDates,
 				newMonthIndex.month
 			);
 
@@ -210,6 +230,7 @@ export function useCalendar() {
 			calendar.currentView.year,
 			getNewDatesOfMonths,
 			monthDisplayFormat,
+			protectedFetch,
 			dateStyles,
 		]
 	);
@@ -218,10 +239,32 @@ export function useCalendar() {
 		setCalendar(initCalendar);
 	}, [initCalendar]);
 
+	const handleDateClick = useCallback(
+		(date: Date) => {
+			// const strFormat = (m: number) => {
+			// 	if (m >= 10) return m.toString();
+
+			// 	const mStr = [0, m].join("");
+			// 	return mStr;
+			// };
+
+			const dt = {
+				y: date.getFullYear().toString(),
+				m: dateToStr(date.getMonth() + 1),
+				d: dateToStr(date.getDate()),
+			};
+
+			const formattedDate = [dt.y, dt.m, dt.d].join("-");
+			navigate(`/search/${formattedDate}`);
+		},
+		[navigate]
+	);
+
 	return {
 		handlers: {
 			handleMonthChange,
 			handleCalendarReset,
+			handleDateClick,
 		},
 		utility: { dayLookup },
 		state: { calendar },

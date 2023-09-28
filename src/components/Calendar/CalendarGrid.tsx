@@ -7,11 +7,14 @@ type Props = {
 		dates: { current: Date[]; next: Date[]; prev: Date[] };
 		displayDates: { date: Date; styles: string }[];
 	};
+	handleDateClick: (_d: Date) => void;
 };
 
 export default function CalendarGrid(props: Props) {
-	const { dayLookup } = useCalendar().utility;
-	const { displayDates } = props.calendar;
+	const { utility } = useCalendar();
+	//const { handleDateClick } = handlers;
+	const { dayLookup } = utility;
+	const { calendar, handleDateClick } = props;
 
 	return (
 		<div className="grid grid-cols-7 place-items-center gap-2 p-6">
@@ -20,10 +23,18 @@ export default function CalendarGrid(props: Props) {
 					{day}
 				</div>
 			))}
-			{displayDates.map((d, idx) => (
-				<div key={idx} className={"p-2 rounded-xl " + d.styles}>
+			{calendar.displayDates.map((d, idx) => (
+				<button
+					key={idx}
+					className={
+						"w-10 h-10 rounded-xl hover:bg-slate-300 dark:hover:bg-neutral-700 " +
+						d.styles
+					}
+					type="button"
+					onClick={() => handleDateClick(d.date)}
+				>
 					{d.date.getDate()}
-				</div>
+				</button>
 			))}
 		</div>
 	);

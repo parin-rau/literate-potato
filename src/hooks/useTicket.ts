@@ -351,12 +351,10 @@ export function useTicket(props: Props) {
 		const s = dateStr.split("-").map((n) => Number(n));
 		const dueDate = new Date(s[0], s[1] - 1, s[2]);
 
-		const o = { current: currentTime, due: dueDate };
-
 		if (currentTime.getTime() > dueDate.getTime()) {
-			return { r: true, o };
+			return true;
 		} else {
-			return { r: false, o };
+			return false;
 		}
 	}, []);
 
