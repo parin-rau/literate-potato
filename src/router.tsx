@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 import RootLayout from "./layout/RootLayout.tsx";
 import SearchResultsPage from "./pages/SearchResultsPage.tsx";
+import ProfilePage from "./pages/ProfilePage.tsx";
 
 export const router = createBrowserRouter([
 	{
@@ -25,6 +26,11 @@ export const router = createBrowserRouter([
 			{
 				path: "ticket/:id",
 				element: <TicketPage />,
+				errorElement: <ErrorPage />,
+			},
+			{
+				path: "user/:id",
+				element: <ProfilePage />,
 				errorElement: <ErrorPage />,
 			},
 			{

@@ -17,6 +17,7 @@ export async function getSearchResults(req: Request, res: Response) {
 		const projectColl: mongoDB.Collection = db.collection(projects);
 		const userColl: mongoDB.Collection = db.collection(users);
 		const foundTickets = await ticketColl
+			//.aggregate([$match: {}])
 			.find({
 				$or: [
 					{ title: query },
@@ -40,7 +41,7 @@ export async function getSearchResults(req: Request, res: Response) {
 			.limit(50)
 			.toArray();
 		const foundUsers = await userColl
-			.find({ creator: query })
+			.find({ username: query })
 			.limit(50)
 			.toArray();
 		await client.close();

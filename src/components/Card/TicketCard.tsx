@@ -29,14 +29,7 @@ export default function TicketCard(props: Props) {
 		creator,
 	} = props.cardData;
 
-	const {
-		setCards,
-		filters,
-		setFilters,
-
-		setCardCache,
-		setProject,
-	} = props;
+	const { setCards, filters, setFilters, setCardCache, setProject } = props;
 
 	const {
 		deleteCard,
@@ -46,6 +39,7 @@ export default function TicketCard(props: Props) {
 		isEditing,
 		setEditing,
 		statusColors,
+		isOverdue,
 	} = useTicket(props);
 
 	const moreOptions = [
@@ -100,17 +94,15 @@ export default function TicketCard(props: Props) {
 									className={
 										" " +
 										(taskStatus !== "Completed" &&
-											Date.now() >
-												new Date(due).getTime() &&
+											// new Date().getDate() >
+											// 	new Date(due).getTime()
+											isOverdue(due).r &&
 											"text-red-500 font-semibold")
 									}
 								>
 									Due: {due}
 									{taskStatus !== "Completed" &&
-										Date.now() >
-											new Date(due).getTime() && (
-											<i> Overdue</i>
-										)}
+										isOverdue(due).r && <i> Overdue</i>}
 								</p>
 							)}
 						</div>

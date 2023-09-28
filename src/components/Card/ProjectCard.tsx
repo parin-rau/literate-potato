@@ -79,13 +79,13 @@ export default function ProjectCard(props: Props) {
 						}
 					);
 					if (res2.ok) {
-						setCards((prevCards) =>
-							prevCards.filter((card) => card.projectId !== id)
-						);
-						setCardCache &&
-							setCardCache((prev) =>
-								prev.filter((card) => card.projectId !== id)
-							);
+						// setCards((prevCards) =>
+						// 	prevCards.filter((card) => card.projectId !== id)
+						// );
+						// setCardCache &&
+						// 	setCardCache((prev) =>
+						// 		prev.filter((card) => card.projectId !== id)
+						// 	);
 						navigate("/");
 					}
 				} catch (e) {

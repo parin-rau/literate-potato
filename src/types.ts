@@ -58,7 +58,7 @@ export interface TicketData {
 		description: string;
 		completed: boolean;
 	}[];
-	commentIds?: string[];
+	comments?: string[];
 	timestamp: number;
 	taskStatus: string;
 	project: { projectTitle: string; projectId: string };
