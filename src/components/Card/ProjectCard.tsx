@@ -30,6 +30,7 @@ export default function ProjectCard(props: Props) {
 	} = props.cardData;
 	const { setCards, setCardCache, isHeader } = props;
 	const [isEditing, setEditing] = useState(false);
+	//const [isDropdown, setDropdown] = useState(false);
 	const { protectedFetch } = useProtectedFetch();
 	const navigate = useNavigate();
 
@@ -58,7 +59,7 @@ export default function ProjectCard(props: Props) {
 		percentCompletedString: `${subtaskPercentCompletedNum.toString()}%`,
 	};
 
-	async function deleteCard(id: string) {
+	async function deleteCard() {
 		try {
 			const res1 = await protectedFetch(`/api/project/${projectId}`, {
 				method: "DELETE",
@@ -101,6 +102,13 @@ export default function ProjectCard(props: Props) {
 		setEditing(true);
 	}
 
+	// function disableLink() {
+	// 	const styles: React.CSSProperties = isDropdown
+	// 		? { pointerEvents: "none" }
+	// 		: {};
+	// 	return styles;
+	// }
+
 	return (
 		<>
 			{isHeader && (
@@ -131,6 +139,7 @@ export default function ProjectCard(props: Props) {
 							"flex flex-col px-4 py-2 space-y-1 dark:border-neutral-700 z-0" +
 							(isHeader ? "pointer-events-none" : "")
 						}
+						// style={disableLink()}
 					>
 						{!isHeader && (
 							<div className="flex flex-row flex-grow justify-between items-baseline space-x-2 z-10">

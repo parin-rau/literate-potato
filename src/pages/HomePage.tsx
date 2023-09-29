@@ -1,7 +1,10 @@
+import { useState } from "react";
 import CalendarContainer from "../components/Calendar/CalendarContainer";
 import CardContainer from "../components/Card/CardContainer";
 
 export default function HomePage() {
+	const [cardsLoading, setCardsLoading] = useState(true);
+
 	const cardContainerStyles = "dark:bg-neutral-900";
 
 	return (
@@ -13,13 +16,14 @@ export default function HomePage() {
 						containerTitle="Projects"
 						dataKind="project"
 						styles={cardContainerStyles}
+						setCardsLoading={setCardsLoading}
 					/>
 					{/* <CardContainer
 						containerTitle="All Tasks"
 						dataKind="ticket"
 						styles={cardContainerStyles}
 					/> */}
-					<CalendarContainer />
+					{!cardsLoading && <CalendarContainer />}
 				</div>
 			</div>
 		</div>

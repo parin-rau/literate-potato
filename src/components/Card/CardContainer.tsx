@@ -4,7 +4,7 @@ import { FetchedTicketData, Project, SortMenu } from "../../types";
 import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "./CardSelector";
-import CardCategory from "./CardCategory";
+//import CardCategory from "./CardCategory";
 import { useInitialFetch } from "../../hooks/useInitialFetch";
 import { useGetter } from "../../hooks/useGetter";
 
@@ -26,12 +26,13 @@ type ProjectProps = {
 
 type Props = {
 	styles?: string;
+	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 } & (TicketProps | ProjectProps);
 
 export default function CardContainer<
-	T extends
-		| (FetchedTicketData & { dataKind: "ticket" })
-		| (Project & { dataKind: "project" })
+	T extends FetchedTicketData | Project
+	// | (FetchedTicketData & { dataKind: "ticket" })
+	// | (Project & { dataKind: "project" })
 >(props: Props) {
 	const {
 		containerTitle,
@@ -40,6 +41,7 @@ export default function CardContainer<
 		projectId,
 		projectTitle,
 		setProject,
+		setCardsLoading,
 	} = props;
 
 	const [sortMeta, setSortMeta] = useState<
@@ -248,8 +250,8 @@ export default function CardContainer<
 							setCardCache,
 							filters,
 							setFilters,
-
 							setProject,
+							setCardsLoading,
 						}}
 					/>
 				</div>

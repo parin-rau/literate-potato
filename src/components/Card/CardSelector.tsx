@@ -10,8 +10,8 @@ type TicketProps = {
 	setCardCache: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
-
 	setProject?: never;
+	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type ProjectProps = {
@@ -21,8 +21,8 @@ type ProjectProps = {
 	setCardCache: React.Dispatch<React.SetStateAction<Project[]>>;
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
-
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
+	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type Props = TicketProps | ProjectProps;
@@ -34,8 +34,8 @@ export default function CardSelector(props: Props) {
 		setCardCache,
 		filters,
 		setFilters,
-
 		setProject,
+		setCardsLoading,
 	} = props;
 
 	switch (dataKind) {
@@ -44,18 +44,10 @@ export default function CardSelector(props: Props) {
 				<TicketCard
 					key={card.ticketId}
 					cardData={{ ...card }}
-					setCards={
-						setCards as React.Dispatch<
-							React.SetStateAction<FetchedTicketData[]>
-						>
-					}
+					setCards={setCards}
 					filters={filters}
 					setFilters={setFilters}
-					setCardCache={
-						setCardCache as React.Dispatch<
-							React.SetStateAction<FetchedTicketData[]>
-						>
-					}
+					setCardCache={setCardCache}
 					setProject={setProject}
 				/>
 			));
@@ -66,20 +58,14 @@ export default function CardSelector(props: Props) {
 						<ProjectCard
 							key={card.projectId}
 							cardData={{ ...card }}
-							setCards={
-								setCards as React.Dispatch<
-									React.SetStateAction<Project[]>
-								>
-							}
-							setCardCache={
-								setCardCache as React.Dispatch<
-									React.SetStateAction<Project[]>
-								>
-							}
+							setCards={setCards}
+							setCardCache={setCardCache}
 						/>
 					))}
 
-					<UncategorizedProjectsCard />
+					<UncategorizedProjectsCard
+						setCardsLoading={setCardsLoading}
+					/>
 				</>
 			);
 	}

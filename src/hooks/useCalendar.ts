@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-//import { useInitialFetch } from "./useInitialFetch";
 import { dateToStr } from "../utility/dateConversion";
 import { useProtectedFetch } from "./useProtectedFetch";
 import { Calendar, emptyCalendar } from "../types";
@@ -20,7 +19,6 @@ const monthLookup = [
 	"December",
 ];
 
-//const d = new Date(2023, 7, 29); // Test for current day highlighting visible across two months
 const d = new Date();
 
 export function useCalendar() {
@@ -29,16 +27,6 @@ export function useCalendar() {
 	const [calendar, setCalendar] = useState<Calendar>(emptyCalendar);
 
 	// LOCAL HELPERS
-
-	// const getDatesOfMonthUTC = useCallback((year: number, month: number) => {
-	// 	const date = new Date(Date.UTC(year, month, 1));
-	// 	const days = [];
-	// 	while (date.getUTCMonth() === month) {
-	// 		days.push(new Date(date));
-	// 		date.setUTCDate(date.getUTCDate() + 1);
-	// 	}
-	// 	return days;
-	// }, []);
 
 	const getDatesOfMonth = useCallback((year: number, month: number) => {
 		const date = new Date(year, month, 1);
@@ -176,15 +164,6 @@ export function useCalendar() {
 		return { dates, viewDates, strViewDates };
 	}, [getDatesOfMonth, monthDisplayFormat]);
 
-	// const {
-	// 	data: initDueDates,
-	// 	isLoading,
-	// }: { data: { [key: string]: number }; isLoading: boolean } =
-	// 	useInitialFetch("/api/ticket/calendar", {
-	// 		method: "POST",
-	// 		body: JSON.stringify(initViewDates.strViewDates),
-	// 	});
-
 	useEffect(() => {
 		const abortController = new AbortController();
 
@@ -231,13 +210,6 @@ export function useCalendar() {
 	}, [displayDatesFormat, initViewDates, protectedFetch]);
 
 	const initCalendar = useCallback(async () => {
-		// const dates = {
-		// 	current: getDatesOfMonth(d.getFullYear(), d.getMonth()),
-		// 	next: getDatesOfMonth(d.getFullYear(), d.getMonth() + 1),
-		// 	prev: getDatesOfMonth(d.getFullYear(), d.getMonth() - 1),
-		// };
-		// const viewDates = monthDisplayFormat(dates);
-
 		const { dates, viewDates, strViewDates } = initViewDates;
 
 		const res = await protectedFetch(`/api/ticket/calendar/`, {
@@ -270,38 +242,11 @@ export function useCalendar() {
 			...partialInit,
 			displayDates,
 		};
-
-		// return {
-		// 	currentTime: d,
-		// 	currentView: {
-		// 		year: d.getFullYear(),
-		// 		month: monthLookup[d.getMonth()],
-		// 		monthIndex: d.getMonth(),
-		// 	},
-		// 	dates,
-		// };
-
-		// const res = await protectedFetch(`/api/ticket/calendar/`, {
-		// 	method: "POST",
-		// 	body: JSON.stringify(strViewDates),
-		// });
-		// if (res.ok) {
-		// 	const dueDates: Record<string, number> = await res.json();
-		// 	const initWithDueDates = {...init, dueDates}
-		// 	return initWithDueDates
-		// }
-		//return init
 	}, [displayDatesFormat, initViewDates, protectedFetch]);
 
 	// EXPOSED FUNCTIONS
 
 	const dayLookup = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
-
-	// const { data: dueDates, isLoading } = useInitialFetch(
-	// 	"/api/ticket/calendar",
-	// 	{ method: "POST", body: JSON.stringify(initViewDates.strViewDates) }
-	// );
-	//const [calendar, setCalendar] = useState(initCalendar());
 
 	const handleMonthChange = useCallback(
 		async (direction: 1 | -1) => {
@@ -324,7 +269,6 @@ export function useCalendar() {
 				newMonthIndex.month
 			);
 			const viewDates = monthDisplayFormat(newDates);
-			//const newDislayDates = displayDatesFormat(viewDates, newMonthIndex.month);
 			const strViewDates = viewDates.map((dt) => dateToStr(dt));
 
 			const res = await protectedFetch(`/api/ticket/calendar/`, {
@@ -363,15 +307,6 @@ export function useCalendar() {
 	);
 
 	const handleCalendarReset = useCallback(async () => {
-		// const res = await protectedFetch("/api/ticket/calendar", {
-		// 	method: "POST",
-		// 	body: JSON.stringify(initViewDates.strViewDates),
-		// });
-		// if (res.ok) {
-		// 	const dueDates: Record<string, number> = await res.json();
-		// 	return setCalendar({ ...initCalendar, dueDates });
-		// }
-
 		const resetCalendar = await initCalendar();
 		setCalendar(resetCalendar);
 	}, [initCalendar]);

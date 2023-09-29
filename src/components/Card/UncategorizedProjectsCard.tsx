@@ -1,10 +1,20 @@
 import { Link } from "react-router-dom";
 import { useInitialFetch } from "../../hooks/useInitialFetch";
+import { useEffect } from "react";
 
-export default function UncategorizedProjectsCard() {
+type Props = {
+	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export default function UncategorizedProjectsCard(props: Props) {
+	const { setCardsLoading } = props;
 	const { isLoading, ok } = useInitialFetch(
 		"/api/ticket/project/uncategorized"
 	);
+
+	useEffect(() => {
+		if (setCardsLoading) isLoading ? null : setCardsLoading(false);
+	}, [isLoading, setCardsLoading]);
 
 	return (
 		!isLoading &&
