@@ -4,9 +4,20 @@ export function dateStrToTime(str: string) {
 	return d.getTime();
 }
 
-export function dateToStr(m: number) {
+export function dateNumToStr(m: number) {
 	if (m >= 10) return m.toString();
 
 	const mStr = [0, m].join("");
 	return mStr;
+}
+
+export function dateToStr(date: Date) {
+	const dt = {
+		y: date.getFullYear().toString(),
+		m: dateNumToStr(date.getMonth() + 1),
+		d: dateNumToStr(date.getDate()),
+	};
+
+	const formattedDateStr = [dt.y, dt.m, dt.d].join("-");
+	return formattedDateStr;
 }

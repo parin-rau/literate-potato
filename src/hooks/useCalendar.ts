@@ -196,22 +196,19 @@ export function useCalendar() {
 				newMonthIndex.year,
 				newMonthIndex.month
 			);
+			const viewDates = monthDisplayFormat(newDates);
+			const strViewDates = viewDates.map((dt) => dateToStr(dt));
 
-			const calendarViewDates = monthDisplayFormat(newDates);
-			const res = await protectedFetch(
-				`/api/ticket/calendar/${calendarViewDates[0]}/${
-					calendarViewDates[length - 1]
-				}`
-			);
+			const res = await protectedFetch(`/api/ticket/calendar/`, {
+				method: "POST",
+				body: JSON.stringify(strViewDates),
+			});
 			if (res.ok) {
-				const resData = await res.json();
-				console.log(resData);
+				const countedDates = await res.json();
+				console.log(countedDates);
 			}
 
-			const newDislayDates = dateStyles(
-				calendarViewDates,
-				newMonthIndex.month
-			);
+			const newDislayDates = dateStyles(viewDates, newMonthIndex.month);
 
 			setCalendar((prev) => ({
 				...prev,
@@ -241,20 +238,7 @@ export function useCalendar() {
 
 	const handleDateClick = useCallback(
 		(date: Date) => {
-			// const strFormat = (m: number) => {
-			// 	if (m >= 10) return m.toString();
-
-			// 	const mStr = [0, m].join("");
-			// 	return mStr;
-			// };
-
-			const dt = {
-				y: date.getFullYear().toString(),
-				m: dateToStr(date.getMonth() + 1),
-				d: dateToStr(date.getDate()),
-			};
-
-			const formattedDate = [dt.y, dt.m, dt.d].join("-");
+			const formattedDate = dateToStr(date);
 			navigate(`/search/${formattedDate}`);
 		},
 		[navigate]

@@ -35,3 +35,14 @@ export function arrayExclude(sourceArr: string[], filterArr: string[]) {
 		return returnArr;
 	}
 }
+
+export const countPerElement = <T extends string | number | symbol>(
+	arr: T[]
+) => {
+	const counts = arr.reduce(
+		(a, c) => ((a[c] = (a[c] || 0) + 1), a),
+		<Record<T, number>>{}
+	);
+
+	return counts;
+};
