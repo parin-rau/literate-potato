@@ -1,8 +1,9 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 //import { useInitialFetch } from "./useInitialFetch";
 import { dateToStr } from "../utility/dateConversion";
 import { useProtectedFetch } from "./useProtectedFetch";
+import { Calendar, emptyCalendar } from "../types";
 
 const monthLookup = [
 	"January",
@@ -25,7 +26,7 @@ const d = new Date();
 export function useCalendar() {
 	const navigate = useNavigate();
 	const { protectedFetch } = useProtectedFetch();
-	//const {data: } = useInitialFetch();
+	const [calendar, setCalendar] = useState<Calendar>(emptyCalendar);
 
 	// LOCAL HELPERS
 
@@ -125,12 +126,16 @@ export function useCalendar() {
 		[]
 	);
 
-	const dateStyles = useCallback(
-		(dates: Date[], currentMonth: number) => {
+	const displayDatesFormat = useCallback(
+		(
+			dates: Date[],
+			currentMonth: number,
+			dueDates?: { [key: string]: number }
+		) => {
 			const stylesArr = dates.map((date) => {
 				switch (true) {
 					case isEqualDates(date, d):
-						return "dark:bg-red-600 bg-red-400";
+						return "bg-blue-200 hover:bg-blue-300 dark:bg-blue-700 dark:hover:bg-blue-500";
 					case !isCurrentViewMonth(date, currentMonth):
 						return "dark:text-zinc-500 text-zinc-400";
 					default:
@@ -138,9 +143,21 @@ export function useCalendar() {
 				}
 			});
 
-			const joined: { date: Date; styles: string }[] = [];
+			const joined: { date: Date; styles: string; dueCount: number }[] =
+				[];
 			for (let i = 0; i < dates.length; i++) {
-				joined.push({ date: dates[i], styles: stylesArr[i] });
+				if (!dueDates) {
+					joined.push({
+						date: dates[i],
+						styles: stylesArr[i],
+						dueCount: 0,
+					});
+					continue;
+				}
+
+				const dt = dateToStr(dates[i]);
+				const dueCount = dueDates[dt];
+				joined.push({ date: dates[i], styles: stylesArr[i], dueCount });
 			}
 
 			return joined;
@@ -148,18 +165,87 @@ export function useCalendar() {
 		[isCurrentViewMonth, isEqualDates]
 	);
 
-	const initCalendar = useMemo(() => {
+	const initViewDates = useMemo(() => {
 		const dates = {
 			current: getDatesOfMonth(d.getFullYear(), d.getMonth()),
 			next: getDatesOfMonth(d.getFullYear(), d.getMonth() + 1),
 			prev: getDatesOfMonth(d.getFullYear(), d.getMonth() - 1),
 		};
-		const displayDates = dateStyles(
-			monthDisplayFormat(dates),
-			d.getMonth()
-		);
+		const viewDates = monthDisplayFormat(dates);
+		const strViewDates = viewDates.map((dt) => dateToStr(dt));
+		return { dates, viewDates, strViewDates };
+	}, [getDatesOfMonth, monthDisplayFormat]);
 
-		return {
+	// const {
+	// 	data: initDueDates,
+	// 	isLoading,
+	// }: { data: { [key: string]: number }; isLoading: boolean } =
+	// 	useInitialFetch("/api/ticket/calendar", {
+	// 		method: "POST",
+	// 		body: JSON.stringify(initViewDates.strViewDates),
+	// 	});
+
+	useEffect(() => {
+		const abortController = new AbortController();
+
+		async function getInitCalendar() {
+			const { dates, viewDates, strViewDates } = initViewDates;
+
+			const res = await protectedFetch(`/api/ticket/calendar/`, {
+				method: "POST",
+				body: JSON.stringify(strViewDates),
+				signal: abortController.signal,
+			});
+
+			const partialInit = {
+				currentTime: d,
+				currentView: {
+					year: d.getFullYear(),
+					month: monthLookup[d.getMonth()],
+					monthIndex: d.getMonth(),
+				},
+				dates,
+				displayDates: [],
+			};
+
+			if (res.ok) {
+				const initDueDates = await res.json();
+
+				const displayDates = displayDatesFormat(
+					viewDates,
+					d.getMonth(),
+					initDueDates
+				);
+
+				setCalendar({
+					...partialInit,
+					displayDates,
+				});
+			} else {
+				setCalendar(partialInit);
+			}
+		}
+		getInitCalendar();
+
+		return () => abortController.abort();
+	}, [displayDatesFormat, initViewDates, protectedFetch]);
+
+	const initCalendar = useCallback(async () => {
+		// const dates = {
+		// 	current: getDatesOfMonth(d.getFullYear(), d.getMonth()),
+		// 	next: getDatesOfMonth(d.getFullYear(), d.getMonth() + 1),
+		// 	prev: getDatesOfMonth(d.getFullYear(), d.getMonth() - 1),
+		// };
+		// const viewDates = monthDisplayFormat(dates);
+
+		const { dates, viewDates, strViewDates } = initViewDates;
+
+		const res = await protectedFetch(`/api/ticket/calendar/`, {
+			method: "POST",
+			body: JSON.stringify(strViewDates),
+		});
+
+		const partialInit = {
 			currentTime: d,
 			currentView: {
 				year: d.getFullYear(),
@@ -167,14 +253,55 @@ export function useCalendar() {
 				monthIndex: d.getMonth(),
 			},
 			dates,
+			displayDates: [],
+		};
+
+		if (!res.ok) return partialInit;
+
+		const initDueDates = await res.json();
+
+		const displayDates = displayDatesFormat(
+			viewDates,
+			d.getMonth(),
+			initDueDates
+		);
+
+		return {
+			...partialInit,
 			displayDates,
 		};
-	}, [getDatesOfMonth, monthDisplayFormat, dateStyles]);
+
+		// return {
+		// 	currentTime: d,
+		// 	currentView: {
+		// 		year: d.getFullYear(),
+		// 		month: monthLookup[d.getMonth()],
+		// 		monthIndex: d.getMonth(),
+		// 	},
+		// 	dates,
+		// };
+
+		// const res = await protectedFetch(`/api/ticket/calendar/`, {
+		// 	method: "POST",
+		// 	body: JSON.stringify(strViewDates),
+		// });
+		// if (res.ok) {
+		// 	const dueDates: Record<string, number> = await res.json();
+		// 	const initWithDueDates = {...init, dueDates}
+		// 	return initWithDueDates
+		// }
+		//return init
+	}, [displayDatesFormat, initViewDates, protectedFetch]);
 
 	// EXPOSED FUNCTIONS
 
 	const dayLookup = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
-	const [calendar, setCalendar] = useState(initCalendar);
+
+	// const { data: dueDates, isLoading } = useInitialFetch(
+	// 	"/api/ticket/calendar",
+	// 	{ method: "POST", body: JSON.stringify(initViewDates.strViewDates) }
+	// );
+	//const [calendar, setCalendar] = useState(initCalendar());
 
 	const handleMonthChange = useCallback(
 		async (direction: 1 | -1) => {
@@ -197,6 +324,7 @@ export function useCalendar() {
 				newMonthIndex.month
 			);
 			const viewDates = monthDisplayFormat(newDates);
+			//const newDislayDates = displayDatesFormat(viewDates, newMonthIndex.month);
 			const strViewDates = viewDates.map((dt) => dateToStr(dt));
 
 			const res = await protectedFetch(`/api/ticket/calendar/`, {
@@ -204,23 +332,25 @@ export function useCalendar() {
 				body: JSON.stringify(strViewDates),
 			});
 			if (res.ok) {
-				const countedDates = await res.json();
-				console.log(countedDates);
+				const dueDates = await res.json();
+				const newDislayDates = displayDatesFormat(
+					viewDates,
+					newMonthIndex.month,
+					dueDates
+				);
+
+				setCalendar((prev) => ({
+					...prev,
+					currentTime: new Date(),
+					currentView: {
+						year: newMonthIndex.year,
+						month: newMonth,
+						monthIndex: newMonthIndex.month,
+					},
+					dates: newDates,
+					displayDates: newDislayDates,
+				}));
 			}
-
-			const newDislayDates = dateStyles(viewDates, newMonthIndex.month);
-
-			setCalendar((prev) => ({
-				...prev,
-				currentTime: new Date(),
-				currentView: {
-					year: newMonthIndex.year,
-					month: newMonth,
-					monthIndex: newMonthIndex.month,
-				},
-				dates: newDates,
-				displayDates: newDislayDates,
-			}));
 		},
 		[
 			calendar.currentView.month,
@@ -228,12 +358,22 @@ export function useCalendar() {
 			getNewDatesOfMonths,
 			monthDisplayFormat,
 			protectedFetch,
-			dateStyles,
+			displayDatesFormat,
 		]
 	);
 
-	const handleCalendarReset = useCallback(() => {
-		setCalendar(initCalendar);
+	const handleCalendarReset = useCallback(async () => {
+		// const res = await protectedFetch("/api/ticket/calendar", {
+		// 	method: "POST",
+		// 	body: JSON.stringify(initViewDates.strViewDates),
+		// });
+		// if (res.ok) {
+		// 	const dueDates: Record<string, number> = await res.json();
+		// 	return setCalendar({ ...initCalendar, dueDates });
+		// }
+
+		const resetCalendar = await initCalendar();
+		setCalendar(resetCalendar);
 	}, [initCalendar]);
 
 	const handleDateClick = useCallback(

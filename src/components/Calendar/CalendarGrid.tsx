@@ -1,18 +1,14 @@
 import { useCalendar } from "../../hooks/useCalendar";
+import { Calendar } from "../../types";
+import CornerNotification from "./CornerNotification";
 
 type Props = {
-	calendar: {
-		currentTime: Date;
-		currentView: { year: number; month: string; monthIndex: number };
-		dates: { current: Date[]; next: Date[]; prev: Date[] };
-		displayDates: { date: Date; styles: string }[];
-	};
+	calendar: Calendar;
 	handleDateClick: (_d: Date) => void;
 };
 
 export default function CalendarGrid(props: Props) {
 	const { utility } = useCalendar();
-	//const { handleDateClick } = handlers;
 	const { dayLookup } = utility;
 	const { calendar, handleDateClick } = props;
 
@@ -27,13 +23,14 @@ export default function CalendarGrid(props: Props) {
 				<button
 					key={idx}
 					className={
-						"w-10 h-10 rounded-xl hover:bg-slate-300 dark:hover:bg-neutral-700 " +
+						"relative w-10 h-10 rounded-xl sm:text-lg hover:bg-slate-300 dark:hover:bg-neutral-700 " +
 						d.styles
 					}
 					type="button"
 					onClick={() => handleDateClick(d.date)}
 				>
 					{d.date.getDate()}
+					{d.dueCount && <CornerNotification count={d.dueCount} />}
 				</button>
 			))}
 		</div>

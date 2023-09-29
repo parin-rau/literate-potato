@@ -18,7 +18,9 @@ export default function CalendarContainer() {
 					view: calendar.currentView,
 				}}
 			/>
-			<CalendarGrid {...{ calendar, handleDateClick }} />
+			{calendar.displayDates && (
+				<CalendarGrid {...{ calendar, handleDateClick }} />
+			)}
 		</div>
 	);
 }

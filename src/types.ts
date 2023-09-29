@@ -180,3 +180,25 @@ export interface SearchResultProps {
 	};
 	meta: { kind: "ticket" | "project" | "user" };
 }
+
+export interface Calendar {
+	currentTime: Date;
+	currentView: {
+		year: number;
+		month: string;
+		monthIndex: number;
+	};
+	dates: { prev: Date[]; current: Date[]; next: Date[] };
+	displayDates: { date: Date; styles: string; dueCount: number }[];
+}
+
+export const emptyCalendar: Calendar = {
+	currentTime: new Date(),
+	currentView: {
+		year: 0,
+		month: "",
+		monthIndex: 0,
+	},
+	dates: { prev: [new Date()], current: [new Date()], next: [new Date()] },
+	displayDates: [{ date: new Date(), styles: "", dueCount: 0 }],
+};
