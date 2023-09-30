@@ -1,4 +1,4 @@
-import { useState, createContext, useRef, useCallback } from "react";
+import { useState, createContext, useRef, useCallback, useMemo } from "react";
 import jwtDecode from "../utility/jwtDecode";
 import { useNavigate } from "react-router-dom";
 import { Login, Register, UserDecode } from "../types";
@@ -129,15 +129,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		}
 	}, [signOut]);
 
-	const value = {
-		user,
-		registerUser,
-		signIn,
-		signOut,
-		refreshAccessToken,
-		err,
-		setErr,
-	};
+	const value = useMemo(
+		() => ({
+			user,
+			registerUser,
+			signIn,
+			signOut,
+			refreshAccessToken,
+			err,
+			setErr,
+		}),
+		[err, refreshAccessToken, registerUser, signIn, signOut]
+	);
 
 	return (
 		<AuthContext.Provider value={value}>{children}</AuthContext.Provider>

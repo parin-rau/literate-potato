@@ -20,13 +20,7 @@ export function useTicket(props: Props) {
 	const { setCards, setCardCache, setProject } = props;
 	const navigate = useNavigate();
 
-	const [statusColors, setStatusColors] = useState(
-		statusColorsLookup(taskStatus)
-	);
-	const [isEditing, setEditing] = useState(false);
-	const { protectedFetch } = useProtectedFetch();
-
-	function statusColorsLookup(currentStatus: string) {
+	const statusColorsLookup = useCallback((currentStatus: string) => {
 		const currentOption = optionLookup.taskStatus.find(
 			(option) => option.value === currentStatus
 		);
@@ -35,7 +29,13 @@ export function useTicket(props: Props) {
 				? `${currentOption.bgColor} ${currentOption.textColor}`
 				: "bg-slate-100 text-black";
 		return optionColors;
-	}
+	}, []);
+
+	const [statusColors, setStatusColors] = useState(
+		statusColorsLookup(taskStatus)
+	);
+	const [isEditing, setEditing] = useState(false);
+	const { protectedFetch } = useProtectedFetch();
 
 	const handleTaskChange = useCallback(
 		async (
@@ -57,43 +57,38 @@ export function useTicket(props: Props) {
 				return res;
 			}
 
-			if (projectId && updatedTaskStatus === "Completed") {
-				const patchData: PatchData = {
-					operation: "add",
-					tasksCompletedIds: [taskId],
-					tasksTotalIds: [taskId],
-				};
-				const res = await sendPatchData(patchData);
-				// if (res.ok) {
-				// 	console.log("complete task");
-				// }
-				return res;
-			} else if (projectId && updatedTaskStatus === "DELETE") {
-				const patchData: PatchData = {
-					operation: "delete",
-					tasksCompletedIds: [taskId],
-					tasksTotalIds: [taskId],
-				};
-				const res = await sendPatchData(patchData);
-				// if (res.ok) {
-				// 	console.log("deleted task");
-				// }
-				return res;
-			} else if (
-				projectId &&
-				updatedTaskStatus !== "Completed" &&
-				updatedTaskStatus !== "DELETE"
-			) {
-				const patchData: PatchData = {
-					operation: "delete",
-					tasksCompletedIds: [taskId],
-					tasksTotalIds: [],
-				};
-				const res = await sendPatchData(patchData);
-				// if (res.ok) {
-				// 	console.log("incomplete task");
-				// }
-				return res;
+			switch (true) {
+				case projectId && updatedTaskStatus === "Completed": {
+					const patchData: PatchData = {
+						operation: "add",
+						tasksCompletedIds: [taskId],
+						tasksTotalIds: [taskId],
+					};
+					const res = await sendPatchData(patchData);
+					return res;
+				}
+				case projectId && updatedTaskStatus === "DELETE": {
+					const patchData: PatchData = {
+						operation: "delete",
+						tasksCompletedIds: [taskId],
+						tasksTotalIds: [taskId],
+					};
+					const res = await sendPatchData(patchData);
+					return res;
+				}
+				case projectId &&
+					updatedTaskStatus !== "Completed" &&
+					updatedTaskStatus !== "DELETE": {
+					const patchData: PatchData = {
+						operation: "delete",
+						tasksCompletedIds: [taskId],
+						tasksTotalIds: [],
+					};
+					const res = await sendPatchData(patchData);
+					return res;
+				}
+				default:
+					return new Response();
 			}
 		},
 		[protectedFetch]
@@ -152,12 +147,13 @@ export function useTicket(props: Props) {
 			}
 		},
 		[
-			handleTaskChange,
+			statusColorsLookup,
 			protectedFetch,
+			ticketId,
+			handleTaskChange,
+			project.projectId,
 			setCards,
 			setProject,
-			project,
-			ticketId,
 		]
 	);
 
@@ -248,6 +244,54 @@ export function useTicket(props: Props) {
 		setEditing(true);
 	}, []);
 
+	const getNewTaskStatus = useCallback(
+		(
+			// projectId: string,
+			// taskId: string,
+			completedSubtasksCount: number,
+			totalSubtasksCount: number,
+			currentTaskStatus: string
+		) => {
+			const newTaskStatus = (
+				completed: number,
+				total: number,
+				fallbackStatus: string
+			) => {
+				switch (true) {
+					case total > 0 && completed === total:
+						return "Completed";
+					case total > 0 && completed > 0 && completed < total:
+						return "In Progress";
+					case total > 0 && completed === 0:
+						return "Not Started";
+					default:
+						return fallbackStatus;
+				}
+			};
+
+			const updatedTaskStatus = newTaskStatus(
+				completedSubtasksCount,
+				totalSubtasksCount,
+				currentTaskStatus
+			);
+
+			if (updatedTaskStatus === currentTaskStatus) {
+				return currentTaskStatus;
+			} else {
+				setStatusColors(statusColorsLookup(updatedTaskStatus));
+				return updatedTaskStatus;
+			}
+
+			// 	const res = await handleTaskChange(
+			// 		projectId,
+			// 		taskId,
+			// 		updatedTaskStatus
+			// 	);
+			// 	if (res.ok) return console.log("updated task status")
+		},
+		[statusColorsLookup]
+	);
+
 	const completeSubtask = useCallback(
 		async (id: string) => {
 			if (subtasks) {
@@ -264,12 +308,26 @@ export function useTicket(props: Props) {
 				const subtasksCompletedIds = [targetSubtask!.subtaskId];
 				const subtasksTotalIds: string[] = [];
 
+				const completedSubtasksCount = updatedSubtasks
+					.map((s) => (s.completed ? 1 : 0))
+					.reduce((a: number, c) => a + c, 0);
+
+				const updatedTaskStatus = getNewTaskStatus(
+					completedSubtasksCount,
+					subtasks.length,
+					taskStatus
+				);
+				console.log(updatedTaskStatus);
+
 				try {
 					const res1 = await protectedFetch(
 						`/api/ticket/${ticketId}`,
 						{
 							method: "PATCH",
-							body: JSON.stringify({ subtasks: updatedSubtasks }),
+							body: JSON.stringify({
+								subtasks: updatedSubtasks,
+								taskStatus: updatedTaskStatus,
+							}),
 						}
 					);
 					if (res1.ok) {
@@ -279,6 +337,7 @@ export function useTicket(props: Props) {
 									? {
 											...card,
 											subtasks: updatedSubtasks,
+											taskStatus: updatedTaskStatus,
 											lastModified: Date.now(),
 									  }
 									: card
@@ -305,12 +364,32 @@ export function useTicket(props: Props) {
 																	proj.subtasksCompletedIds,
 																	subtasksCompletedIds
 															  ) as string[]),
+													tasksCompletedIds:
+														updatedTaskStatus ===
+														"Completed"
+															? [
+																	...proj.tasksCompletedIds,
+																	ticketId,
+															  ]
+															: proj.tasksCompletedIds.filter(
+																	(i) =>
+																		i !==
+																		ticketId
+															  ),
 											  }
 											: proj
 									)
 								);
 
 							//const res2 =
+							const projectPatchData = {
+								operation,
+								subtasksCompletedIds,
+								subtasksTotalIds,
+								tasksCompletedIds:
+									updatedTaskStatus === "Completed" ? [] : [],
+							};
+
 							await protectedFetch(
 								`/api/project/${project.projectId}`,
 								{
@@ -335,12 +414,14 @@ export function useTicket(props: Props) {
 			}
 		},
 		[
+			getNewTaskStatus,
 			project.projectId,
 			protectedFetch,
 			setCards,
 			setProject,
 			subtasks,
 			ticketId,
+			taskStatus,
 		]
 	);
 

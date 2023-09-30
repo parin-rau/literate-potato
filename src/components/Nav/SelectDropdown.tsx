@@ -24,9 +24,7 @@ export default function SelectDropdown(props: Props) {
 				"text-base max-w-xs px-2 py-1 rounded-lg " + stylesOverride
 			}
 			value={value}
-			onChange={(e) => {
-				handleChange(e);
-			}}
+			onChange={handleChange}
 			required={required}
 		>
 			{options.map((option, index) => (
