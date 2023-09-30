@@ -15,6 +15,7 @@ export default function TicketEditor(props: Props) {
 		handleChange,
 		handleKeyDown,
 	} = handlers;
+
 	const {
 		init,
 		editor,
