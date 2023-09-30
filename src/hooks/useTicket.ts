@@ -246,8 +246,6 @@ export function useTicket(props: Props) {
 
 	const getNewTaskStatus = useCallback(
 		(
-			// projectId: string,
-			// taskId: string,
 			completedSubtasksCount: number,
 			totalSubtasksCount: number,
 			currentTaskStatus: string
@@ -281,13 +279,6 @@ export function useTicket(props: Props) {
 				setStatusColors(statusColorsLookup(updatedTaskStatus));
 				return updatedTaskStatus;
 			}
-
-			// 	const res = await handleTaskChange(
-			// 		projectId,
-			// 		taskId,
-			// 		updatedTaskStatus
-			// 	);
-			// 	if (res.ok) return console.log("updated task status")
 		},
 		[statusColorsLookup]
 	);
@@ -317,7 +308,6 @@ export function useTicket(props: Props) {
 					subtasks.length,
 					taskStatus
 				);
-				console.log(updatedTaskStatus);
 
 				try {
 					const res1 = await protectedFetch(
@@ -381,31 +371,37 @@ export function useTicket(props: Props) {
 									)
 								);
 
-							//const res2 =
+							const taskIdPatchData = () => {
+								switch (true) {
+									case operation === "add" &&
+										updatedTaskStatus === "Completed":
+										return [ticketId];
+									case operation === "delete":
+										return [ticketId];
+									default:
+										return [];
+								}
+							};
+
 							const projectPatchData = {
 								operation,
 								subtasksCompletedIds,
 								subtasksTotalIds,
-								tasksCompletedIds:
-									updatedTaskStatus === "Completed" ? [] : [],
+								tasksCompletedIds: taskIdPatchData(),
+								tasksTotalIds: [],
 							};
 
 							await protectedFetch(
 								`/api/project/${project.projectId}`,
 								{
 									method: "PATCH",
-									body: JSON.stringify({
-										operation,
-										subtasksCompletedIds,
-										subtasksTotalIds,
-									}),
+									body: JSON.stringify(projectPatchData),
 								}
 							);
-							// if (res2.ok) {
+
 							// 	console.log(
 							// 		"Incremented completed tasks for project"
 							// 	);
-							// }
 						}
 					}
 				} catch (e) {
