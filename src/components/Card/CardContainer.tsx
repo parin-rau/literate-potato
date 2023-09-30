@@ -230,7 +230,6 @@ export default function CardContainer<
 							{...{
 								filters,
 								setFilters,
-
 								deleteFilterTag,
 								filterMode,
 								changeFilterMode,

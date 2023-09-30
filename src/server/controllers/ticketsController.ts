@@ -7,6 +7,7 @@ import { countPerElement } from "../../utility/arrayComparisons";
 //import { dateStrToTime } from "../../utility/dateConversion";
 
 const localTickets = process.env.LOCAL_TICKETS ?? "tickets";
+const projects = process.env.LOCAL_PROJECTS ?? "projects";
 
 export async function getTicket(req: Request, res: Response) {
 	try {
@@ -68,13 +69,29 @@ export async function getTicketCountsForCalendar(req: Request, res: Response) {
 
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localTickets);
+		const ticketColl: mongoDB.Collection = db.collection(localTickets);
+		const projectColl: mongoDB.Collection = db.collection(projects);
 
-		const foundTickets = await coll
+		const foundTickets = await ticketColl
 			.find({ due: { $in: dateRange } })
 			.toArray();
 
+		const foundTicketsParents: string[] = foundTickets.map(
+			(t) => t.project.projectId
+		);
+
+		const foundProjects = await projectColl
+			.find({
+				projectId: { $in: foundTicketsParents },
+			})
+			.toArray();
+
 		await client.close();
+
+		const colors = foundProjects.map((p) => ({
+			color: p.color,
+			projectId: p.projectId,
+		}));
 
 		const dueDates: string[] = foundTickets.map((t) => t.due);
 		const countedDates = countPerElement(dueDates);

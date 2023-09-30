@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import SignInButton from "./SignInButton";
+//import Sidebar from "./Sidebar";
 //import { useAuth } from "../../hooks/useAuth";
 
 export default function NavBar() {

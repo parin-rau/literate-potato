@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom";
+import SidebarButton from "./SidebarButton";
 
 export default function Sidebar() {
 	return (
-		<div>
-			<Link to={"/"}>Projects</Link>
-			<Link to={"/profile"}>Profile</Link>
-			<Link to={"/todo"}>To-Do</Link>
+		<div className="fixed z-10 top-0 left-0 h-screen w-32 m-0 p-2 pt-16 flex flex-col gap-2 dark:bg-zinc-900">
+			<SidebarButton to={"/group"} text="Groups" />
+			<SidebarButton to={"/"} text="Projects" />
+			<SidebarButton to={"/profile"} text="Profile" />
+			<SidebarButton to={"/todo"} text="To-Do" />
 		</div>
 	);
 }

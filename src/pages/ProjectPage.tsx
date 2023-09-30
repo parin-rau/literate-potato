@@ -5,7 +5,7 @@ import { FetchedTicketData, Project, uncategorizedProject } from "../types";
 import { useNavigate, useParams } from "react-router-dom";
 import { useInitialFetch } from "../hooks/useInitialFetch";
 
-export default function ProjectTaskPage() {
+export default function ProjectPage() {
 	const projectId = useParams().id || "";
 	const navigate = useNavigate();
 
