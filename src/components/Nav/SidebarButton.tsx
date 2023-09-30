@@ -8,7 +8,7 @@ type Props = {
 export default function SidebarButton(props: Props) {
 	return (
 		<Link
-			className="px-4 py-2 text-lg font-semibold rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700"
+			className="px-4 py-2 text-lg rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700"
 			to={props.to}
 		>
 			{props.text}
