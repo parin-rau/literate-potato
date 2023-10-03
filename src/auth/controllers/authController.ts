@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import "dotenv/config";
 import * as mongoDB from "mongodb";
-import { connectToDatabase } from "../../server/mongodb";
+import { connectToDatabase } from "../../db/mongodb";
 import { formatRegistration, validateLogin } from "../userValidation";
 import { Login, UserToken, Register } from "../../types";
 import jwt from "jsonwebtoken";

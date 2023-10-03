@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProtectedFetch } from "./useProtectedFetch";
-import { optionLookup } from "../utility/optionLookup";
+import { statusColorsLookup } from "../utility/optionLookup";
 import { FetchedTicketData, Project, TicketData } from "../types";
 import { arrayExclude } from "../utility/arrayComparisons";
 
@@ -20,16 +20,16 @@ export function useTicket(props: Props) {
 	const { setCards, setCardCache, setProject } = props;
 	const navigate = useNavigate();
 
-	const statusColorsLookup = useCallback((currentStatus: string) => {
-		const currentOption = optionLookup.taskStatus.find(
-			(option) => option.value === currentStatus
-		);
-		const optionColors =
-			currentOption?.bgColor && currentOption?.textColor
-				? `${currentOption.bgColor} ${currentOption.textColor}`
-				: "bg-slate-100 text-black";
-		return optionColors;
-	}, []);
+	// const statusColorsLookup = useCallback((currentStatus: string) => {
+	// 	const currentOption = optionLookup.taskStatus.find(
+	// 		(option) => option.value === currentStatus
+	// 	);
+	// 	const optionColors =
+	// 		currentOption?.bgColor && currentOption?.textColor
+	// 			? `${currentOption.bgColor} ${currentOption.textColor}`
+	// 			: "bg-slate-100 text-black";
+	// 	return optionColors;
+	// }, []);
 
 	const [statusColors, setStatusColors] = useState(
 		statusColorsLookup(taskStatus)
@@ -147,7 +147,6 @@ export function useTicket(props: Props) {
 			}
 		},
 		[
-			statusColorsLookup,
 			protectedFetch,
 			ticketId,
 			handleTaskChange,
@@ -280,7 +279,7 @@ export function useTicket(props: Props) {
 				return updatedTaskStatus;
 			}
 		},
-		[statusColorsLookup]
+		[]
 	);
 
 	const completeSubtask = useCallback(
@@ -443,6 +442,7 @@ export function useTicket(props: Props) {
 		isEditing,
 		setEditing,
 		statusColors,
+		setStatusColors,
 		isOverdue,
 	};
 }

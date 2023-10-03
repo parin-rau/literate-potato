@@ -2,7 +2,11 @@ import { useCalendar } from "../../hooks/useCalendar";
 import CalendarHeader from "./CalendarHeader";
 import CalendarGrid from "./CalendarGrid";
 
-export default function CalendarContainer() {
+type Props = {
+	headerText: string;
+};
+
+export default function CalendarContainer({ headerText }: Props) {
 	const { handlers, state } = useCalendar();
 
 	const { calendar } = state;
@@ -16,6 +20,7 @@ export default function CalendarContainer() {
 					handleMonthChange,
 					handleCalendarReset,
 					view: calendar.currentView,
+					headerText,
 				}}
 			/>
 			{calendar.displayDates && (

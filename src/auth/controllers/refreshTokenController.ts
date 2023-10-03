@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { Request, Response } from "express";
 import * as mongoDB from "mongodb";
-import { connectToDatabase } from "../../server/mongodb";
+import { connectToDatabase } from "../../db/mongodb";
 import jwt from "jsonwebtoken";
 import { UserDecode } from "../../types";
 import { arraysEqual } from "../../utility/arrayComparisons";

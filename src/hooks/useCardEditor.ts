@@ -11,6 +11,7 @@ import { useLocation } from "react-router-dom";
 import { useProtectedFetch } from "./useProtectedFetch";
 import { v4 as uuidv4 } from "uuid";
 import { arrayExclude, arraysEqual } from "../utility/arrayComparisons";
+import { statusColorsLookup } from "../utility/optionLookup";
 
 type CommonProps = {
 	dataKind: string;
@@ -34,6 +35,7 @@ type CreatingProjectProps = CommonProjectProps & {
 	previousData?: never;
 	setEditing?: never;
 	setProject?: never;
+	setStatusColors?: never;
 };
 
 type CreatingTicketProps = CommonTicketProps & {
@@ -41,6 +43,7 @@ type CreatingTicketProps = CommonTicketProps & {
 	previousData?: never;
 	setEditing?: never;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
+	setStatusColors?: never;
 };
 
 type EditingProjectProps = CommonProjectProps & {
@@ -48,6 +51,7 @@ type EditingProjectProps = CommonProjectProps & {
 	previousData: Project;
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 	setProject?: never;
+	setStatusColors?: never;
 };
 
 type EditingTicketProps = CommonTicketProps & {
@@ -55,6 +59,7 @@ type EditingTicketProps = CommonTicketProps & {
 	previousData: FetchedTicketData;
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
+	setStatusColors: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export type Props = CommonProps &
@@ -72,6 +77,7 @@ export function useCardEditor(props: Props) {
 		setCardCache,
 		resetFilters,
 		setProject,
+		setStatusColors,
 	} = props;
 
 	const [deletedSubtaskIds, setDeletedSubtaskIds] = useState<string[]>([]);
@@ -205,6 +211,37 @@ export function useCardEditor(props: Props) {
 		[dataKind, setCards, isProjectPage]
 	);
 
+	const updateTaskStatus = useCallback(
+		(
+			prevTaskStatus: string,
+			prevCompSubIds: string[],
+			prevTotSubIds: string[],
+			newCompSubIds: string[],
+			newTotSubIds: string[]
+		) => {
+			const changedCompletedIds = !arraysEqual(
+				prevCompSubIds,
+				newCompSubIds
+			);
+			const changedTotalIds = !arraysEqual(prevTotSubIds, newTotSubIds);
+
+			switch (true) {
+				case (changedTotalIds || changedCompletedIds) &&
+					newCompSubIds.length === 0:
+					return "Not Started";
+				case (changedTotalIds || changedCompletedIds) &&
+					newCompSubIds.length < newTotSubIds.length:
+					return "In Progress";
+				case (changedTotalIds || changedCompletedIds) &&
+					newCompSubIds.length === newTotSubIds.length:
+					return "Completed";
+				default:
+					return prevTaskStatus;
+			}
+		},
+		[]
+	);
+
 	const createTicket = useCallback(async () => {
 		if (dataKind !== "ticket") return;
 
@@ -294,8 +331,42 @@ export function useCardEditor(props: Props) {
 	const editTicket = useCallback(async () => {
 		if (dataKind !== "ticket" || !previousData) return;
 
+		// const patchData = {
+		// 	...editor,
+		// };
+
+		// const updatedTicket: FetchedTicketData = {
+		// 	...(patchData as EditorData),
+		// 	...(init!.unusedPrevData as FetchedTicketData),
+		// 	lastModified: Date.now(),
+		// };
+
+		// Updating subtask IDs stored on projects
+
+		const previousSubtaskIds = previousData.subtasks.map(
+			(o) => o.subtaskId
+		);
+		const updatedSubtaskIds = (editor as EditorData).subtasks.map(
+			(o) => o.subtaskId
+		);
+		const previousCompletedIds = previousData.subtasks
+			.filter((o) => o.completed)
+			.map((o) => o.subtaskId);
+		const updatedCompletedIds = (editor as EditorData).subtasks
+			.filter((o) => o.completed)
+			.map((o) => o.subtaskId);
+
+		const newTaskStatus = updateTaskStatus(
+			previousData.taskStatus,
+			previousCompletedIds,
+			previousSubtaskIds,
+			updatedCompletedIds,
+			updatedSubtaskIds
+		);
+
 		const patchData = {
-			...editor!,
+			...editor,
+			taskStatus: newTaskStatus,
 		};
 
 		try {
@@ -308,10 +379,11 @@ export function useCardEditor(props: Props) {
 			);
 			if (res1.ok) {
 				const updatedTicket: FetchedTicketData = {
-					...(patchData as EditorData),
-					...(init!.unusedPrevData! as FetchedTicketData),
+					...(init!.unusedPrevData as FetchedTicketData),
+					...(patchData as FetchedTicketData),
 					lastModified: Date.now(),
 				};
+
 				setCards &&
 					setCards((prevCards) =>
 						prevCards.map((card) =>
@@ -328,26 +400,27 @@ export function useCardEditor(props: Props) {
 								: card
 						)
 					);
+				setStatusColors(statusColorsLookup(newTaskStatus));
 				setEditor(init?.initState || initTicketEditor);
 				setEditing(false);
 
 				// Updating subtask IDs stored on projects
 
-				const previousSubtaskIds = previousData.subtasks?.map(
-					(o) => o.subtaskId
-				);
-				const updatedSubtaskIds = updatedTicket.subtasks?.map(
-					(o) => o.subtaskId
-				);
-				const previousCompletedIds = previousData.subtasks
-					.filter((o) => o.completed)
-					.map((o) => o.subtaskId);
-				const updatedCompletedIds = updatedTicket.subtasks
-					.filter((o) => o.completed)
-					.map((o) => o.subtaskId);
+				// const previousSubtaskIds = previousData.subtasks.map(
+				// 	(o) => o.subtaskId
+				// );
+				// const updatedSubtaskIds = updatedTicket.subtasks.map(
+				// 	(o) => o.subtaskId
+				// );
+				// const previousCompletedIds = previousData.subtasks
+				// 	.filter((o) => o.completed)
+				// 	.map((o) => o.subtaskId);
+				// const updatedCompletedIds = updatedTicket.subtasks
+				// 	.filter((o) => o.completed)
+				// 	.map((o) => o.subtaskId);
 
 				if (
-					arraysEqual(previousSubtaskIds!, updatedSubtaskIds!) &&
+					arraysEqual(previousSubtaskIds, updatedSubtaskIds) &&
 					previousData.project.projectId ===
 						updatedTicket.project.projectId
 				) {
@@ -411,7 +484,7 @@ export function useCardEditor(props: Props) {
 						}
 					}
 
-					// Add new tasks to project
+					// Add new subtasks to project
 					if (updatedTicket.project.projectId) {
 						const res3 = await subtaskIdPatch(
 							updatedTicket.project.projectId,
@@ -445,13 +518,17 @@ export function useCardEditor(props: Props) {
 						}
 					}
 
-					// Deleting tasks without moving to different project
+					// Deleting subtasks without moving to different project
 					if (deletedSubtaskIds.length) {
 						const res4 = await subtaskIdPatch(
 							updatedTicket.project.projectId,
 							"delete",
 							deletedSubtaskIds,
-							deletedSubtaskIds
+							deletedSubtaskIds,
+							newTaskStatus === "Completed"
+								? []
+								: [updatedTicket.ticketId],
+							[]
 						);
 
 						if (res4.ok) {
@@ -472,6 +549,16 @@ export function useCardEditor(props: Props) {
 															proj.subtasksTotalIds,
 															deletedSubtaskIds
 														) as string[],
+													tasksCompletedIds:
+														newTaskStatus ===
+														"Completed"
+															? proj.tasksCompletedIds
+															: (arrayExclude(
+																	proj.tasksCompletedIds,
+																	[
+																		updatedTicket.ticketId,
+																	]
+															  ) as string[]),
 											  }
 											: proj
 									)
@@ -497,7 +584,9 @@ export function useCardEditor(props: Props) {
 		setCards,
 		setEditing,
 		setProject,
+		setStatusColors,
 		subtaskIdPatch,
+		updateTaskStatus,
 	]);
 
 	const createProject = useCallback(async () => {

@@ -39,6 +39,7 @@ export default function TicketCard(props: Props) {
 		isEditing,
 		setEditing,
 		statusColors,
+		setStatusColors,
 		isOverdue,
 	} = useTicket(props);
 
@@ -178,6 +179,7 @@ export default function TicketCard(props: Props) {
 						setCardCache: setCardCache as React.Dispatch<
 							React.SetStateAction<FetchedTicketData[]>
 						>,
+						setStatusColors,
 					}}
 					dataKind="ticket"
 					previousData={{ ...props.cardData }}

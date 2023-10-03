@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { Request, Response } from "express";
 import * as mongoDB from "mongodb";
-import { connectToDatabase } from "../mongodb";
+import { connectToDatabase } from "../../db/mongodb";
 
 const localProjects = process.env.LOCAL_PROJECTS ?? "projects";
 

@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { useInitialFetch } from "../hooks/useInitialFetch";
-import { FetchedTicketData } from "../types";
-import TicketCard from "../components/Card/TicketCard";
+import { useInitialFetch } from "../../hooks/useInitialFetch";
+import { FetchedTicketData } from "../../types";
+import TicketCard from "../../components/Card/TicketCard";
 
 export default function TicketPage() {
 	const ticketId = useParams().id || "";

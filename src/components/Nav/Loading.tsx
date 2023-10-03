@@ -25,6 +25,48 @@ export function LoadingSpinner() {
 	);
 }
 
-export function LoadingSkeleton() {
-	return <div></div>;
+export function LoadingSkeletonCard({ className }: { className?: string }) {
+	return (
+		<div
+			className={
+				"p-6 rounded-lg bg-slate-100 dark:bg-neutral-900 w-full " +
+				className
+			}
+		>
+			<div className="flex flex-col gap-4 bg-slate-100 dark:bg-neutral-900 animate-pulse">
+				<div className="flex flex-row gap-4 items-center">
+					<div className="p-6 rounded-full bg-slate-300 dark:bg-neutral-700" />
+					<div className="h-4 rounded-full w-full bg-slate-300 dark:bg-neutral-700" />
+					<div className="h-4 rounded-full w-full bg-slate-300 dark:bg-neutral-700" />
+				</div>
+				<div className="h-6 rounded-full bg-slate-300 dark:bg-neutral-700" />
+				<div className="h-6 rounded-full bg-slate-300 dark:bg-neutral-700" />
+			</div>
+		</div>
+	);
+}
+
+export function LoadingSkeletonCardGrid() {
+	return (
+		<div className="container grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6 w-11/12 place-items-center">
+			<LoadingSkeletonCard />
+			<LoadingSkeletonCard className="hidden lg:block" />
+			<LoadingSkeletonCard className="hidden 2xl:block" />
+		</div>
+	);
+}
+
+export function LoadingSkeletonCalendar() {
+	return (
+		<div className="p-6 rounded-lg bg-slate-100 dark:bg-neutral-900 w-11/12">
+			<div className="flex flex-col gap-4 bg-slate-100 dark:bg-neutral-900 animate-pulse">
+				<div className="h-8 rounded-full max-w-xs w-4/12 bg-slate-300 dark:bg-neutral-700" />
+				<div className="h-6 w-5/12 self-end rounded-full bg-slate-300 dark:bg-neutral-700" />
+				<div className="h-6 rounded-full bg-slate-300 dark:bg-neutral-700" />
+				<div className="h-6 rounded-full bg-slate-300 dark:bg-neutral-700" />
+				<div className="h-6 rounded-full bg-slate-300 dark:bg-neutral-700" />
+				<div className="h-6 w-4/12 self-start rounded-full bg-slate-300 dark:bg-neutral-700" />
+			</div>
+		</div>
+	);
 }

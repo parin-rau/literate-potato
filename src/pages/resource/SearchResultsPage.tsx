@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import SearchContainer from "../components/Card/SearchContainer";
+import SearchContainer from "../../components/Card/SearchContainer";
 
 export default function SearchResultsPage() {
 	const { query } = useParams();

@@ -152,6 +152,17 @@ export const optionLookup = {
 	],
 };
 
+export const statusColorsLookup = (currentStatus: string) => {
+	const currentOption = optionLookup.taskStatus.find(
+		(option) => option.value === currentStatus
+	);
+	const optionColors =
+		currentOption?.bgColor && currentOption?.textColor
+			? `${currentOption.bgColor} ${currentOption.textColor}`
+			: "bg-slate-100 text-black";
+	return optionColors;
+};
+
 export const menuLookup = {
 	sortMenu: function menuLookup(
 		handleSort: (

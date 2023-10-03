@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { Request, Response } from "express";
 import * as mongoDB from "mongodb";
-import { connectToDatabase } from "../mongodb";
+import { connectToDatabase } from "../../db/mongodb";
 import { titleCap } from "../../utility/charCaseFunctions";
 
 const tickets = process.env.LOCAL_TICKETS ?? "tickets";
