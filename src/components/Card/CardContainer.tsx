@@ -4,9 +4,11 @@ import { FetchedTicketData, Project, SortMenu } from "../../types";
 import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "./CardSelector";
-//import CardCategory from "./CardCategory";
 import { useInitialFetch } from "../../hooks/useInitialFetch";
 import { useGetter } from "../../hooks/useGetter";
+import { LoadingSpinner } from "../Nav/Loading";
+import ToggleButton from "../Nav/ToggleButton";
+import CollapseIcon from "../Svg/CollapseIcon";
 
 type TicketProps = {
 	containerTitle: string;
@@ -51,6 +53,7 @@ export default function CardContainer<
 	const [cardCache, setCardCache] = useState<T[]>([]);
 	const [isFirstFilter, setFirstFilter] = useState(true);
 	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
+	const [hideContainer, setHideContainer] = useState(false);
 
 	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
 	const project = { projectId, projectTitle };
@@ -181,80 +184,74 @@ export default function CardContainer<
 		setFilters([]);
 	}
 
-	return (
-		!isLoading && (
-			<div
-				className={
-					"@container/cards container mx-auto flex flex-col bg-slate-100 px-2 py-2 rounded-lg space-y-1 " +
-					styles
-				}
-			>
-				<div
-					className={
-						!projectId
-							? "grid grid-cols-1 gap-2 sm:grid-cols-2 sm:items-start"
-							: ""
-					}
-				>
-					<TicketEditor
-						{...{
-							dataKind,
-							setCards,
-							//setCards as React.Dispatch<
-							//	React.SetStateAction<T[]>
-							//>,
-							project,
-							resetFilters,
-							setProject,
-							setCardCache,
-							// : setCardCache as React.Dispatch<
-							// 	React.SetStateAction<T[]>
-							// >,
-						}}
-					/>
-					{!projectId && (
-						<TicketEditor
-							dataKind="ticket"
-							project={{ projectId: "", projectTitle: "" }}
-						/>
-					)}
+	function handleHideToggle() {
+		setHideContainer((prev) => !prev);
+	}
+
+	return isLoading ? (
+		<LoadingSpinner />
+	) : (
+		<div
+			className={
+				"@container/cards container mx-auto flex flex-col bg-slate-100 dark:bg-neutral-900 p-2 rounded-lg gap-2 " +
+				styles
+			}
+		>
+			<TicketEditor
+				{...{
+					dataKind,
+					setCards,
+					project,
+					resetFilters,
+					setProject,
+					setCardCache,
+				}}
+			/>
+
+			<div className="flex flex-row justify-between items-end">
+				<div className="flex flex-row gap-2 items-center">
+					<ToggleButton onClick={handleHideToggle}>
+						<CollapseIcon isCollapsed={hideContainer} />
+						<h1 className="font-semibold text-2xl ">
+							{filters.length > 0
+								? `Filtering Results (${cards.length})`
+								: containerTitle}
+						</h1>
+					</ToggleButton>
 				</div>
-				<div className="flex flex-row justify-between items-baseline mx-1">
-					<h1 className="font-semibold text-3xl my-4">
-						{filters.length > 0
-							? `Filtering Results (${cards.length})`
-							: containerTitle}
-					</h1>
-					<div className="flex flex-row items-baseline space-x-2">
-						<FilterSelect
-							{...{
-								filters,
-								setFilters,
-								deleteFilterTag,
-								filterMode,
-								changeFilterMode,
-								resetFilters,
-								sortMenu,
-							}}
-						/>
-					</div>
-				</div>
-				<span>{sortMeta && getSortLabel(cards)}</span>
-				<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto ">
-					<CardSelector
+				<div className="flex flex-row items-baseline gap-2">
+					<FilterSelect
 						{...{
-							dataKind,
-							cards,
-							setCards,
-							setCardCache,
 							filters,
 							setFilters,
-							setProject,
-							setCardsLoading,
+							deleteFilterTag,
+							filterMode,
+							changeFilterMode,
+							resetFilters,
+							sortMenu,
 						}}
 					/>
 				</div>
 			</div>
-		)
+			{!hideContainer && (
+				<>
+					<span>{sortMeta && getSortLabel(cards)}</span>
+					<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto ">
+						<CardSelector
+							{...{
+								dataKind,
+								cards,
+								setCards,
+								setCardCache,
+								filters,
+								setFilters,
+								setProject,
+								setCardsLoading,
+							}}
+						/>
+					</div>
+				</>
+			)}
+		</div>
 	);
 }

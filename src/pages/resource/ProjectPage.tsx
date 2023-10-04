@@ -4,6 +4,7 @@ import ProjectCard from "../../components/Card/ProjectCard";
 import { FetchedTicketData, Project, uncategorizedProject } from "../../types";
 import { useNavigate, useParams } from "react-router-dom";
 import { useInitialFetch } from "../../hooks/useInitialFetch";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export default function ProjectPage() {
 	const projectId = useParams().id || "";
@@ -31,6 +32,10 @@ export default function ProjectPage() {
 		uncategorizedProjectTransform
 	);
 
+	const pageTitle = isLoading ? document.title : project[0].title;
+
+	usePageTitle(pageTitle);
+
 	return (
 		<div className="flex flex-col justify-center items-stretch">
 			<div className="flex flex-col space-y-4 pt-20 items-center">
@@ -54,7 +59,6 @@ export default function ProjectPage() {
 								projectTitle={project[0].title}
 								projectId={projectId}
 								setProject={setProject}
-								styles="dark:bg-transparent"
 							/>
 						</>
 					)}

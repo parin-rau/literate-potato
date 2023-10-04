@@ -1,19 +1,15 @@
 import { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
-import SignInButton from "./SignInButton";
-import DarkModeToggle from "./DarkModeToggle";
 import { SidebarToggle } from "./Sidebar";
 import HamburgerToggle from "./HamburgerToggle";
 import SidebarRight from "./SidebarRight";
-import SidebarButton from "./SidebarButton";
-import { Link } from "react-router-dom";
+import ToggleButton from "./ToggleButton";
+import DarkModeIcon from "../Svg/DarkModeIcon";
 
 export default function NavBar() {
 	const [theme, setTheme] = useState<string>(localStorage.theme);
 	const [isOpenSidebar, setOpenSidebar] = useState(false);
 	const [isOpenSecondarySidebar, setOpenSecondarySidebar] = useState(false);
-
-	//const username = sessionStorage.getItem("username");
 
 	function handleThemeToggle() {
 		theme === "dark" ? setTheme("light") : setTheme("dark");
@@ -58,8 +54,9 @@ export default function NavBar() {
 						onClick={handleSidebarToggle}
 					/>
 					<SearchBar linkTo="/search" />
-					<DarkModeToggle {...{ theme, handleThemeToggle }} />
-					{/* <SignInButton /> */}
+					<ToggleButton onClick={handleThemeToggle}>
+						<DarkModeIcon theme={theme} />
+					</ToggleButton>
 					<HamburgerToggle
 						type="button"
 						onClick={handleSecondarySidebarToggle}

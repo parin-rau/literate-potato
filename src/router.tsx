@@ -37,7 +37,7 @@ export const router = createBrowserRouter([
 					// HOME PAGE
 					{
 						path: "/",
-						element: <HomePage />,
+						element: <HomePage title="Home" />,
 						errorElement: <ErrorPage />,
 					},
 
@@ -50,7 +50,7 @@ export const router = createBrowserRouter([
 					},
 					{
 						path: "project",
-						element: <ProjectHomePage />,
+						element: <ProjectHomePage title="Projects Home" />,
 						errorElement: <ErrorPage />,
 					},
 					{

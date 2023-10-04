@@ -8,7 +8,7 @@ import { optionLookup } from "../../utility/optionLookup";
 import { Link } from "react-router-dom";
 import TicketEditor from "../Editor/TicketEditor";
 import ProgressBar from "../Display/ProgressBar";
-import { countCompletedSubs } from "../../utility/countCompleted";
+import { countCompletedSubs } from "../../utility/countSubtasks";
 import { useTicket, Props } from "../../hooks/useTicket";
 
 export default function TicketCard(props: Props) {

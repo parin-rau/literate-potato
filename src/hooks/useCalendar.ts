@@ -25,6 +25,7 @@ export function useCalendar() {
 	const navigate = useNavigate();
 	const { protectedFetch } = useProtectedFetch();
 	const [calendar, setCalendar] = useState<Calendar>(emptyCalendar);
+	const [isHidden, setHidden] = useState(false);
 
 	// LOCAL HELPERS
 
@@ -319,13 +320,18 @@ export function useCalendar() {
 		[navigate]
 	);
 
+	const handleHideToggle = useCallback(() => {
+		setHidden((prev) => !prev);
+	}, []);
+
 	return {
 		handlers: {
 			handleMonthChange,
 			handleCalendarReset,
 			handleDateClick,
+			handleHideToggle,
 		},
 		utility: { dayLookup },
-		state: { calendar },
+		state: { calendar, isHidden },
 	};
 }

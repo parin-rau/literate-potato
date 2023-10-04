@@ -1,10 +1,10 @@
 import { FetchedTicketData } from "../types";
 
-export function countCompletedSubs(tasks: FetchedTicketData["subtasks"]) {
-	if (tasks) {
-		const totalTasks = tasks.length;
-		const isCompleted: number[] = tasks.map((task) =>
-			task.completed ? 1 : 0
+export function countCompletedSubs(subtasks: FetchedTicketData["subtasks"]) {
+	if (subtasks) {
+		const totalTasks = subtasks.length;
+		const isCompleted: number[] = subtasks.map((subtask) =>
+			subtask.completed ? 1 : 0
 		);
 		const totalCompleted = isCompleted.reduce((a, b) => a + b, 0);
 		const percentCompletedNum =
@@ -26,4 +26,12 @@ export function countCompletedSubs(tasks: FetchedTicketData["subtasks"]) {
 			percentCompletedNum: 0,
 		};
 	}
+}
+
+export function countTotalSubs(tasks: FetchedTicketData[]) {
+	if (!tasks.length) return 0;
+
+	const subtaskCountArr = tasks.map((t) => t.subtasks.length);
+	const totalSubtasks = subtaskCountArr.reduce((a, b) => a + b, 0);
+	return totalSubtasks;
 }

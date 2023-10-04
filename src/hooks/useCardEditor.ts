@@ -242,6 +242,56 @@ export function useCardEditor(props: Props) {
 		[]
 	);
 
+	const updateCompletedTaskIds = useCallback(
+		(
+			operation: "add" | "delete",
+			newTaskStatus: string,
+			ticketId: string,
+			completedTaskIds: string[]
+		) => {
+			const isUnique = !completedTaskIds.includes(ticketId);
+
+			switch (true) {
+				case !isUnique && operation === "add":
+					console.log("case 1: adding subtask causes incomplete");
+					return {
+						state: arrayExclude(completedTaskIds, [ticketId]),
+						setterInput: completedTaskIds,
+					};
+				case !isUnique && operation === "delete":
+					console.log("case 2: deleting subtask causes incomplete");
+					return {
+						state: arrayExclude(completedTaskIds, [ticketId]),
+						setterInput: completedTaskIds,
+					};
+				// case isUnique &&
+				// 	operation === "add" &&
+				// 	newTaskStatus === "Completed":
+				// 	console.log("case 3");
+				// 	return {state: [...completedTaskIds, ticketId], setterInput: completedTaskIds};
+				case isUnique &&
+					operation === "delete" &&
+					newTaskStatus === "Completed":
+					console.log(
+						"case 4: deleting incomplete subtasks causes completion"
+					);
+					return {
+						state: [...completedTaskIds, ticketId],
+						setterInput: [ticketId],
+					};
+				case isUnique && operation === "delete":
+					console.log(
+						"case 5: deleting subtasks from incomplete task and not causing completion"
+					);
+					return { state: completedTaskIds, setterInput: [] };
+				default:
+					console.log("default case");
+					return { state: [], setterInput: [] };
+			}
+		},
+		[]
+	);
+
 	const createTicket = useCallback(async () => {
 		if (dataKind !== "ticket") return;
 
@@ -427,6 +477,8 @@ export function useCardEditor(props: Props) {
 					console.log("No change to subtasks");
 					return;
 				} else {
+					// const newCompleteTaskIds = updateCompletedTaskIds(operation)
+
 					// Moving ticket between projects
 					if (
 						previousData.project.projectId &&
@@ -486,6 +538,7 @@ export function useCardEditor(props: Props) {
 
 					// Add new subtasks to project
 					if (updatedTicket.project.projectId) {
+						console.log("adding new subtasks to project");
 						const res3 = await subtaskIdPatch(
 							updatedTicket.project.projectId,
 							"add",
@@ -497,6 +550,8 @@ export function useCardEditor(props: Props) {
 							[updatedTicket.ticketId]
 						);
 						if (res3.ok) {
+							console.log("res3 ok");
+
 							setProject &&
 								setProject((prev) =>
 									prev.map((proj) =>
@@ -511,6 +566,21 @@ export function useCardEditor(props: Props) {
 															proj.subtasksTotalIds
 														) as string[]),
 													],
+													tasksCompletedIds:
+														updateCompletedTaskIds(
+															"add",
+															updatedTicket.taskStatus,
+															updatedTicket.ticketId,
+															proj.tasksCompletedIds
+														).state as string[],
+													// [
+													// 	...(arrayExclude(
+													// 		proj.tasksCompletedIds,
+													// 		[
+													// 			updatedTicket.ticketId,
+													// 		]
+													// 	) as string[]),
+													// ],
 											  }
 											: proj
 									)
@@ -550,15 +620,23 @@ export function useCardEditor(props: Props) {
 															deletedSubtaskIds
 														) as string[],
 													tasksCompletedIds:
-														newTaskStatus ===
-														"Completed"
-															? proj.tasksCompletedIds
-															: (arrayExclude(
-																	proj.tasksCompletedIds,
-																	[
-																		updatedTicket.ticketId,
-																	]
-															  ) as string[]),
+														updateCompletedTaskIds(
+															"delete",
+															newTaskStatus,
+															updatedTicket.ticketId,
+															proj.tasksCompletedIds
+														).state as string[],
+													// newTaskStatus ===
+													// "Completed"
+													// 	? [
+													// 			...proj.tasksCompletedIds,
+													// 	  ]
+													// 	: (arrayExclude(
+													// 			proj.tasksCompletedIds,
+													// 			[
+													// 				updatedTicket.ticketId,
+													// 			]
+													// 	  ) as string[]),
 											  }
 											: proj
 									)
@@ -586,6 +664,7 @@ export function useCardEditor(props: Props) {
 		setProject,
 		setStatusColors,
 		subtaskIdPatch,
+		updateCompletedTaskIds,
 		updateTaskStatus,
 	]);
 
