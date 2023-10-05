@@ -110,10 +110,10 @@ export default function ProjectCard(props: Props) {
 	// }
 
 	return (
-		<>
+		<div className="flex flex-col gap-2">
 			{isHeader && (
-				<div className="flex flex-row space-x-2 items-baseline">
-					<div className="flex flex-row space-x-2 items-center">
+				<div className="flex flex-row gap-2 items-baseline">
+					<div className="flex flex-row gap-2 items-center">
 						<h1 className="font-bold text-4xl mx-2">{title}</h1>
 						{color && (
 							<div
@@ -203,6 +203,6 @@ export default function ProjectCard(props: Props) {
 					/>
 				)}
 			</div>
-		</>
+		</div>
 	);
 }

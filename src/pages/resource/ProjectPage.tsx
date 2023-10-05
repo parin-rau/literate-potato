@@ -38,8 +38,8 @@ export default function ProjectPage() {
 
 	return (
 		<div className="flex flex-col justify-center items-stretch">
-			<div className="flex flex-col space-y-4 pt-20 items-center">
-				<div className="container flex flex-col space-y-6">
+			<div className="flex flex-col gap-4 pt-16 items-center">
+				<div className="container flex flex-col gap-6">
 					{!isLoading && project.length > 0 && (
 						<>
 							{projectId === "uncategorized" ? (
@@ -47,11 +47,13 @@ export default function ProjectPage() {
 									Uncategorized Tasks
 								</h1>
 							) : (
-								<ProjectCard
-									isHeader
-									cardData={project[0]}
-									setCards={setProject}
-								/>
+								<div className="-m-2 p-2 sticky top-14 z-20 bg-white dark:bg-stone-950">
+									<ProjectCard
+										isHeader
+										cardData={project[0]}
+										setCards={setProject}
+									/>
+								</div>
 							)}
 							<CardContainer<FetchedTicketData>
 								dataKind="ticket"
