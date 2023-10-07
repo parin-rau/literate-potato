@@ -1,76 +1,64 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
+import { useProtectedFetch } from "./useProtectedFetch";
 import {
 	EditorData,
 	FetchedTicketData,
 	Project,
-	ProjectEditor,
-	initProjectEditor,
 	initTicketEditor,
 } from "../types";
-import { useLocation } from "react-router-dom";
-import { useProtectedFetch } from "./useProtectedFetch";
-import { v4 as uuidv4 } from "uuid";
 import { arrayExclude, arraysEqual } from "../utility/arrayComparisons";
 import { statusColorsLookup } from "../utility/optionLookup";
-//import { useTicketEditor } from "./useTicketEditor";
-//import { useProjectEditor } from "./useProjectEditor";
 
-type CommonProps = {
+// type CommonProps = {
+// 	dataKind: string;
+// 	resetFilters?: () => void;
+//     isProjectPage: boolean
+// };
+
+// type CommonTicketProps = {
+// 	dataKind: "ticket";
+// 	setCards?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+// 	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+//     resetFilters?: () => void;
+// };
+
+// type CreatingTicketProps = CommonTicketProps & {
+// 	project?: { projectId: string; projectTitle: string };
+// 	previousData?: never;
+// 	setEditing?: never;
+// 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
+// 	setStatusColors?: never;
+// };
+
+// type EditingTicketProps = CommonTicketProps & {
+// 	project?: never;
+// 	previousData: FetchedTicketData;
+// 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
+// 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
+// 	setStatusColors: React.Dispatch<React.SetStateAction<string>>;
+// };
+
+type Props = {
 	dataKind: string;
 	resetFilters?: () => void;
-};
-
-type CommonProjectProps = {
-	dataKind: "project";
-	setCards: React.Dispatch<React.SetStateAction<Project[]>>;
-	setCardCache: React.Dispatch<React.SetStateAction<Project[]>>;
-};
-
-type CommonTicketProps = {
-	dataKind: "ticket";
+	isProjectPage: boolean;
 	setCards?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
-};
-
-type CreatingProjectProps = CommonProjectProps & {
-	project?: never;
-	previousData?: never;
-	setEditing?: never;
-	setProject?: never;
-	setStatusColors?: never;
-};
-
-type CreatingTicketProps = CommonTicketProps & {
 	project?: { projectId: string; projectTitle: string };
-	previousData?: never;
-	setEditing?: never;
-	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
-	setStatusColors?: never;
-};
-
-type EditingProjectProps = CommonProjectProps & {
-	project?: never;
-	previousData: Project;
-	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
-	setProject?: never;
-	setStatusColors?: never;
-};
-
-type EditingTicketProps = CommonTicketProps & {
-	project?: never;
 	previousData: FetchedTicketData;
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 	setStatusColors: React.Dispatch<React.SetStateAction<string>>;
+	editor: EditorData;
+	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
+	isPinned: boolean;
+	init;
+	deletedSubtaskIds: string[];
+	setDeletedSubtaskIds: React.Dispatch<React.SetStateAction<string[]>>;
+	setExpand: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export type Props = CommonProps &
-	(
-		| (CreatingTicketProps | EditingTicketProps)
-		| (CreatingProjectProps | EditingProjectProps)
-	);
-
-export function useCardEditor(props: Props) {
+export function useTicketEditor(props: Props) {
 	const {
 		dataKind,
 		setCards,
@@ -80,106 +68,22 @@ export function useCardEditor(props: Props) {
 		resetFilters,
 		setProject,
 		setStatusColors,
+		isProjectPage,
+		editor,
+		setEditor,
+		isPinned,
+		init,
+		setExpand,
+		deletedSubtaskIds,
+		setDeletedSubtaskIds,
 	} = props;
 
-	const [deletedSubtaskIds, setDeletedSubtaskIds] = useState<string[]>([]);
-	const [isPinned, setPinned] = useState(false);
 	const { protectedFetch } = useProtectedFetch();
-
-	const url = useLocation().pathname;
-	const isProjectPage = url.slice(1, 8) === "project";
-
-	// INITIALIZER
-
-	const handleInit = useCallback(
-		(dataKind: "ticket" | "project") => {
-			const { previousData } = props;
-
-			switch (dataKind) {
-				case "ticket": {
-					if (previousData) {
-						const {
-							title,
-							description,
-							due,
-							tags,
-							subtasks,
-							priority,
-							project,
-							...unusedPrevData
-						} = previousData as FetchedTicketData;
-						return {
-							initState: {
-								title,
-								description,
-								priority,
-								due,
-								subtasks,
-								tags,
-								project,
-							},
-							unusedPrevData,
-							defaultExpand: true,
-							editorHeading: "Edit Task",
-						};
-					} else {
-						const { project } = props;
-						return {
-							initState: { ...initTicketEditor, project },
-							defaultExpand: false,
-							editorHeading: "Create New Task",
-						};
-					}
-				}
-				case "project": {
-					if (previousData) {
-						const {
-							title,
-							description,
-							creator,
-							color,
-							...unusedPrevData
-						} = previousData as Project;
-						return {
-							initState: {
-								title,
-								description,
-								creator,
-								color,
-							},
-							unusedPrevData,
-							defaultExpand: true,
-							editorHeading: "Edit Project",
-						};
-					} else {
-						return {
-							initState: initProjectEditor,
-							defaultExpand: false,
-							editorHeading: "Create New Project",
-						};
-					}
-				}
-				default: {
-					return console.error("Init undefined");
-				}
-			}
-		},
-		[props]
-	);
-
-	const init = handleInit(dataKind);
-	const [editor, setEditor] = useState(init!.initState);
-	const [expand, setExpand] = useState(init!.defaultExpand);
-
-	//const { createTicket, editTicket} = useTicketEditor({...props, isProjectPage, editor, setEditor, isPinned, init, deletedSubtaskIds, setDeletedSubtaskIds})
-
-	// LOCAL HELPERS
 
 	const subtaskIdPatch = useCallback(
 		async (
 			projectId: string,
 			operation: "add" | "delete",
-			newTaskStatus: string,
 			subtasksCompletedIds: string[],
 			subtasksTotalIds: string[],
 			tasksCompletedIds?: string[],
@@ -189,7 +93,6 @@ export function useCardEditor(props: Props) {
 				method: "PATCH",
 				body: JSON.stringify({
 					operation,
-					newTaskStatus,
 					subtasksCompletedIds,
 					subtasksTotalIds,
 					tasksCompletedIds,
@@ -301,78 +204,8 @@ export function useCardEditor(props: Props) {
 								: p
 						)
 					);
-
 					return;
-
-					// return {
-					// 	state: arrayExclude(completedTaskIds, [ticketId]),
-					// 	setterInput: completedTaskIds,
-					// };
 				}
-				// case operation === "delete": {
-				// 	console.log("case 3: deleting subtask causes incomplete");
-				// 	setProject((prev) =>
-				// 		prev.map((p) =>
-				// 			p.projectId === projectId
-				// 				? {
-				// 						...p,
-				// 						tasksCompletedIds: isUnique(
-				// 							p.tasksCompletedIds
-				// 						)
-				// 							? [...p.tasksCompletedIds, ticketId]
-				// 							: (arrayExclude(
-				// 									p.tasksCompletedIds,
-				// 									[ticketId]
-				// 							  ) as string[]),
-				// 				  }
-				// 				: p
-				// 		)
-				// 	);
-				// 	return;
-
-				// 	// return {
-				// 	// 	state: arrayExclude(completedTaskIds, [ticketId]),
-				// 	// 	setterInput: completedTaskIds,
-				// 	// };
-				// 	// case isUnique &&
-				// 	// 	operation === "add" &&
-				// 	// 	newTaskStatus === "Completed":
-				// 	// 	console.log("case 3");
-				// 	// 	return {state: [...completedTaskIds, ticketId], setterInput: completedTaskIds};
-				// }
-				// case isUnique &&
-				// 	operation === "delete" &&
-				// 	newTaskStatus === "Completed": {
-				// 	console.log(
-				// 		"case 4: deleting incomplete subtasks causes completion"
-				// 	);
-				// 	setProject((prev) =>
-				// 		prev.map((p) =>
-				// 			p.projectId === projectId
-				// 				? {
-				// 						...p,
-				// 						tasksCompletedIds: [
-				// 							...p.tasksCompletedIds,
-				// 							ticketId,
-				// 						],
-				// 				  }
-				// 				: p
-				// 		)
-				// 	);
-				// 	return
-
-				// 	// return {
-				// 	// 	state: [...completedTaskIds, ticketId],
-				// 	// 	setterInput: [ticketId],
-				// 	// };
-				// }
-				// case isUnique && operation === "delete": {
-				// 	console.log(
-				// 		"case 5: deleting subtasks from incomplete task and not causing completion"
-				// 	);
-				// 	// return { state: completedTaskIds, setterInput: [] };
-				// 	return
-				// }
 				default: {
 					console.log("default case");
 					return;
@@ -400,21 +233,27 @@ export function useCardEditor(props: Props) {
 		if (res1.ok) {
 			const response = await res1.json();
 			setCards &&
-				setCards((prevCards) => [
-					{
-						...newTicket,
-						ticketNumber: response.ticketNumber,
-					},
-					...prevCards,
-				]);
+				setCards(
+					(prevCards) =>
+						[
+							{
+								...newTicket,
+								ticketNumber: response.ticketNumber,
+							},
+							...prevCards,
+						] as FetchedTicketData[]
+				);
 			if (setCardCache && resetFilters) {
-				setCardCache((prevCards) => [
-					{
-						...newTicket,
-						ticketNumber: response.ticketNumber,
-					},
-					...prevCards,
-				]);
+				setCardCache(
+					(prevCards) =>
+						[
+							{
+								...newTicket,
+								ticketNumber: response.ticketNumber,
+							},
+							...prevCards,
+						] as FetchedTicketData[]
+				);
 				resetFilters();
 			}
 			setEditor(init?.initState || initTicketEditor);
@@ -437,22 +276,24 @@ export function useCardEditor(props: Props) {
 
 				if (res2.ok) {
 					setProject &&
-						setProject((prev) =>
-							prev.map((proj) =>
-								proj.projectId === newTicket.project.projectId
-									? {
-											...proj,
-											tasksTotalIds: [
-												...proj.tasksTotalIds,
-												newTicket.ticketId,
-											],
-											subtasksTotalIds: [
-												...proj.subtasksTotalIds,
-												...(subtasksTotalIds as string[]),
-											],
-									  }
-									: proj
-							)
+						setProject(
+							(prev) =>
+								prev.map((proj) =>
+									proj.projectId ===
+									newTicket.project.projectId
+										? {
+												...proj,
+												tasksTotalIds: [
+													...proj.tasksTotalIds,
+													newTicket.ticketId,
+												],
+												subtasksTotalIds: [
+													...proj.subtasksTotalIds,
+													...(subtasksTotalIds as string[]),
+												],
+										  }
+										: proj
+								) as Project[]
 						);
 				}
 			}
@@ -466,6 +307,8 @@ export function useCardEditor(props: Props) {
 		resetFilters,
 		setCardCache,
 		setCards,
+		setEditor,
+		setExpand,
 		setProject,
 	]);
 
@@ -588,7 +431,6 @@ export function useCardEditor(props: Props) {
 						const res2 = await subtaskIdPatch(
 							previousData.project.projectId,
 							"delete",
-							newTaskStatus,
 							previousCompletedIds,
 							previousSubtaskIds,
 							[previousData.ticketId],
@@ -646,17 +488,15 @@ export function useCardEditor(props: Props) {
 						const res3 = await subtaskIdPatch(
 							updatedTicket.project.projectId,
 							"add",
-							newTaskStatus,
 							updatedCompletedIds,
 							updatedSubtaskIds,
-							// updatedTicket.taskStatus === "Completed"
-							// 	? [updatedTicket.ticketId]
-							// 	: [],
-							[updatedTicket.ticketId],
+							updatedTicket.taskStatus === "Completed"
+								? [updatedTicket.ticketId]
+								: [],
 							[updatedTicket.ticketId]
 						);
 						if (res3.ok) {
-							//console.log("res3 ok");
+							console.log("res3 ok");
 
 							setProject &&
 								setProject((prev) =>
@@ -695,13 +535,11 @@ export function useCardEditor(props: Props) {
 						const res4 = await subtaskIdPatch(
 							updatedTicket.project.projectId,
 							"delete",
-							newTaskStatus,
 							deletedSubtaskIds,
 							deletedSubtaskIds,
-							// newTaskStatus === "Completed"
-							// 	? []
-							// 	: [updatedTicket.ticketId],
-							[updatedTicket.ticketId],
+							newTaskStatus === "Completed"
+								? []
+								: [updatedTicket.ticketId],
 							[]
 						);
 
@@ -758,7 +596,9 @@ export function useCardEditor(props: Props) {
 		protectedFetch,
 		setCardCache,
 		setCards,
+		setDeletedSubtaskIds,
 		setEditing,
+		setEditor,
 		setProject,
 		setStatusColors,
 		subtaskIdPatch,
@@ -766,204 +606,9 @@ export function useCardEditor(props: Props) {
 		updateTaskStatus,
 	]);
 
-	const createProject = useCallback(async () => {
-		if (dataKind !== "project") return;
+	return { createTicket, editTicket };
+}
 
-		const newCard: Project = {
-			...(editor as ProjectEditor),
-			timestamp: Date.now(),
-			projectId: uuidv4(),
-			tasksCompletedIds: [],
-			tasksTotalIds: [],
-			subtasksCompletedIds: [],
-			subtasksTotalIds: [],
-		};
-
-		try {
-			const res = await protectedFetch("/api/project", {
-				method: "POST",
-				body: JSON.stringify(newCard),
-			});
-
-			if (res.ok) {
-				setCards((prevCards) => [newCard, ...prevCards]);
-				setEditor(initProjectEditor);
-				!isPinned && setExpand(false);
-			}
-		} catch (e) {
-			console.error(e);
-		}
-	}, [dataKind, editor, isPinned, protectedFetch, setCards]);
-
-	const editProject = useCallback(async () => {
-		if (dataKind !== "project" || !previousData) return;
-
-		try {
-			const patchData = {
-				operation: "metadata",
-				metadata: { ...editor },
-			};
-			const res1 = await protectedFetch(
-				`/api/project/${previousData.projectId}`,
-				{
-					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(patchData),
-				}
-			);
-			if (res1.ok) {
-				const ticketPatch = {
-					project: {
-						projectTitle: editor.title,
-						projectId: previousData.projectId,
-					},
-				};
-				const res2 = await protectedFetch(
-					`/api/ticket/project-edit/${previousData.projectId}`,
-					{
-						method: "PATCH",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify(ticketPatch),
-					}
-				);
-				if (res2.ok) {
-					const updatedCard: Project = {
-						...(patchData.metadata as ProjectEditor),
-						...(init!.unusedPrevData! as Project),
-						lastModified: Date.now(),
-					};
-					setCards((prevCards) =>
-						prevCards.map((card) =>
-							card.projectId === updatedCard.projectId
-								? updatedCard
-								: card
-						)
-					);
-					setCardCache &&
-						setCardCache((prev) =>
-							prev.map((card) =>
-								card.projectId === updatedCard.projectId
-									? updatedCard
-									: card
-							)
-						);
-					setEditor(initTicketEditor);
-					setEditing(false);
-				}
-			}
-		} catch (e) {
-			console.error(e);
-		}
-	}, [
-		dataKind,
-		editor,
-		init,
-		previousData,
-		protectedFetch,
-		setCardCache,
-		setCards,
-		setEditing,
-	]);
-
-	// EXPOSED FUNCTIONS
-
-	const handleExpand = useCallback(() => {
-		setExpand(!expand);
-		isPinned && setPinned(false);
-	}, [isPinned, expand]);
-
-	const handleReset = useCallback(() => {
-		setEditor(init?.initState || initTicketEditor);
-	}, [init?.initState]);
-
-	const handleEditCancel = useCallback(() => {
-		if (previousData) {
-			setEditing(false);
-		}
-	}, [previousData, setEditing]);
-
-	const handleChange = useCallback(
-		(
-			e: React.ChangeEvent<
-				HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-			>
-		) => {
-			const { value, name } = e.target;
-			if (name === "projectId" || name === "projectTitle") {
-				setEditor({
-					...(editor as EditorData),
-					project: {
-						...(editor as EditorData).project,
-						[name]: value,
-					},
-				});
-			} else {
-				setEditor({ ...editor, [name]: value });
-			}
-		},
-		[editor]
-	);
-
-	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent<HTMLFormElement>) => {
-			if (e.code === "Enter" && e.ctrlKey === false) {
-				e.preventDefault();
-			}
-		},
-		[]
-	);
-
-	const handleSubmit = useCallback(
-		async (e: React.FormEvent) => {
-			e.preventDefault();
-
-			switch (true) {
-				case dataKind === "ticket" && !previousData:
-					await createTicket();
-					return console.log("creating ticket");
-				case dataKind === "ticket":
-					await editTicket();
-					return console.log("editing ticket");
-				case dataKind === "project" && !previousData:
-					await createProject();
-					return console.log("creating project");
-				case dataKind === "project":
-					await editProject();
-					return console.log("editing project");
-				default:
-					return console.error("Unable to submit editor data");
-			}
-		},
-		[
-			createProject,
-			createTicket,
-			dataKind,
-			editProject,
-			editTicket,
-			previousData,
-		]
-	);
-
-	return {
-		handlers: {
-			handleSubmit,
-			handleExpand,
-			handleReset,
-			handleEditCancel,
-			handleChange,
-			handleKeyDown,
-		},
-		state: {
-			init,
-			editor,
-			setEditor,
-			isPinned,
-			setPinned,
-			expand,
-			setExpand,
-			setDeletedSubtaskIds,
-		},
-	};
+function uuidv4() {
+	throw new Error("Function not implemented.");
 }

@@ -136,7 +136,7 @@ export default function ProjectCard(props: Props) {
 					<Link
 						to={`/project/${projectId}`}
 						className={
-							"flex flex-col px-4 py-2 space-y-1 dark:border-neutral-700 z-0" +
+							"flex flex-col px-4 py-2 space-y-1 dark:border-neutral-700 z-0 " +
 							(isHeader ? "pointer-events-none" : "")
 						}
 						// style={disableLink()}
