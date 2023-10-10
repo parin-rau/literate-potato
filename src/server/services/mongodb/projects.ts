@@ -100,6 +100,8 @@ export async function updateProject(
 		success: false,
 	};
 
+	console.log(data);
+
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
@@ -129,7 +131,7 @@ export async function updateProject(
 				return result;
 			}
 
-			if (newTaskStatus !== "Completed") {
+			if (newTaskStatus !== "Completed" || operation === "delete") {
 				try {
 					const updateResult = await coll.updateOne(
 						{ projectId: id },

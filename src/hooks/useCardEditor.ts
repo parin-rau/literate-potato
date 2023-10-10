@@ -281,7 +281,6 @@ export function useCardEditor(props: Props) {
 					return;
 				}
 				case newTaskStatus !== "Completed": {
-					//operation === "add": {
 					console.log("case 2: incomplete task");
 
 					setProject((prev) =>
@@ -303,80 +302,11 @@ export function useCardEditor(props: Props) {
 					);
 
 					return;
-
-					// return {
-					// 	state: arrayExclude(completedTaskIds, [ticketId]),
-					// 	setterInput: completedTaskIds,
-					// };
 				}
-				// case operation === "delete": {
-				// 	console.log("case 3: deleting subtask causes incomplete");
-				// 	setProject((prev) =>
-				// 		prev.map((p) =>
-				// 			p.projectId === projectId
-				// 				? {
-				// 						...p,
-				// 						tasksCompletedIds: isUnique(
-				// 							p.tasksCompletedIds
-				// 						)
-				// 							? [...p.tasksCompletedIds, ticketId]
-				// 							: (arrayExclude(
-				// 									p.tasksCompletedIds,
-				// 									[ticketId]
-				// 							  ) as string[]),
-				// 				  }
-				// 				: p
-				// 		)
-				// 	);
-				// 	return;
 
-				// 	// return {
-				// 	// 	state: arrayExclude(completedTaskIds, [ticketId]),
-				// 	// 	setterInput: completedTaskIds,
-				// 	// };
-				// 	// case isUnique &&
-				// 	// 	operation === "add" &&
-				// 	// 	newTaskStatus === "Completed":
-				// 	// 	console.log("case 3");
-				// 	// 	return {state: [...completedTaskIds, ticketId], setterInput: completedTaskIds};
-				// }
-				// case isUnique &&
-				// 	operation === "delete" &&
-				// 	newTaskStatus === "Completed": {
-				// 	console.log(
-				// 		"case 4: deleting incomplete subtasks causes completion"
-				// 	);
-				// 	setProject((prev) =>
-				// 		prev.map((p) =>
-				// 			p.projectId === projectId
-				// 				? {
-				// 						...p,
-				// 						tasksCompletedIds: [
-				// 							...p.tasksCompletedIds,
-				// 							ticketId,
-				// 						],
-				// 				  }
-				// 				: p
-				// 		)
-				// 	);
-				// 	return
-
-				// 	// return {
-				// 	// 	state: [...completedTaskIds, ticketId],
-				// 	// 	setterInput: [ticketId],
-				// 	// };
-				// }
-				// case isUnique && operation === "delete": {
-				// 	console.log(
-				// 		"case 5: deleting subtasks from incomplete task and not causing completion"
-				// 	);
-				// 	// return { state: completedTaskIds, setterInput: [] };
-				// 	return
-				// }
 				default: {
 					console.log("default case");
 					return;
-					// return { state: [], setterInput: [] };
 				}
 			}
 		},
@@ -472,16 +402,6 @@ export function useCardEditor(props: Props) {
 	const editTicket = useCallback(async () => {
 		if (dataKind !== "ticket" || !previousData) return;
 
-		// const patchData = {
-		// 	...editor,
-		// };
-
-		// const updatedTicket: FetchedTicketData = {
-		// 	...(patchData as EditorData),
-		// 	...(init!.unusedPrevData as FetchedTicketData),
-		// 	lastModified: Date.now(),
-		// };
-
 		// Updating subtask IDs stored on projects
 
 		const previousSubtaskIds = previousData.subtasks.map(
@@ -554,19 +474,6 @@ export function useCardEditor(props: Props) {
 
 				// Updating subtask IDs stored on projects
 
-				// const previousSubtaskIds = previousData.subtasks.map(
-				// 	(o) => o.subtaskId
-				// );
-				// const updatedSubtaskIds = updatedTicket.subtasks.map(
-				// 	(o) => o.subtaskId
-				// );
-				// const previousCompletedIds = previousData.subtasks
-				// 	.filter((o) => o.completed)
-				// 	.map((o) => o.subtaskId);
-				// const updatedCompletedIds = updatedTicket.subtasks
-				// 	.filter((o) => o.completed)
-				// 	.map((o) => o.subtaskId);
-
 				if (
 					arraysEqual(previousSubtaskIds, updatedSubtaskIds) &&
 					previousData.project.projectId ===
@@ -575,8 +482,6 @@ export function useCardEditor(props: Props) {
 					console.log("No change to subtasks");
 					return;
 				} else {
-					// const newCompleteTaskIds = updateCompletedTaskIds(operation)
-
 					// Moving ticket between projects
 					if (
 						previousData.project.projectId &&
@@ -649,15 +554,10 @@ export function useCardEditor(props: Props) {
 							newTaskStatus,
 							updatedCompletedIds,
 							updatedSubtaskIds,
-							// updatedTicket.taskStatus === "Completed"
-							// 	? [updatedTicket.ticketId]
-							// 	: [],
 							[updatedTicket.ticketId],
 							[updatedTicket.ticketId]
 						);
 						if (res3.ok) {
-							//console.log("res3 ok");
-
 							setProject &&
 								setProject((prev) =>
 									prev.map((proj) =>
@@ -672,15 +572,6 @@ export function useCardEditor(props: Props) {
 															proj.subtasksTotalIds
 														) as string[]),
 													],
-
-													// [
-													// 	...(arrayExclude(
-													// 		proj.tasksCompletedIds,
-													// 		[
-													// 			updatedTicket.ticketId,
-													// 		]
-													// 	) as string[]),
-													// ],
 											  }
 											: proj
 									)
@@ -698,9 +589,6 @@ export function useCardEditor(props: Props) {
 							newTaskStatus,
 							deletedSubtaskIds,
 							deletedSubtaskIds,
-							// newTaskStatus === "Completed"
-							// 	? []
-							// 	: [updatedTicket.ticketId],
 							[updatedTicket.ticketId],
 							[]
 						);
@@ -723,18 +611,6 @@ export function useCardEditor(props: Props) {
 															proj.subtasksTotalIds,
 															deletedSubtaskIds
 														) as string[],
-
-													// newTaskStatus ===
-													// "Completed"
-													// 	? [
-													// 			...proj.tasksCompletedIds,
-													// 	  ]
-													// 	: (arrayExclude(
-													// 			proj.tasksCompletedIds,
-													// 			[
-													// 				updatedTicket.ticketId,
-													// 			]
-													// 	  ) as string[]),
 											  }
 											: proj
 									)

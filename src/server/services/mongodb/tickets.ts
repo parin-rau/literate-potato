@@ -1,10 +1,8 @@
 import "dotenv/config";
-//import { Request, Response } from "express";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
 import { TicketData } from "../../../types";
 import { countPerElement } from "../../../utility/arrayComparisons";
-//import { dateStrToTime } from "../../utility/dateConversion";
 
 const localTickets = process.env.LOCAL_TICKETS ?? "tickets";
 //const projects = process.env.LOCAL_PROJECTS ?? "projects";
