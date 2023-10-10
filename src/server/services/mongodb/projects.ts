@@ -101,23 +101,6 @@ export async function updateProject(
 	};
 
 	try {
-		// const id = req.params.id;
-		// const data:
-		// 	| {
-		// 			operation: "add" | "delete";
-		// 			newTaskStatus?: string;
-		// 			tasksCompletedIds?: string[];
-		// 			tasksTotalIds?: string[];
-		// 			subtasksCompletedIds?: string[];
-		// 			subtasksTotalIds?: string[];
-		// 	  }
-		// 	| {
-		// 			operation: "metadata";
-		// 			metadata: {
-		// 				[key: string]: string | number;
-		// 			};
-		// 	  } = await req.body;
-
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localProjects);
@@ -129,7 +112,6 @@ export async function updateProject(
 			};
 
 			const { operation } = data;
-			//console.log("data", data);
 
 			if (operation !== "add" && operation !== "delete") {
 				result.message =
@@ -137,10 +119,6 @@ export async function updateProject(
 				result.success = true;
 				return result;
 			}
-
-			// return console.log(
-			// 	"newTaskStatus not defined for current operation"
-			// );
 
 			const { newTaskStatus } = data;
 
@@ -150,9 +128,6 @@ export async function updateProject(
 				result.success = true;
 				return result;
 			}
-			//return console.log("newTaskStatus not defined in req body");
-
-			//console.log("newTaskStatus", newTaskStatus);
 
 			if (newTaskStatus !== "Completed") {
 				try {
@@ -207,12 +182,7 @@ export async function updateProject(
 				res.success = result.acknowledged;
 				return res;
 			}
-			// else if (
-			// 	data.operation === "add" &&
-			// 	data.secondaryOperation === "delete"
-			// ) {
-			// 	console.log("remove ticket id from completed task counter");
-			// }
+
 			case "add": {
 				const result1 = await coll.updateOne(
 					{ projectId: id },
@@ -243,7 +213,6 @@ export async function updateProject(
 				res.success = result1.acknowledged && result2.success;
 				res.message = result2.message ?? "";
 				return res;
-				//res.status(200).send({ result1, result2 });
 			}
 			case "delete": {
 				const result1 = await coll.updateOne(
@@ -269,13 +238,11 @@ export async function updateProject(
 				res.success = result1.acknowledged && result2.success;
 				res.message = result2.message ?? "";
 				return res;
-				//res.status(200).send({ result1, result2 });
 			}
 			default: {
 				await client.close();
 				res.status = 400;
 				return res;
-				//res.status(400).send();
 			}
 		}
 	} catch (err) {
@@ -300,8 +267,6 @@ export async function deleteProject(id: string) {
 		res.success = result.acknowledged;
 		res.status = 200;
 		return res;
-
-		//res.status(200).send(result);
 	} catch (err) {
 		console.error(err);
 		return res;
