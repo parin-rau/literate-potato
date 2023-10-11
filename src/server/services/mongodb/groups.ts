@@ -1,5 +1,4 @@
 import "dotenv/config";
-//import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
 import { Group } from "../../../types";
 
@@ -45,8 +44,6 @@ export async function getAllGroups() {
 		res.status = 200;
 		res.groups = groups;
 
-		console.log(res);
-
 		return res;
 	} catch (e) {
 		console.error(e);
@@ -60,8 +57,6 @@ export async function createGroup(newGroup: Group) {
 		success: false,
 	};
 
-	console.log(newGroup);
-
 	try {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
@@ -71,9 +66,6 @@ export async function createGroup(newGroup: Group) {
 
 		res.status = 201;
 		res.success = result.acknowledged;
-
-		console.log(res);
-
 		return res;
 	} catch (e) {
 		console.error(e);
@@ -81,17 +73,25 @@ export async function createGroup(newGroup: Group) {
 	}
 }
 
-export async function updateGroup(id: string, data: Record<string, unknown>) {
+export async function updateGroup(
+	id: string,
+	patchData: Record<string, unknown>
+) {
 	const res: { status: number; success: boolean } = {
 		status: 500,
 		success: false,
 	};
 
+	if ("_id" in patchData) delete patchData["_id"];
+
 	try {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
 		const coll = db.collection(groupsColl);
-		const result = await coll.updateOne({ groupId: id }, { data });
+		const result = await coll.updateOne(
+			{ groupId: id },
+			{ $set: { ...patchData } }
+		);
 		await client.close();
 
 		res.status = 200;

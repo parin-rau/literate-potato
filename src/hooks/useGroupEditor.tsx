@@ -4,13 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 import { Group } from "../types";
 import { useAuth } from "./useAuth";
 
-// type GroupEditor = {
-// 	title: string;
-// 	description: string;
-// 	manager: { name: string; userId: string };
-// 	groupId: string;
-// };
-
 type Props = {
 	setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
 	previousData?: Group;
@@ -25,6 +18,7 @@ const init: Group = {
 	userIds: [],
 	projectIds: [],
 	ticketIds: [],
+	timestamp: 0,
 };
 
 export function useGroupEditor(props: Props) {
@@ -73,9 +67,10 @@ export function useGroupEditor(props: Props) {
 				userId: user.current!.userId,
 			},
 			groupId: uuidv4(),
-			userIds: [],
+			userIds: [user.current!.userId],
 			projectIds: [],
 			ticketIds: [],
+			timestamp: Date.now(),
 		};
 
 		const res = await protectedFetch(`/api/group`, {

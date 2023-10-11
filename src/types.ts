@@ -211,4 +211,5 @@ export interface Group {
 	userIds: string[];
 	projectIds: string[];
 	ticketIds: string[];
+	timestamp: number;
 }

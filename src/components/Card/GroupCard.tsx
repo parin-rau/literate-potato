@@ -32,6 +32,7 @@ export default function GroupCard(props: Props) {
 							cardId={data.groupId}
 						/>
 					</div>
+					<p>{data.description}</p>
 					<p>Group ID: {data.groupId}</p>
 					<p>
 						{"Manager: "}
