@@ -1,8 +1,9 @@
 import GroupCard from "./GroupCard";
 import { useGroup } from "../../hooks/useGroup";
-import GroupEditor from "../Editor/GroupEditor";
+import GroupEditor from "./GroupEditor";
 import ToggleButton from "../Nav/ToggleButton";
 import CollapseIcon from "../Svg/CollapseIcon";
+import GroupRequest from "./GroupRequest";
 
 export default function GroupContainer() {
 	const {
@@ -19,12 +20,15 @@ export default function GroupContainer() {
 	return (
 		<div className="flex flex-col mt-16 mx-2 p-2 gap-6">
 			<h1 className="font-bold text-4xl">Groups Home</h1>
-			<div className="flex flex-col p-2 gap-6 rounded-lg dark:bg-neutral-900">
-				<GroupEditor {...{ setGroups }} />
+			<div className="flex flex-col p-2 gap-4 rounded-lg dark:bg-neutral-900">
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+					<GroupEditor {...{ setGroups }} />
+					<GroupRequest />
+				</div>
 
 				<ToggleButton onClick={collapseContainer}>
 					<CollapseIcon isCollapsed={isHidden} />
-					<h3 className="font-semibold text-2xl">Groups</h3>
+					<h3 className="font-semibold text-2xl">{`Joined Groups ($)`}</h3>
 				</ToggleButton>
 
 				{!isHidden && groups && (

@@ -5,8 +5,11 @@ import HamburgerToggle from "./HamburgerToggle";
 import SidebarRight from "./SidebarRight";
 import ToggleButton from "./ToggleButton";
 import DarkModeIcon from "../Svg/DarkModeIcon";
+import InboxIcon from "../Svg/InboxIcon";
+import { useNavigate } from "react-router-dom";
 
 export default function NavBar() {
+	const navigate = useNavigate();
 	const [theme, setTheme] = useState<string>(localStorage.theme);
 	const [isOpenSidebar, setOpenSidebar] = useState(false);
 	const [isOpenSecondarySidebar, setOpenSecondarySidebar] = useState(false);
@@ -44,6 +47,10 @@ export default function NavBar() {
 		}
 	}
 
+	function handleInboxClick() {
+		navigate("/notification");
+	}
+
 	return (
 		<>
 			<div className="fixed top-0 z-10 w-full bg-slate-100 dark:bg-neutral-900 p-2 dark:border-b dark:border-zinc-800">
@@ -57,6 +64,9 @@ export default function NavBar() {
 					<SearchBar linkTo="/search" />
 					<ToggleButton onClick={handleThemeToggle}>
 						<DarkModeIcon theme={theme} />
+					</ToggleButton>
+					<ToggleButton onClick={handleInboxClick}>
+						<InboxIcon notificationCount={3} />
 					</ToggleButton>
 					<HamburgerToggle
 						type="button"

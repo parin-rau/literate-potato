@@ -1,3 +1,12 @@
+import { useLocation } from "react-router-dom";
+import ProfileContainer from "../../components/Profile/ProfileContainer";
+
 export default function ProfilePage() {
-	return <div className="grid h-screen place-items-center">Profile Page</div>;
+	const { pathname } = useLocation();
+
+	return pathname === "/user" ? (
+		<ProfileContainer />
+	) : (
+		<div className="grid h-screen place-items-center">{`Profile Page ${pathname}`}</div>
+	);
 }

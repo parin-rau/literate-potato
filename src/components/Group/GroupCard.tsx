@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Group } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
-import GroupEditor from "../Editor/GroupEditor";
+import GroupEditor from "./GroupEditor";
 import CountLabel from "../Display/CountLabel";
 
 type Props = {
@@ -26,7 +26,12 @@ export default function GroupCard(props: Props) {
 			{!isEditing ? (
 				<>
 					<div className="flex flex-row justify-between">
-						<h2 className="font-semibold text-2xl">{data.title}</h2>
+						<Link
+							to={`/group/${data.groupId}`}
+							className="font-semibold text-3xl hover:underline"
+						>
+							{data.title}
+						</Link>
 						<MenuDropdown
 							options={moreOptions}
 							cardId={data.groupId}

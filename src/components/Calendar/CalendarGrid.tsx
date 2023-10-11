@@ -1,6 +1,6 @@
 import { useCalendar } from "../../hooks/useCalendar";
 import { Calendar } from "../../types";
-import CornerNotification from "./CornerNotification";
+import CornerNotification from "../Display/CornerNotification";
 
 type Props = {
 	calendar: Calendar;

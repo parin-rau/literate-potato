@@ -155,6 +155,10 @@ export interface User {
 	roles: number[];
 	timestamp: number;
 	lastModified?: number;
+	groupIds: string[];
+	projectIds: string[];
+	ticketIds: { completed: string[]; total: string[] };
+	subtaskIds: { completed: string[]; total: string[] };
 }
 
 export interface UserToken {

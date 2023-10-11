@@ -1,4 +1,4 @@
-import GroupContainer from "../../components/Card/GroupContainer";
+import GroupContainer from "../../components/Group/GroupContainer";
 
 export default function GroupHomePage() {
 	return (

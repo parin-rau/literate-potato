@@ -13,7 +13,7 @@ export default function ToggleButton(props: Props) {
 	return (
 		<button
 			className={
-				"py-2 px-4 w-fit rounded-md flex flex-row gap-4 items-center hover:bg-slate-300 dark:hover:bg-neutral-700 " +
+				"relative p-2 w-fit rounded-md flex flex-row gap-4 items-center hover:bg-slate-300 dark:hover:bg-neutral-700 " +
 				className
 			}
 			type={type ?? "button"}

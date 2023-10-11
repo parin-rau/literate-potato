@@ -21,24 +21,24 @@ import ProfilePage from "./pages/resource/ProfilePage.tsx";
 import AdminPage from "./pages/home/AdminPage.tsx";
 import SearchResultsPage from "./pages/resource/SearchResultsPage.tsx";
 import SettingsPage from "./pages/resource/SettingsPage.tsx";
+import NotificationPage from "./pages/resource/NotificationPage.tsx";
 
 export const router = createBrowserRouter([
 	// AUTH PROTECTED ROUTES
 	{
 		path: "/",
 		element: <AuthLayer />,
-		//errorElement: <ErrorPage />,
+		errorElement: <ErrorPage />,
 		children: [
 			{
 				path: "/",
 				element: <RootLayout />,
-				errorElement: <ErrorPage />,
+
 				children: [
 					// HOME PAGE
 					{
 						path: "/",
 						element: <HomePage title="Home" />,
-						errorElement: <ErrorPage />,
 					},
 
 					//OVERALL VIEWS
@@ -46,27 +46,22 @@ export const router = createBrowserRouter([
 					{
 						path: "group",
 						element: <GroupHomePage />,
-						errorElement: <ErrorPage />,
 					},
 					{
 						path: "project",
 						element: <ProjectHomePage title="Projects Home" />,
-						errorElement: <ErrorPage />,
 					},
 					{
 						path: "ticket",
 						element: <TicketHomePage />,
-						errorElement: <ErrorPage />,
 					},
 					{
 						path: "user",
 						element: <ProfilePage />,
-						errorElement: <ErrorPage />,
 					},
 					{
 						path: "admin",
 						element: <AdminPage />,
-						errorElement: <ErrorPage />,
 					},
 
 					//RESOURCE VIEWS
@@ -74,33 +69,31 @@ export const router = createBrowserRouter([
 					{
 						path: "group/:id",
 						element: <GroupPage />,
-						errorElement: <ErrorPage />,
 					},
 					{
 						path: "project/:id",
 						element: <ProjectPage />,
-						errorElement: <ErrorPage />,
 					},
 					{
 						path: "ticket/:id",
 						element: <TicketPage />,
-						errorElement: <ErrorPage />,
 					},
 					{
 						path: "user/:id",
 						element: <ProfilePage />,
-						errorElement: <ErrorPage />,
+					},
+					{
+						path: "notification",
+						element: <NotificationPage />,
 					},
 					{
 						path: "settings",
 						element: <SettingsPage />,
-						errorElement: <ErrorPage />,
 					},
 
 					{
 						path: "search/:query",
 						element: <SearchResultsPage />,
-						errorElement: <ErrorPage />,
 					},
 				],
 			},
@@ -110,12 +103,10 @@ export const router = createBrowserRouter([
 			{
 				path: "login",
 				element: <LoginPage />,
-				errorElement: <ErrorPage />,
 			},
 			{
 				path: "register",
 				element: <RegisterPage />,
-				errorElement: <ErrorPage />,
 			},
 		],
 	},
