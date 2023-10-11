@@ -32,7 +32,7 @@ type Props = {
 } & (TicketProps | ProjectProps);
 
 export default function CardContainer<
-	T extends FetchedTicketData | Project
+	T extends FetchedTicketData | Project,
 	// | (FetchedTicketData & { dataKind: "ticket" })
 	// | (Project & { dataKind: "project" })
 >(props: Props) {

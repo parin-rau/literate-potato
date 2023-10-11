@@ -6,6 +6,7 @@ import { projectsRouter } from "./routes/projects";
 import { searchRouter } from "./routes/search";
 import { ticketsRouter } from "./routes/tickets";
 import { commentsRouter } from "./routes/comments";
+import { groupsRouter } from "./routes/groups";
 
 const PORT = 3002;
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(parseCookies);
 app.use(verifyToken);
 
+app.use("/api/group", groupsRouter);
 app.use("/api/project", projectsRouter);
 app.use("/api/ticket", ticketsRouter);
 app.use("/api/comment", commentsRouter);

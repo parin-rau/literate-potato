@@ -202,3 +202,13 @@ export const emptyCalendar: Calendar = {
 	dates: { prev: [new Date()], current: [new Date()], next: [new Date()] },
 	displayDates: [{ date: new Date(), styles: "", dueCount: 0 }],
 };
+
+export interface Group {
+	title: string;
+	groupId: string;
+	description: string;
+	manager: { name: string; userId: string };
+	userIds: string[];
+	projectIds: string[];
+	ticketIds: string[];
+}
