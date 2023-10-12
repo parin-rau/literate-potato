@@ -1,12 +1,15 @@
-import { useLocation } from "react-router-dom";
 import ProfileContainer from "../../components/Profile/ProfileContainer";
+import { Link } from "react-router-dom";
 
-export default function ProfilePage() {
-	const { pathname } = useLocation();
+type Props = {
+	isCurrentUser?: boolean;
+};
 
-	return pathname === "/user" ? (
-		<ProfileContainer />
-	) : (
-		<div className="grid h-screen place-items-center">{`Profile Page ${pathname}`}</div>
+export default function ProfilePage({ isCurrentUser }: Props) {
+	return (
+		<div>
+			<ProfileContainer />
+			{isCurrentUser && <Link to={"/settings"}>Edit Profile</Link>}
+		</div>
 	);
 }

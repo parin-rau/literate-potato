@@ -5,14 +5,12 @@ import { useInitialFetch } from "./useInitialFetch";
 
 export function useGroup() {
 	const { protectedFetch } = useProtectedFetch();
-	//const [groups, setGroups] = useState<Group[] | null>(null)
 	const [isEditing, setEditing] = useState(false);
 	const [isHidden, setHidden] = useState(false);
-
 	const {
 		data: groups,
 		setData: setGroups,
-		// isLoading,
+		isLoading,
 	} = useInitialFetch<Group[]>(`/api/group`);
 
 	const editGroup = useCallback(() => {
@@ -37,6 +35,7 @@ export function useGroup() {
 
 	return {
 		groups,
+		isLoading,
 		isEditing,
 		isHidden,
 		setEditing,

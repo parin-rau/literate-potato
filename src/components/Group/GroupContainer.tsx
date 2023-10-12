@@ -4,12 +4,14 @@ import GroupEditor from "./GroupEditor";
 import ToggleButton from "../Nav/ToggleButton";
 import CollapseIcon from "../Svg/CollapseIcon";
 import GroupRequest from "./GroupRequest";
+import { LoadingSpinner } from "../Nav/Loading";
 
 export default function GroupContainer() {
 	const {
 		groups,
 		isEditing,
 		isHidden,
+		isLoading,
 		setEditing,
 		setGroups,
 		collapseContainer,
@@ -18,7 +20,7 @@ export default function GroupContainer() {
 	} = useGroup();
 
 	return (
-		<div className="flex flex-col mt-16 mx-2 p-2 gap-6">
+		<div className="@container/cards flex flex-col mt-16 mx-auto p-2 gap-6">
 			<h1 className="font-bold text-4xl">Groups Home</h1>
 			<div className="flex flex-col p-2 gap-4 rounded-lg dark:bg-neutral-900">
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -30,9 +32,9 @@ export default function GroupContainer() {
 					<CollapseIcon isCollapsed={isHidden} />
 					<h3 className="font-semibold text-2xl">{`Joined Groups ($)`}</h3>
 				</ToggleButton>
-
-				{!isHidden && groups && (
-					<div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-2">
+				{isLoading && <LoadingSpinner />}
+				{!isLoading && !isHidden && groups && (
+					<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto">
 						{groups.map((g) => (
 							<GroupCard
 								key={g.groupId}

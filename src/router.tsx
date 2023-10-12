@@ -33,7 +33,7 @@ export const router = createBrowserRouter([
 			{
 				path: "/",
 				element: <RootLayout />,
-
+				errorElement: <ErrorPage />,
 				children: [
 					// HOME PAGE
 					{
@@ -57,7 +57,7 @@ export const router = createBrowserRouter([
 					},
 					{
 						path: "user",
-						element: <ProfilePage />,
+						element: <ProfilePage isCurrentUser />,
 					},
 					{
 						path: "admin",

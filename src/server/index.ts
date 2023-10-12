@@ -7,6 +7,7 @@ import { searchRouter } from "./routes/search";
 import { ticketsRouter } from "./routes/tickets";
 import { commentsRouter } from "./routes/comments";
 import { groupsRouter } from "./routes/groups";
+import { usersRouter } from "./routes/users";
 
 const PORT = 3002;
 
@@ -17,6 +18,7 @@ app.use(parseCookies);
 app.use(verifyToken);
 
 app.use("/api/group", groupsRouter);
+app.use("/api/user", usersRouter);
 app.use("/api/project", projectsRouter);
 app.use("/api/ticket", ticketsRouter);
 app.use("/api/comment", commentsRouter);

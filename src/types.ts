@@ -151,7 +151,7 @@ export interface User {
 	userId: string;
 	username: string;
 	email: string;
-	password: string;
+	password?: string;
 	roles: number[];
 	timestamp: number;
 	lastModified?: number;
