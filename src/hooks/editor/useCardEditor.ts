@@ -6,12 +6,12 @@ import {
 	ProjectEditor,
 	initProjectEditor,
 	initTicketEditor,
-} from "../types";
+} from "../../types";
 import { useLocation } from "react-router-dom";
-import { useProtectedFetch } from "./useProtectedFetch";
+import { useProtectedFetch } from "../utility/useProtectedFetch";
 import { v4 as uuidv4 } from "uuid";
-import { arrayExclude, arraysEqual } from "../utility/arrayComparisons";
-import { statusColorsLookup } from "../utility/optionLookup";
+import { arrayExclude, arraysEqual } from "../../utility/arrayComparisons";
+import { statusColorsLookup } from "../../utility/optionLookup";
 //import { useTicketEditor } from "./useTicketEditor";
 //import { useProjectEditor } from "./useProjectEditor";
 

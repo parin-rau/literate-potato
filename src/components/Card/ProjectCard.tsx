@@ -5,7 +5,7 @@ import timestampDisplay from "../../utility/timestampDisplay";
 import MenuDropdown from "../Nav/MenuDropdown";
 import TicketEditor from "../Editor/TicketEditor";
 import ProgressBar from "../Display/ProgressBar";
-import { useProtectedFetch } from "../../hooks/useProtectedFetch";
+import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
 
 type Props = {
 	isHeader?: boolean;

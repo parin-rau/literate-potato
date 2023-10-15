@@ -2,7 +2,7 @@ import { useState } from "react";
 import CalendarContainer from "../../components/Calendar/CalendarContainer";
 import CardContainer from "../../components/Card/CardContainer";
 import { LoadingSkeletonCalendar } from "../../components/Nav/Loading";
-import { usePageTitle } from "../../hooks/usePageTitle";
+import { usePageTitle } from "../../hooks/utility/usePageTitle";
 
 export default function ProjectHomePage(props: { title: string }) {
 	usePageTitle(props.title);

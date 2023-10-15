@@ -2,7 +2,7 @@ import {
 	LoadingSkeletonCalendar,
 	LoadingSkeletonCardGrid,
 } from "../../components/Nav/Loading";
-import { usePageTitle } from "../../hooks/usePageTitle";
+import { usePageTitle } from "../../hooks/utility/usePageTitle";
 
 type Props = { title: string };
 

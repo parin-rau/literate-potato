@@ -1,5 +1,5 @@
 import SidebarButton from "./SidebarButton";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../hooks/utility/useAuth";
 import HamburgerToggle from "./HamburgerToggle";
 import SignOutButton from "./SignOutButton";
 

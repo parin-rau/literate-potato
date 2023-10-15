@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
-import { useProtectedFetch } from "./useProtectedFetch";
-import { Group } from "../types";
-import { useInitialFetch } from "./useInitialFetch";
+import { useProtectedFetch } from "../utility/useProtectedFetch";
+import { Group } from "../../types";
+import { useInitialFetch } from "../utility/useInitialFetch";
 
 export function useGroup() {
 	const { protectedFetch } = useProtectedFetch();

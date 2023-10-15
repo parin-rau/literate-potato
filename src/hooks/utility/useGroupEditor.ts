@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useProtectedFetch } from "./useProtectedFetch";
 import { v4 as uuidv4 } from "uuid";
-import { Group } from "../types";
+import { Group } from "../../types";
 import { useAuth } from "./useAuth";
 
 type Props = {

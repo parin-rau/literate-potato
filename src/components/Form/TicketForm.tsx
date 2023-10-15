@@ -4,7 +4,7 @@ import TagsEditor from "../Editor/TagsEditor";
 import SubtaskEditor from "../Editor/SubtaskEditor";
 import SelectDropdown from "../Nav/SelectDropdown";
 import { optionLookup } from "../../utility/optionLookup";
-import { useProtectedFetch } from "../../hooks/useProtectedFetch";
+import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
 
 type Props = {
 	editor: EditorData;

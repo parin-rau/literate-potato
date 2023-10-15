@@ -1,5 +1,5 @@
 import GroupCard from "./GroupCard";
-import { useGroup } from "../../hooks/useGroup";
+import { useGroup } from "../../hooks/card/useGroup";
 import GroupEditor from "./GroupEditor";
 import ToggleButton from "../Nav/ToggleButton";
 import CollapseIcon from "../Svg/CollapseIcon";

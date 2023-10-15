@@ -1,4 +1,4 @@
-import { useInitialFetch } from "../../hooks/useInitialFetch";
+import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
 import { SearchResultProps } from "../../types";
 import SearchResult from "./SearchResult";
 

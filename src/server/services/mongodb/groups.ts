@@ -1,8 +1,9 @@
 import "dotenv/config";
 import { connectToDatabase } from "../../../db/mongodb";
-import { Group } from "../../../types";
+import { Group, User } from "../../../types";
 
 const groupsColl = process.env.LOCAL_GROUPS ?? "groups";
+const usersColl = process.env.LOCAL_USERS ?? "users";
 
 export async function getGroup(id: string) {
 	const res: { status: number; success: boolean; group?: unknown } = {
@@ -60,12 +61,19 @@ export async function createGroup(newGroup: Group) {
 	try {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
-		const coll = db.collection(groupsColl);
-		const result = await coll.insertOne(newGroup);
+		const groups = db.collection(groupsColl);
+		const users = db.collection(usersColl);
+		const result1 = await groups.insertOne(newGroup);
+		const result2 = await users.updateOne(
+			{ userId: newGroup.manager.userId },
+			{ $addToSet: { groupIds: newGroup.groupId } }
+		);
 		await client.close();
 
-		res.status = 201;
-		res.success = result.acknowledged;
+		const success = result1.acknowledged && result2.acknowledged;
+
+		res.status = success ? 201 : 500;
+		res.success = success;
 		return res;
 	} catch (e) {
 		console.error(e);
@@ -112,12 +120,19 @@ export async function deleteGroup(id: string) {
 	try {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
-		const coll = db.collection(groupsColl);
-		const result = await coll.deleteOne({ groupId: id });
+		const groups = db.collection<Group>(groupsColl);
+		const users = db.collection<User>(usersColl);
+		const result1 = await groups.deleteOne({ groupId: id });
+		const result2 = await users.updateMany(
+			{ groupIds: id },
+			{ $pull: { groupIds: id } }
+		);
 		await client.close();
 
-		res.status = 200;
-		res.success = result.acknowledged;
+		const success = result1.acknowledged && result2.acknowledged;
+
+		res.status = success ? 200 : 500;
+		res.success = success;
 		return res;
 	} catch (e) {
 		console.error(e);

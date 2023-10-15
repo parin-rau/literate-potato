@@ -3,6 +3,8 @@ import { Group } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import GroupEditor from "./GroupEditor";
 import CountLabel from "../Display/CountLabel";
+//import { useParams } from "react-router-dom";
+import { useAuth } from "../../hooks/utility/useAuth";
 
 type Props = {
 	data: Group;
@@ -14,12 +16,18 @@ type Props = {
 };
 
 export default function GroupCard(props: Props) {
+	const { user } = useAuth();
 	const { data, isEditing, setEditing, editGroup, deleteGroup, setGroups } =
 		props;
+
 	const moreOptions = [
 		{ name: "Delete", fn: deleteGroup },
 		{ name: "Edit", fn: editGroup },
 	];
+	const profileLink =
+		user.current?.userId === data.manager.userId
+			? `/user`
+			: `/user/${data.manager.userId}`;
 
 	return (
 		<div className="flex flex-col gap-2 p-4 rounded-lg border-2 dark:border-neutral-700 dark:bg-zinc-900">
@@ -43,7 +51,8 @@ export default function GroupCard(props: Props) {
 						{"Manager: "}
 						<Link
 							className="underline"
-							to={`/user/${data.manager.userId}`}
+							to={profileLink}
+							//to={`/user/${data.manager.userId}`}
 						>
 							{data.manager.name}
 						</Link>

@@ -1,4 +1,4 @@
-import { useGroupEditor } from "../../hooks/useGroupEditor";
+import { useGroupEditor } from "../../hooks/utility/useGroupEditor";
 import { Group } from "../../types";
 
 type Props = {

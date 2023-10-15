@@ -3,8 +3,8 @@ import CardContainer from "../../components/Card/CardContainer";
 import ProjectCard from "../../components/Card/ProjectCard";
 import { FetchedTicketData, Project, uncategorizedProject } from "../../types";
 import { useNavigate, useParams } from "react-router-dom";
-import { useInitialFetch } from "../../hooks/useInitialFetch";
-import { usePageTitle } from "../../hooks/usePageTitle";
+import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
+import { usePageTitle } from "../../hooks/utility/usePageTitle";
 
 export default function ProjectPage() {
 	const projectId = useParams().id || "";

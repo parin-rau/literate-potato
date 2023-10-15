@@ -1,8 +1,8 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { dateToStr } from "../utility/dateConversion";
-import { useProtectedFetch } from "./useProtectedFetch";
-import { Calendar, emptyCalendar } from "../types";
+import { dateToStr } from "../../utility/dateConversion";
+import { useProtectedFetch } from "../utility/useProtectedFetch";
+import { Calendar, emptyCalendar } from "../../types";
 
 const monthLookup = [
 	"January",

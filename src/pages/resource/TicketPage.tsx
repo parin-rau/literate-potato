@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { useInitialFetch } from "../../hooks/useInitialFetch";
+import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
 import { FetchedTicketData } from "../../types";
 import TicketCard from "../../components/Card/TicketCard";
 

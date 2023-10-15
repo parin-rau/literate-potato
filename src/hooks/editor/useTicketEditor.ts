@@ -1,13 +1,13 @@
 import { useCallback } from "react";
-import { useProtectedFetch } from "./useProtectedFetch";
+import { useProtectedFetch } from "../utility/useProtectedFetch";
 import {
 	EditorData,
 	FetchedTicketData,
 	Project,
 	initTicketEditor,
-} from "../types";
-import { arrayExclude, arraysEqual } from "../utility/arrayComparisons";
-import { statusColorsLookup } from "../utility/optionLookup";
+} from "../../types";
+import { arrayExclude, arraysEqual } from "../../utility/arrayComparisons";
+import { statusColorsLookup } from "../../utility/optionLookup";
 
 // type CommonProps = {
 // 	dataKind: string;

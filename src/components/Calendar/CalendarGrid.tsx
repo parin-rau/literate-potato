@@ -1,4 +1,4 @@
-import { useCalendar } from "../../hooks/useCalendar";
+import { useCalendar } from "../../hooks/card/useCalendar";
 import { Calendar } from "../../types";
 import CornerNotification from "../Display/CornerNotification";
 

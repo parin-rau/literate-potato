@@ -1,7 +1,7 @@
 import { EditorData, ProjectEditor } from "../../types";
 import ProjectForm from "../Form/ProjectForm";
 import TicketForm from "../Form/TicketForm";
-import { useCardEditor, Props } from "../../hooks/useCardEditor";
+import { useCardEditor, Props } from "../../hooks/editor/useCardEditor";
 
 export default function TicketEditor(props: Props) {
 	const { dataKind, previousData, setEditing } = props;

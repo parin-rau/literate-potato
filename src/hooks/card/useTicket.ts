@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useProtectedFetch } from "./useProtectedFetch";
-import { statusColorsLookup } from "../utility/optionLookup";
-import { FetchedTicketData, Project, TicketData } from "../types";
-import { arrayExclude } from "../utility/arrayComparisons";
+import { useProtectedFetch } from "../utility/useProtectedFetch";
+import { statusColorsLookup } from "../../utility/optionLookup";
+import { FetchedTicketData, Project, TicketData } from "../../types";
+import { arrayExclude } from "../../utility/arrayComparisons";
 
 export type Props = {
 	cardData: FetchedTicketData;

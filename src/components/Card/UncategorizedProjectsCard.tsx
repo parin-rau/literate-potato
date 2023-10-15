@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useInitialFetch } from "../../hooks/useInitialFetch";
+import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
 import { useEffect } from "react";
 import { FetchedTicketData } from "../../types";
 import {

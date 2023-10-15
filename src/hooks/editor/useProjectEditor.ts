@@ -1,11 +1,11 @@
 import { useCallback } from "react";
-import { useProtectedFetch } from "./useProtectedFetch";
+import { useProtectedFetch } from "../utility/useProtectedFetch";
 import {
 	Project,
 	ProjectEditor,
 	initProjectEditor,
 	initTicketEditor,
-} from "../types";
+} from "../../types";
 
 type Props = {
 	editor: ProjectEditor;
