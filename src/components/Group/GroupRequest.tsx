@@ -1,6 +1,12 @@
 import { useState } from "react";
+import { useAuth } from "../../hooks/utility/useAuth";
 
-export default function GroupRequest() {
+type Props = {
+	requestGroup: (_gId: string, _uId: string) => Promise<string | undefined>;
+};
+
+export default function GroupRequest({ requestGroup }: Props) {
+	const { user } = useAuth();
 	const [expand, setExpand] = useState(false);
 	const [form, setForm] = useState("");
 	const [message, setMessage] = useState("");
@@ -21,9 +27,12 @@ export default function GroupRequest() {
 		setForm(value);
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setMessage(`Request sent to join group "${form}"`);
+
+		const message = await requestGroup(form, user.current!.userId);
+
+		setMessage(message ? message : `Request sent to join group "${form}"`);
 		setForm("");
 	};
 

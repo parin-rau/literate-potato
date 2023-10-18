@@ -9,5 +9,6 @@ groupsRouter.get("/:id", groups.getGroup);
 groupsRouter.post("/", groups.createGroup);
 
 groupsRouter.patch("/:id", groups.updateGroup);
+groupsRouter.patch("/:groupId/user/:userId/:action", groups.joinGroup);
 
 groupsRouter.delete("/:id", groups.deleteGroup);

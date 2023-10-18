@@ -111,6 +111,122 @@ export async function updateGroup(
 	}
 }
 
+export async function joinGroup(
+	groupId: string,
+	userId: string,
+	action: "join" | "leave" | "request" | "deny"
+) {
+	const res: { status: number; success: boolean; message?: string } = {
+		status: 500,
+		success: false,
+	};
+
+	console.log(groupId, userId, action);
+
+	const updateCollections = async () => {
+		const client = await connectToDatabase();
+		const db = client.db(process.env.VITE_LOCAL_DB);
+		const groups = db.collection<Group>(groupsColl);
+		const users = db.collection<User>(usersColl);
+
+		switch (action) {
+			case "join": {
+				const result1 = await groups.updateOne(
+					{ groupId },
+					{ $addToSet: { userIds: userId } }
+				);
+				const result2 = await users.updateOne(
+					{ userId },
+					{ $addToSet: { groupIds: groupId } }
+				);
+				await client.close();
+
+				return {
+					success: result1.acknowledged && result2.acknowledged,
+					matchedGroups: result1.matchedCount,
+					matchedUsers: result2.matchedCount,
+				};
+			}
+			case "leave": {
+				const result1 = await groups.updateOne(
+					{ groupId },
+					{ $pull: { userIds: userId } }
+				);
+				const result2 = await users.updateOne(
+					{ userId },
+					{ $pull: { groupIds: groupId } }
+				);
+				await client.close();
+
+				return {
+					success: result1.acknowledged && result2.acknowledged,
+					matchedGroups: result1.matchedCount,
+					matchedUsers: result2.matchedCount,
+				};
+			}
+			case "request": {
+				const result1 = await groups.updateOne(
+					{ groupId },
+					{ $addToSet: { requestUserIds: userId } }
+				);
+				const result2 = await users.updateOne(
+					{ userId },
+					{ $addToSet: { requestGroupIds: groupId } }
+				);
+				return {
+					success: result1.acknowledged && result2.acknowledged,
+					matchedGroups: result1.matchedCount,
+					matchedUsers: result2.matchedCount,
+				};
+			}
+			case "deny": {
+				const result1 = await groups.updateOne(
+					{ groupId },
+					{
+						$pull: { requestUserIds: userId },
+					}
+				);
+				const result2 = await users.updateOne(
+					{ userId },
+					{ $pull: { requestGroupIds: groupId } }
+				);
+				return {
+					success: result1.acknowledged && result2.acknowledged,
+					matchedGroups: result1.matchedCount,
+					matchedUsers: result2.matchedCount,
+				};
+			}
+			default:
+				return { success: false, matchedGroups: 0, matchedUsers: 0 };
+		}
+	};
+
+	try {
+		// const client = await connectToDatabase();
+		// const db = client.db(process.env.VITE_LOCAL_DB);
+		// const groups = db.collection<Group>(groupsColl);
+		// const users = db.collection<User>(usersColl);
+		// const result1 = await coll.updateOne(
+		// 	{ groupId },
+		// 	{ $set: { ...patchData } }
+		// );
+		// await client.close();
+
+		const result = await updateCollections();
+
+		res.status = 200;
+		res.success = result.success;
+
+		if (result.matchedGroups === 0)
+			res.message = "Submitted group ID does not exist.";
+
+		return res;
+	} catch (e) {
+		console.error(e);
+		return res;
+	}
+}
+
 export async function deleteGroup(id: string) {
 	const res: { status: number; success: boolean } = {
 		status: 500,

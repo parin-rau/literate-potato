@@ -25,6 +25,26 @@ export async function updateGroup(req: Request, res: Response) {
 	res.sendStatus(status);
 }
 
+export async function joinGroup(req: Request, res: Response) {
+	const { groupId, userId, action } = req.params;
+
+	if (
+		action !== "join" &&
+		action !== "leave" &&
+		action !== "request" &&
+		action !== "deny"
+	) {
+		return res.sendStatus(400);
+	}
+
+	const { status, message } = await groupsService.joinGroup(
+		groupId,
+		userId,
+		action
+	);
+	res.status(status).json(message);
+}
+
 export async function deleteGroup(req: Request, res: Response) {
 	const { id } = req.params;
 	const { status } = await groupsService.deleteGroup(id);

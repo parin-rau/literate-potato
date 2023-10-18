@@ -6,7 +6,7 @@ type Props =
 	| {
 			options: {
 				name: string;
-				arrowDirection: "up" | "down";
+				arrowDirection?: "up" | "down";
 				fn: () => void;
 			}[];
 			cardId?: never;
@@ -17,7 +17,7 @@ type Props =
 			options: {
 				name: string;
 				arrowDirection?: never;
-				fn: (_id: string) => void;
+				fn: ((_id: string) => void) | (() => void);
 			}[];
 			cardId: string;
 			menuTitle?: string;

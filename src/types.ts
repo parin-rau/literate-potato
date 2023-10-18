@@ -156,6 +156,7 @@ export interface User {
 	timestamp: number;
 	lastModified?: number;
 	groupIds: string[];
+	requestGroupIds: string[];
 	projectIds: string[];
 	ticketIds: { completed: string[]; total: string[] };
 	subtaskIds: { completed: string[]; total: string[] };
@@ -213,6 +214,7 @@ export interface Group {
 	description: string;
 	manager: { name: string; userId: string };
 	userIds: string[];
+	requestUserIds: string[];
 	projectIds: string[];
 	ticketIds: string[];
 	timestamp: number;

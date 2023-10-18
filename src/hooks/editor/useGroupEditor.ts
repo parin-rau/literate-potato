@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
-import { useProtectedFetch } from "./useProtectedFetch";
+import { useProtectedFetch } from "../utility/useProtectedFetch";
 import { v4 as uuidv4 } from "uuid";
 import { Group } from "../../types";
-import { useAuth } from "./useAuth";
+import { useAuth } from "../utility/useAuth";
 
 type Props = {
 	setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
@@ -16,6 +16,7 @@ const init: Group = {
 	manager: { name: "", userId: "" },
 	groupId: "",
 	userIds: [],
+	requestUserIds: [],
 	projectIds: [],
 	ticketIds: [],
 	timestamp: 0,
@@ -68,6 +69,7 @@ export function useGroupEditor(props: Props) {
 			},
 			groupId: uuidv4(),
 			userIds: [user.current!.userId],
+			requestUserIds: [],
 			projectIds: [],
 			ticketIds: [],
 			timestamp: Date.now(),
