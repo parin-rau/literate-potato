@@ -28,6 +28,7 @@ type ProjectProps = {
 
 type Props = {
 	styles?: string;
+	groupId?: string;
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 } & (TicketProps | ProjectProps);
 
@@ -44,6 +45,7 @@ export default function CardContainer<
 		projectTitle,
 		setProject,
 		setCardsLoading,
+		groupId,
 	} = props;
 
 	const [sortMeta, setSortMeta] = useState<
@@ -63,6 +65,8 @@ export default function CardContainer<
 			? projectId
 				? `/api/ticket/project/${projectId}`
 				: "/api/ticket"
+			: groupId
+			? `/api/project/group/${groupId}`
 			: `/api/project`;
 
 	const {
@@ -215,7 +219,7 @@ export default function CardContainer<
 						<h1 className="font-semibold text-2xl ">
 							{filters.length > 0
 								? `Filtering Results (${cards.length})`
-								: containerTitle}
+								: `${containerTitle} (${cards.length})`}
 						</h1>
 					</ToggleButton>
 				</div>

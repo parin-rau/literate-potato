@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../hooks/utility/useAuth";
+import { useAuth } from "../../hooks/auth/useAuth";
 import { LoadingSpinner } from "../Nav/Loading";
 
 export default function PersistLogin({

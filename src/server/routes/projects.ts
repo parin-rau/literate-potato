@@ -4,6 +4,7 @@ import * as projects from "../controllers/projectsController";
 export const projectsRouter = express.Router();
 
 projectsRouter.get("/", projects.getAllProjects);
+projectsRouter.get("/group/:groupId", projects.getProjectsByGroup);
 projectsRouter.get("/:id", projects.getProject);
 
 projectsRouter.post("/", projects.createProject);

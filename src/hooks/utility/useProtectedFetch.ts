@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useAuth } from "./useAuth";
+import { useAuth } from "../auth/useAuth";
 
 export function useProtectedFetch() {
 	const [isLoading, setLoading] = useState<boolean | null>(null);

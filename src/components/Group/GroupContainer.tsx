@@ -9,7 +9,8 @@ import GroupCategory from "./GroupCategory";
 
 export default function GroupContainer() {
 	const { state, derivedState, cardSetters, memberSetters } = useGroup();
-	const { managedGroups, joinedGroups, requestedGroups } = derivedState;
+	const { managedGroups, joinedGroups, requestedGroups, otherGroups } =
+		derivedState;
 
 	return (
 		<div className="@container/cards flex flex-col mt-16 mx-auto p-2 gap-6">
@@ -22,7 +23,7 @@ export default function GroupContainer() {
 					/>
 				</div>
 
-				{managedGroups && (
+				{managedGroups && managedGroups.length > 0 && (
 					<GroupCategory
 						{...{
 							title: "Managed Groups",
@@ -36,7 +37,7 @@ export default function GroupContainer() {
 						}}
 					/>
 				)}
-				{joinedGroups && (
+				{joinedGroups && joinedGroups.length > 0 && (
 					<GroupCategory
 						{...{
 							title: "Joined Groups",
@@ -50,12 +51,26 @@ export default function GroupContainer() {
 						}}
 					/>
 				)}
-				{requestedGroups && (
+				{requestedGroups && requestedGroups.length > 0 && (
 					<GroupCategory
 						{...{
 							title: "Requested Groups",
 							isLoading: state.isLoading,
 							groups: requestedGroups,
+							cardProps: {
+								...cardSetters,
+								...memberSetters,
+								...state,
+							},
+						}}
+					/>
+				)}
+				{otherGroups && otherGroups.length > 0 && (
+					<GroupCategory
+						{...{
+							title: "Other Groups",
+							isLoading: state.isLoading,
+							groups: otherGroups,
 							cardProps: {
 								...cardSetters,
 								...memberSetters,

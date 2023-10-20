@@ -1,7 +1,7 @@
 import { useProfile } from "../../hooks/card/useProfile";
 import { Link, useParams } from "react-router-dom";
 import { LoadingSpinner } from "../Nav/Loading";
-import { useAuth } from "../../hooks/utility/useAuth";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 export default function ProfileContainer() {
 	const { user } = useAuth();

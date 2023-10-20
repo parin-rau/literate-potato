@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Login, Register } from "../../types";
-import { useAuth } from "../../hooks/utility/useAuth";
+import { useAuth } from "../../hooks/auth/useAuth";
 import { firstLetterCap } from "../../utility/charCaseFunctions";
 import { Link } from "react-router-dom";
 import PasswordInput from "../Nav/PasswordInput";

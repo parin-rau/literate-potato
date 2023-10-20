@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useProtectedFetch } from "../utility/useProtectedFetch";
 import { v4 as uuidv4 } from "uuid";
 import { Group } from "../../types";
-import { useAuth } from "../utility/useAuth";
+import { useAuth } from "../auth/useAuth";
 
 type Props = {
 	setGroups: React.Dispatch<React.SetStateAction<Group[]>>;

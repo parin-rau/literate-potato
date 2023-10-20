@@ -1,4 +1,4 @@
-import { useAuth } from "../../hooks/utility/useAuth";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 export default function NotificationPage() {
 	const { user } = useAuth();

@@ -3,7 +3,7 @@ import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
 import { Project } from "../../../types";
 
-const localProjects = process.env.LOCAL_PROJECTS ?? "projects";
+const projectsColl = process.env.LOCAL_PROJECTS ?? "projects";
 
 export async function getProject(id: string) {
 	const res: { status: number; success: boolean; project?: unknown } = {
@@ -14,7 +14,7 @@ export async function getProject(id: string) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localProjects);
+		const coll: mongoDB.Collection = db.collection(projectsColl);
 
 		const project = await coll.findOne({ projectId: id });
 		await client.close();
@@ -39,9 +39,33 @@ export async function getAllProjects() {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localProjects);
+		const coll: mongoDB.Collection = db.collection(projectsColl);
 
 		const projects = await coll.find().limit(50).toArray();
+		await client.close();
+
+		res.status = 200;
+		res.success = true;
+		res.projects = projects;
+		return res;
+	} catch (err) {
+		console.error(err);
+		return res;
+	}
+}
+
+export async function getProjectsByGroup(groupId: string) {
+	const res: { status: number; success: boolean; projects?: unknown[] } = {
+		status: 500,
+		success: false,
+	};
+
+	try {
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const coll: mongoDB.Collection = db.collection(projectsColl);
+
+		const projects = await coll.find({ groupId }).toArray();
 		await client.close();
 
 		res.status = 200;
@@ -63,7 +87,7 @@ export async function createProject(newProject: Project) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localProjects);
+		const coll: mongoDB.Collection = db.collection(projectsColl);
 
 		const result = await coll.insertOne(newProject);
 		await client.close();
@@ -105,7 +129,7 @@ export async function updateProject(
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localProjects);
+		const coll: mongoDB.Collection = db.collection(projectsColl);
 
 		// TASK COMPLETION HELPER
 		const setTaskCompletion = async () => {
@@ -262,7 +286,7 @@ export async function deleteProject(id: string) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localProjects);
+		const coll: mongoDB.Collection = db.collection(projectsColl);
 		const result = await coll.deleteOne({ projectId: id });
 		await client.close();
 

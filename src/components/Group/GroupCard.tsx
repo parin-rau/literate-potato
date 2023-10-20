@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Group } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import GroupEditor from "./GroupEditor";
 import CountLabel from "../Display/CountLabel";
-import { useAuth } from "../../hooks/utility/useAuth";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 type Props = {
 	data: Group;
@@ -32,16 +33,25 @@ export default function GroupCard(props: Props) {
 		denyRequest,
 		acceptRequest,
 	} = props;
+	const [isRequested, setRequested] = useState(
+		data.requestUserIds.includes(user.current!.userId)
+	);
 
 	const isMember = data.userIds.includes(user.current!.userId);
-	const isRequested = data.requestUserIds.includes(user.current!.userId)
+	const request = isRequested
 		? {
 				text: "Cancel Request",
-				fn: () => denyRequest(data.groupId, user.current!.userId),
+				fn: () => {
+					denyRequest(data.groupId, user.current!.userId);
+					setRequested(false);
+				},
 		  }
 		: {
 				text: "Request to join",
-				fn: () => requestGroup(data.groupId, user.current!.userId),
+				fn: () => {
+					requestGroup(data.groupId, user.current!.userId);
+					setRequested(true);
+				},
 		  };
 	const isManager = data.manager.userId === user.current!.userId;
 
@@ -101,16 +111,28 @@ export default function GroupCard(props: Props) {
 							showZero
 						/>
 					)}
-					{!isMember && (
+					{(!isMember || isManager) && (
 						<div className="flex flex-row gap-2">
 							{!isMember && (
 								<button
-									className="bg-blue-600 hover:bg-blue-500 text-white font-semibold"
-									onClick={isRequested.fn}
+									className="p-2 rounde-md bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+									onClick={request.fn}
 								>
-									{isRequested.text}
+									{request.text}
 								</button>
 							)}
+							{isManager &&
+								data.requestUserIds.length > 0 &&
+								data.requestUserIds.map((u) => (
+									<button
+										className="p-2 rounde-md bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+										onClick={() =>
+											acceptRequest(data.groupId, u)
+										}
+									>
+										{u}
+									</button>
+								))}
 						</div>
 					)}
 				</>

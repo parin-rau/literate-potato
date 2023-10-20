@@ -66,7 +66,12 @@ export async function createGroup(newGroup: Group) {
 		const result1 = await groups.insertOne(newGroup);
 		const result2 = await users.updateOne(
 			{ userId: newGroup.manager.userId },
-			{ $addToSet: { groupIds: newGroup.groupId } }
+			{
+				$addToSet: {
+					groupIds: newGroup.groupId,
+					managedGroupIds: newGroup.groupId,
+				},
+			}
 		);
 		await client.close();
 
@@ -133,11 +138,17 @@ export async function joinGroup(
 			case "join": {
 				const result1 = await groups.updateOne(
 					{ groupId },
-					{ $addToSet: { userIds: userId } }
+					{
+						$addToSet: { userIds: userId },
+						$pull: { requestUserIds: userId },
+					}
 				);
 				const result2 = await users.updateOne(
 					{ userId },
-					{ $addToSet: { groupIds: groupId } }
+					{
+						$addToSet: { groupIds: groupId },
+						$pull: { requestGroupIds: groupId },
+					}
 				);
 				await client.close();
 
@@ -150,11 +161,11 @@ export async function joinGroup(
 			case "leave": {
 				const result1 = await groups.updateOne(
 					{ groupId },
-					{ $pull: { userIds: userId } }
+					{ $pull: { userIds: userId, requestUserIds: userId } }
 				);
 				const result2 = await users.updateOne(
 					{ userId },
-					{ $pull: { groupIds: groupId } }
+					{ $pull: { groupIds: groupId, requestGroupIds: groupId } }
 				);
 				await client.close();
 
@@ -165,6 +176,19 @@ export async function joinGroup(
 				};
 			}
 			case "request": {
+				const groupExists = await groups.findOne({ groupId });
+				if (!groupExists) {
+					res.message = "Submitted group ID does not exist.";
+					return { success: true, matchedGroups: 0, matchedUsers: 0 };
+				}
+				if (
+					groupExists.userIds.includes(userId) ||
+					groupExists.requestUserIds.includes(userId)
+				) {
+					res.message = `Already joined group "${groupExists.title}"`;
+					return { success: true, matchedGroups: 1, matchedUsers: 0 };
+				}
+
 				const result1 = await groups.updateOne(
 					{ groupId },
 					{ $addToSet: { requestUserIds: userId } }
@@ -173,6 +197,8 @@ export async function joinGroup(
 					{ userId },
 					{ $addToSet: { requestGroupIds: groupId } }
 				);
+				await client.close();
+
 				return {
 					success: result1.acknowledged && result2.acknowledged,
 					matchedGroups: result1.matchedCount,
@@ -190,6 +216,8 @@ export async function joinGroup(
 					{ userId },
 					{ $pull: { requestGroupIds: groupId } }
 				);
+				await client.close();
+
 				return {
 					success: result1.acknowledged && result2.acknowledged,
 					matchedGroups: result1.matchedCount,
@@ -202,23 +230,13 @@ export async function joinGroup(
 	};
 
 	try {
-		// const client = await connectToDatabase();
-		// const db = client.db(process.env.VITE_LOCAL_DB);
-		// const groups = db.collection<Group>(groupsColl);
-		// const users = db.collection<User>(usersColl);
-		// const result1 = await coll.updateOne(
-		// 	{ groupId },
-		// 	{ $set: { ...patchData } }
-		// );
-		// await client.close();
-
 		const result = await updateCollections();
 
 		res.status = 200;
 		res.success = result.success;
 
-		if (result.matchedGroups === 0)
-			res.message = "Submitted group ID does not exist.";
+		// if (result.matchedGroups === 0)
+		// 	res.message = "Submitted group ID does not exist.";
 
 		return res;
 	} catch (e) {

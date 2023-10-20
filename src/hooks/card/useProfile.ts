@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useInitialFetch } from "../utility/useInitialFetch";
 import { User } from "../../types";
-import { useAuth } from "../utility/useAuth";
+import { useAuth } from "../auth/useAuth";
 
 export function useProfile() {
 	const { user } = useAuth();

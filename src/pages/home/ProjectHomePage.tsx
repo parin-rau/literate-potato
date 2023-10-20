@@ -4,7 +4,10 @@ import CardContainer from "../../components/Card/CardContainer";
 import { LoadingSkeletonCalendar } from "../../components/Nav/Loading";
 import { usePageTitle } from "../../hooks/utility/usePageTitle";
 
-export default function ProjectHomePage(props: { title: string }) {
+export default function ProjectHomePage(props: {
+	title: string;
+	groupId?: string;
+}) {
 	usePageTitle(props.title);
 
 	const [cardsLoading, setCardsLoading] = useState(true);
@@ -21,6 +24,7 @@ export default function ProjectHomePage(props: { title: string }) {
 						dataKind="project"
 						styles={cardContainerStyles}
 						setCardsLoading={setCardsLoading}
+						groupId={props.groupId}
 					/>
 
 					{cardsLoading ? (

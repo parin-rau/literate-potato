@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "./useAuth";
+import { useAuth } from "../auth/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export function useInitialFetch<T, D = void>(

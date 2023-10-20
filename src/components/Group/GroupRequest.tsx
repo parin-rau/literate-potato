@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../../hooks/utility/useAuth";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 type Props = {
 	requestGroup: (_gId: string, _uId: string) => Promise<string | undefined>;

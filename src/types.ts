@@ -5,6 +5,7 @@ export interface Project {
 	timestamp: number;
 	projectId: string;
 	projectNumber?: number;
+	groupId: string;
 	lastModified?: number;
 	tasksCompletedIds: string[];
 	tasksTotalIds: string[];
@@ -110,6 +111,7 @@ export const initProjectEditor: ProjectEditor = {
 	description: "",
 	creator: "",
 	color: "",
+	groupId: "",
 };
 
 export const uncategorizedProject: Project = {
@@ -121,6 +123,7 @@ export const uncategorizedProject: Project = {
 	tasksTotalIds: [],
 	subtasksCompletedIds: [],
 	subtasksTotalIds: [],
+	groupId: "",
 };
 
 export type SortMenu = {
@@ -156,6 +159,7 @@ export interface User {
 	timestamp: number;
 	lastModified?: number;
 	groupIds: string[];
+	managedGroupIds: string;
 	requestGroupIds: string[];
 	projectIds: string[];
 	ticketIds: { completed: string[]; total: string[] };
@@ -172,6 +176,7 @@ export interface UserDecode {
 	username: string;
 	userId: string;
 	roles: number[];
+
 	iat: number;
 	exp: number;
 }

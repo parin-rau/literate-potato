@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/utility/useAuth";
+import { useAuth } from "../../hooks/auth/useAuth";
 import LoginForm from "../../components/Form/LoginForm";
 import { usePageTitle } from "../../hooks/utility/usePageTitle";
 

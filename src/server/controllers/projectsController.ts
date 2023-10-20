@@ -23,6 +23,18 @@ export async function getAllProjects(_req: Request, res: Response) {
 	}
 }
 
+export async function getProjectsByGroup(req: Request, res: Response) {
+	const { groupId } = req.params;
+	const { status, success, projects } =
+		await projectsService.getProjectsByGroup(groupId);
+
+	if (!success || !projects) {
+		return res.sendStatus(status);
+	} else {
+		return res.status(status).send(projects);
+	}
+}
+
 export async function createProject(req: Request, res: Response) {
 	const newProject = await req.body;
 	const { status } = await projectsService.createProject(newProject);

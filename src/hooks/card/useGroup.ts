@@ -2,19 +2,20 @@ import { useCallback, useMemo, useState } from "react";
 import { useProtectedFetch } from "../utility/useProtectedFetch";
 import { Group } from "../../types";
 import { useInitialFetch } from "../utility/useInitialFetch";
-import { useAuth } from "../utility/useAuth";
+import { useAuth } from "../auth/useAuth";
 
-export function useGroup() {
+export function useGroup(propGroupId?: string) {
 	const { user } = useAuth();
 	const { protectedFetch } = useProtectedFetch();
 	const [isEditing, setEditing] = useState(false);
-	const [isHidden, setHidden] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const url = propGroupId
+		? `/api/project/group/${propGroupId}`
+		: `/api/group`;
 	const {
 		data: groups,
 		setData: setGroups,
 		isLoading,
-	} = useInitialFetch<Group[]>(`/api/group`);
+	} = useInitialFetch<Group[]>(url);
 
 	const editGroup = useCallback(() => {
 		setEditing(true);
@@ -32,33 +33,28 @@ export function useGroup() {
 		[protectedFetch, setGroups]
 	);
 
-	const collapseContainer = useCallback(() => {
-		setHidden((prev) => !prev);
-	}, []);
-
 	const requestGroup = useCallback(
 		async (groupId: string, userId: string) => {
-			setError(null);
-
 			const url = `/api/group/${groupId}/user/${userId}/request`;
 			const res = await protectedFetch(url, { method: "PATCH" });
 
 			if (res.ok) {
 				const message: string = await res.json();
 
-				setGroups((prev) =>
-					prev.map((g) =>
-						g.groupId === groupId
-							? {
-									...g,
-									requestUserIds: [
-										...g.requestUserIds,
-										userId,
-									],
-							  }
-							: g
-					)
-				);
+				!message &&
+					setGroups((prev) =>
+						prev.map((g) =>
+							g.groupId === groupId
+								? {
+										...g,
+										requestUserIds: [
+											...g.requestUserIds,
+											userId,
+										],
+								  }
+								: g
+						)
+					);
 
 				if (message) return message;
 			}
@@ -132,8 +128,10 @@ export function useGroup() {
 
 	const joinedGroups = useMemo(() => {
 		if (groups)
-			return groups.filter((g) =>
-				g.userIds.includes(user.current!.userId)
+			return groups.filter(
+				(g) =>
+					g.userIds.includes(user.current!.userId) &&
+					g.manager.userId !== user.current!.userId
 			);
 	}, [groups, user]);
 
@@ -144,13 +142,37 @@ export function useGroup() {
 			);
 	}, [groups, user]);
 
+	// FOR DEBUGGING
+	const otherGroups = useMemo(() => {
+		const isUnique = (gr: Group[] | undefined, id: string) => {
+			if (!gr) return true;
+			return !gr.map((g) => g.groupId).includes(id);
+		};
+
+		if (groups)
+			return groups.filter(
+				(g) =>
+					isUnique(managedGroups, g.groupId) &&
+					isUnique(joinedGroups, g.groupId) &&
+					isUnique(requestedGroups, g.groupId)
+			);
+	}, [groups, joinedGroups, managedGroups, requestedGroups]);
+
 	return {
-		state: { groups, isLoading, isEditing, isHidden, error },
-		derivedState: { managedGroups, joinedGroups, requestedGroups },
+		groups,
+		state: {
+			isLoading,
+			isEditing,
+		},
+		derivedState: {
+			managedGroups,
+			joinedGroups,
+			requestedGroups,
+			otherGroups,
+		},
 		cardSetters: {
 			setEditing,
 			setGroups,
-			collapseContainer,
 			editGroup,
 		},
 		memberSetters: {
