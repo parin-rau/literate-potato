@@ -3,14 +3,14 @@ import { useProtectedFetch } from "../utility/useProtectedFetch";
 import { Group } from "../../types";
 import { useInitialFetch } from "../utility/useInitialFetch";
 import { useAuth } from "../auth/useAuth";
+import { useNavigate } from "react-router-dom";
 
-export function useGroup(propGroupId?: string) {
+export function useGroup() {
 	const { user } = useAuth();
 	const { protectedFetch } = useProtectedFetch();
 	const [isEditing, setEditing] = useState(false);
-	const url = propGroupId
-		? `/api/project/group/${propGroupId}`
-		: `/api/group`;
+	const url = `/api/group`;
+
 	const {
 		data: groups,
 		setData: setGroups,
@@ -120,14 +120,14 @@ export function useGroup(propGroupId?: string) {
 	);
 
 	const managedGroups = useMemo(() => {
-		if (groups)
+		if (groups && groups.length > 0)
 			return groups.filter(
 				(g) => g.manager.userId === user.current!.userId
 			);
 	}, [groups, user]);
 
 	const joinedGroups = useMemo(() => {
-		if (groups)
+		if (groups && groups.length > 0)
 			return groups.filter(
 				(g) =>
 					g.userIds.includes(user.current!.userId) &&
@@ -136,7 +136,7 @@ export function useGroup(propGroupId?: string) {
 	}, [groups, user]);
 
 	const requestedGroups = useMemo(() => {
-		if (groups)
+		if (groups && groups.length > 0)
 			return groups.filter((g) =>
 				g.requestUserIds.includes(user.current!.userId)
 			);
@@ -149,7 +149,7 @@ export function useGroup(propGroupId?: string) {
 			return !gr.map((g) => g.groupId).includes(id);
 		};
 
-		if (groups)
+		if (groups && groups.length > 0)
 			return groups.filter(
 				(g) =>
 					isUnique(managedGroups, g.groupId) &&
@@ -179,6 +179,99 @@ export function useGroup(propGroupId?: string) {
 			deleteGroup,
 			leaveGroup,
 			requestGroup,
+			denyRequest,
+			acceptRequest,
+		},
+	};
+}
+
+export function useSingleGroup(propGroupId: string) {
+	const { protectedFetch } = useProtectedFetch();
+	const navigate = useNavigate();
+	const [isEditing, setEditing] = useState(false);
+	const url = `/api/group/${propGroupId}`;
+
+	const {
+		data: group,
+		setData: setGroup,
+		isLoading,
+	} = useInitialFetch<Group>(url);
+
+	const editGroup = useCallback(() => {
+		setEditing(true);
+	}, []);
+
+	const deleteGroup = useCallback(
+		async (id: string) => {
+			const res = await protectedFetch(`/api/group/${id}`, {
+				method: "DELETE",
+			});
+			if (res.ok) {
+				navigate("/group");
+			}
+		},
+		[navigate, protectedFetch]
+	);
+
+	const acceptRequest = useCallback(
+		async (groupId: string, userId: string) => {
+			const url = `/api/group/${groupId}/user/${userId}/join`;
+			const res = await protectedFetch(url, { method: "PATCH" });
+
+			if (res.ok) {
+				setGroup((prev) => ({
+					...prev,
+					requestUserIds: prev.requestUserIds.filter(
+						(i) => i !== userId
+					),
+					userIds: [...prev.userIds, userId],
+				}));
+			}
+		},
+		[protectedFetch, setGroup]
+	);
+
+	const denyRequest = useCallback(
+		async (groupId: string, userId: string) => {
+			const url = `/api/group/${groupId}/user/${userId}/deny`;
+			const res = await protectedFetch(url, { method: "PATCH" });
+			if (res.ok) {
+				setGroup((prev) => ({
+					...prev,
+					requestUserIds: prev.requestUserIds.filter(
+						(i) => i !== userId
+					),
+				}));
+			}
+		},
+		[protectedFetch, setGroup]
+	);
+
+	const leaveGroup = useCallback(
+		async (groupId: string, userId: string) => {
+			const url = `/api/group/${groupId}/user/${userId}/leave`;
+			const res = await protectedFetch(url, { method: "PATCH" });
+			if (res.ok) {
+				navigate("/group");
+			}
+		},
+		[navigate, protectedFetch]
+	);
+
+	return {
+		group,
+		state: {
+			isLoading,
+			isEditing,
+		},
+		cardSetters: {
+			setEditing,
+			setGroup,
+			editGroup,
+		},
+		memberSetters: {
+			deleteGroup,
+			leaveGroup,
 			denyRequest,
 			acceptRequest,
 		},
