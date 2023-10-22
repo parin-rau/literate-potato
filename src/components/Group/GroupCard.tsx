@@ -9,15 +9,26 @@ import { useAuth } from "../../hooks/auth/useAuth";
 type Props = {
 	data: Group;
 	leaveGroup: (_gId: string, _uId: string) => void;
-	requestGroup: (_gId: string, _uId: string) => void;
+	//requestGroup?: (_gId: string, _uId: string) => void;
 	acceptRequest: (_gId: string, _uId: string) => void;
 	denyRequest: (_gId: string, _uId: string) => void;
 	deleteGroup: (_id: string) => void;
 	editGroup: (_id: string) => void;
-	setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
+	//setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
 	isEditing: boolean;
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
-};
+} & (
+	| {
+			setGroup?: never;
+			setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
+			requestGroup: (_gId: string, _uId: string) => void;
+	  }
+	| {
+			setGroup: React.Dispatch<React.SetStateAction<Group>>;
+			setGroups?: never;
+			requestGroup?: never;
+	  }
+);
 
 export default function GroupCard(props: Props) {
 	const { user } = useAuth();
@@ -27,6 +38,7 @@ export default function GroupCard(props: Props) {
 		setEditing,
 		editGroup,
 		deleteGroup,
+		setGroup,
 		setGroups,
 		leaveGroup,
 		requestGroup,
@@ -38,21 +50,23 @@ export default function GroupCard(props: Props) {
 	);
 
 	const isMember = data.userIds.includes(user.current!.userId);
-	const request = isRequested
-		? {
-				text: "Cancel Request",
-				fn: () => {
-					denyRequest(data.groupId, user.current!.userId);
-					setRequested(false);
-				},
-		  }
-		: {
-				text: "Request to join",
-				fn: () => {
-					requestGroup(data.groupId, user.current!.userId);
-					setRequested(true);
-				},
-		  };
+	const request = requestGroup
+		? isRequested
+			? {
+					text: "Cancel Request",
+					fn: () => {
+						denyRequest(data.groupId, user.current!.userId);
+						setRequested(false);
+					},
+			  }
+			: {
+					text: "Request to join",
+					fn: () => {
+						requestGroup(data.groupId, user.current!.userId);
+						setRequested(true);
+					},
+			  }
+		: null;
 	const isManager = data.manager.userId === user.current!.userId;
 
 	const moreOptions = [
@@ -113,7 +127,7 @@ export default function GroupCard(props: Props) {
 					)}
 					{(!isMember || isManager) && (
 						<div className="flex flex-row gap-2">
-							{!isMember && (
+							{!isMember && request && (
 								<button
 									className="p-2 rounde-md bg-blue-600 hover:bg-blue-500 text-white font-semibold"
 									onClick={request.fn}
@@ -138,7 +152,7 @@ export default function GroupCard(props: Props) {
 				</>
 			) : (
 				<GroupEditor
-					{...{ setEditing, setGroups, previousData: data }}
+					{...{ setEditing, setGroup, setGroups, previousData: data }}
 				/>
 			)}
 		</div>

@@ -2,10 +2,18 @@ import { useGroupEditor } from "../../hooks/editor/useGroupEditor";
 import { Group } from "../../types";
 
 type Props = {
-	setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
 	previousData?: Group;
 	setEditing?: React.Dispatch<React.SetStateAction<boolean>>;
-};
+} & (
+	| {
+			setGroup: React.Dispatch<React.SetStateAction<Group>>;
+			setGroups?: never;
+	  }
+	| {
+			setGroup?: never;
+			setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
+	  }
+);
 
 export default function GroupEditor(props: Props) {
 	const { previousData } = props;

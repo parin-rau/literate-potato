@@ -1,11 +1,13 @@
 import { useParams } from "react-router-dom";
 import ProjectHomePage from "../home/ProjectHomePage";
-import { useGroup } from "../../hooks/card/useGroup";
+import { useSingleGroup } from "../../hooks/card/useGroup";
 import GroupCard from "../../components/Group/GroupCard";
 
 export default function GroupPage() {
 	const { id } = useParams();
-	const { groups, state, cardSetters, memberSetters } = useGroup(id);
+
+	const { group, state, cardSetters, memberSetters } = useSingleGroup(id!);
+	const { setGroup, ...restCardSetters } = cardSetters;
 	const { isLoading } = state;
 
 	return (
@@ -13,10 +15,15 @@ export default function GroupPage() {
 		// 	<div>{`Group Page ${groupId}`}</div>
 		// </div>
 		!isLoading && (
-			<ProjectHomePage title={groups[0].title ?? "Group"} groupId={id}>
+			<ProjectHomePage title={group.title ?? "Group"} groupId={id}>
 				<GroupCard
-					data={groups[0]}
-					{...{ ...state, ...cardSetters, ...memberSetters }}
+					data={group}
+					{...{
+						...state,
+						setGroup,
+						...restCardSetters,
+						...memberSetters,
+					}}
 				/>
 			</ProjectHomePage>
 		)

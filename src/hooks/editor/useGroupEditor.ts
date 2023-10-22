@@ -5,10 +5,18 @@ import { Group } from "../../types";
 import { useAuth } from "../auth/useAuth";
 
 type Props = {
-	setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
 	previousData?: Group;
 	setEditing?: React.Dispatch<React.SetStateAction<boolean>>;
-};
+} & (
+	| {
+			setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
+			setGroup?: never;
+	  }
+	| {
+			setGroups?: never;
+			setGroup: React.Dispatch<React.SetStateAction<Group>>;
+	  }
+);
 
 const init: Group = {
 	title: "",
@@ -23,7 +31,7 @@ const init: Group = {
 };
 
 export function useGroupEditor(props: Props) {
-	const { setGroups, previousData, setEditing } = props;
+	const { setGroup, setGroups, previousData, setEditing } = props;
 	const { protectedFetch } = useProtectedFetch();
 	const { user } = useAuth();
 	const [form, setForm] = useState<Group>(previousData ? previousData : init);
@@ -81,7 +89,8 @@ export function useGroupEditor(props: Props) {
 		});
 
 		if (res.ok) {
-			setGroups((prev) => [...prev, newGroup]);
+			setGroups && setGroups((prev) => [...prev, newGroup]);
+
 			setForm(init);
 			!pinned && setExpand(false);
 			setEditing && setEditing(false);
@@ -96,13 +105,17 @@ export function useGroupEditor(props: Props) {
 				{ method: "PATCH", body: JSON.stringify(patchData) }
 			);
 			if (res.ok) {
-				setGroups((prev) =>
-					prev.map((g) => (g.groupId === id ? { ...g, form } : g))
-				);
+				setGroup && setGroup((prev) => ({ ...prev, ...form }));
+				setGroups &&
+					setGroups((prev) =>
+						prev.map((g: Group) =>
+							g.groupId === id ? { ...g, ...form } : g
+						)
+					);
 				setEditing && setEditing(false);
 			}
 		},
-		[form, protectedFetch, setGroups, setEditing]
+		[form, protectedFetch, setGroup, setGroups, setEditing]
 	);
 
 	const handleSubmit = useCallback(
