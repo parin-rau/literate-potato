@@ -1,11 +1,12 @@
 import "dotenv/config";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
-import { TicketData } from "../../../types";
+import { FetchedTicketData, TicketData, User } from "../../../types";
 import { countPerElement } from "../../../utility/arrayComparisons";
 
-const localTickets = process.env.LOCAL_TICKETS ?? "tickets";
-//const projects = process.env.LOCAL_PROJECTS ?? "projects";
+const ticketsColl = process.env.LOCAL_TICKETS ?? "tickets";
+//const projectsColl = process.env.LOCAL_PROJECTS ?? "projects";
+const usersColl = process.env.LOCAL_USERS ?? "users";
 
 export async function getTicket(id: string) {
 	const res: { status: number; ticket?: unknown } = {
@@ -15,7 +16,7 @@ export async function getTicket(id: string) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localTickets);
+		const coll: mongoDB.Collection = db.collection(ticketsColl);
 		const ticket = await coll.findOne({ ticketId: id });
 		await client.close();
 
@@ -36,7 +37,7 @@ export async function getAllTickets() {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localTickets);
+		const coll: mongoDB.Collection = db.collection(ticketsColl);
 		const tickets = await coll.find().limit(50).toArray();
 		await client.close();
 
@@ -55,33 +56,85 @@ export async function getAllTicketsForProject(projectId: string) {
 	};
 
 	try {
-		const client: mongoDB.MongoClient = await connectToDatabase();
-		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localTickets);
+		const client = await connectToDatabase();
+		const db = client.db(process.env.VITE_LOCAL_DB);
+		const tickets = db.collection<FetchedTicketData>(ticketsColl);
 
 		if (projectId === "uncategorized") {
-			const tickets = await coll
+			const foundTickets = await tickets
 				.find({ "project.projectId": "" })
 				.limit(50)
 				.toArray();
 			await client.close();
 
 			res.status = 200;
-			res.tickets = tickets;
+			res.tickets = foundTickets;
 			return res;
 		} else {
-			const tickets = await coll
+			const foundTickets = await tickets
 				.find({ "project.projectId": projectId })
 				.limit(50)
 				.toArray();
 			await client.close();
 
 			res.status = 200;
-			res.tickets = tickets;
+			res.tickets = foundTickets;
 			return res;
 		}
 	} catch (err) {
 		console.error(err);
+		return res;
+	}
+}
+
+export async function getUncategorizedForGroup(groupId: string) {
+	const res: { status: number; tickets?: unknown } = {
+		status: 500,
+	};
+
+	try {
+		const client = await connectToDatabase();
+		const db = client.db(process.env.VITE_LOCAL_DB);
+		const ticketColl = db.collection<FetchedTicketData>(ticketsColl);
+		const tickets = await ticketColl
+			.find({ "project.projectId": "", groupId })
+			.toArray();
+		await client.close();
+
+		res.status = 200;
+		res.tickets = tickets;
+		return res;
+	} catch (e) {
+		console.error(e);
+		return res;
+	}
+}
+
+export async function getUncategorizedForUser(userId: string) {
+	const res: { status: number; tickets?: unknown } = {
+		status: 500,
+	};
+
+	try {
+		const client = await connectToDatabase();
+		const db = client.db(process.env.VITE_LOCAL_DB);
+		const users = db.collection<User>(usersColl);
+		const ticketColl = db.collection<FetchedTicketData>(ticketsColl);
+
+		const groupIds = await users
+			.findOne({ userId })
+			.then((u) => u?.groupIds.map((g) => g));
+		console.log(groupIds);
+
+		const tickets = await ticketColl
+			.find({ "project.projectId": "", groupId: { $in: groupIds } })
+			.toArray();
+
+		res.status = 200;
+		res.tickets = tickets;
+		return res;
+	} catch (e) {
+		console.error(e);
 		return res;
 	}
 }
@@ -95,7 +148,7 @@ export async function getTicketCountsForCalendar(dateRange: string[]) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const ticketColl: mongoDB.Collection = db.collection(localTickets);
+		const ticketColl: mongoDB.Collection = db.collection(ticketsColl);
 		// const projectColl: mongoDB.Collection = db.collection(projects);
 
 		const foundTickets = await ticketColl
@@ -140,7 +193,7 @@ export async function createTicket(partialNewTicket: TicketData) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localTickets);
+		const coll: mongoDB.Collection = db.collection(ticketsColl);
 		const ticketNumber = (await coll.countDocuments({})) + 1;
 		const newTicket = { ...partialNewTicket, ticketNumber: ticketNumber };
 		const result = await coll.insertOne(newTicket);
@@ -165,7 +218,7 @@ export async function updateTicket(id: string, data: Record<string, unknown>) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localTickets);
+		const coll: mongoDB.Collection = db.collection(ticketsColl);
 		const result = await coll.updateOne(
 			{ ticketId: id },
 			{ $set: { ...data, lastModified: Date.now() } }
@@ -193,7 +246,7 @@ export async function updateTicketEditProject(
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localTickets);
+		const coll: mongoDB.Collection = db.collection(ticketsColl);
 		const result = await coll.updateMany(
 			{ "project.projectId": projectId },
 			{ $set: { ...data, lastModified: Date.now() } }
@@ -218,7 +271,7 @@ export async function deleteTicket(id: string) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(localTickets);
+		const coll: mongoDB.Collection = db.collection(ticketsColl);
 		const result = await coll.deleteOne({ ticketId: id });
 		await client.close();
 

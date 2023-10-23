@@ -15,9 +15,23 @@ export async function getAllTickets(_req: Request, res: Response) {
 
 export async function getAllTicketsForProject(req: Request, res: Response) {
 	const { projectId } = req.params;
-	const { status, tickets } = await ticketsService.getAllTicketsForProject(
-		projectId
-	);
+	const { status, tickets } =
+		await ticketsService.getAllTicketsForProject(projectId);
+	res.status(status).send(tickets);
+}
+
+export async function getUncategorizedForGroup(req: Request, res: Response) {
+	const { groupId } = req.params;
+	const { status, tickets } =
+		await ticketsService.getUncategorizedForGroup(groupId);
+	res.status(status).send(tickets);
+}
+
+export async function getUncategorizedForUser(req: Request, res: Response) {
+	const { userId } = req.params;
+	console.log(userId);
+	const { status, tickets } =
+		await ticketsService.getUncategorizedForUser(userId);
 	res.status(status).send(tickets);
 }
 
@@ -30,9 +44,8 @@ export async function getTicketCountsForCalendar(req: Request, res: Response) {
 
 export async function createTicket(req: Request, res: Response) {
 	const partialNewTicket: TicketData = await req.body;
-	const { status, ticketNumber } = await ticketsService.createTicket(
-		partialNewTicket
-	);
+	const { status, ticketNumber } =
+		await ticketsService.createTicket(partialNewTicket);
 	res.status(status).json({ ticketNumber });
 }
 

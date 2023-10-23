@@ -63,6 +63,7 @@ export interface TicketData {
 	timestamp: number;
 	taskStatus: string;
 	project: { projectTitle: string; projectId: string };
+	groupId: string;
 	lastModified?: number;
 	ticketNumber?: number;
 	creator?: string;

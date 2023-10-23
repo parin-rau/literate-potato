@@ -6,6 +6,14 @@ export const ticketsRouter = express.Router();
 ticketsRouter.get("/", tickets.getAllTickets);
 ticketsRouter.get("/:id", tickets.getTicket);
 ticketsRouter.get("/project/:projectId", tickets.getAllTicketsForProject);
+ticketsRouter.get(
+	"/uncategorized/user/:userId",
+	tickets.getUncategorizedForUser
+);
+ticketsRouter.get(
+	"/uncategorized/group/:groupId",
+	tickets.getUncategorizedForGroup
+);
 
 ticketsRouter.post("/", tickets.createTicket);
 ticketsRouter.post("/calendar", tickets.getTicketCountsForCalendar);

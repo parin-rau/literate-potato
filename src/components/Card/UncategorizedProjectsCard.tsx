@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
 import { useEffect } from "react";
 import { FetchedTicketData } from "../../types";
 import {
-	countCompletedSubs,
+	//countCompletedSubs,
 	countTotalSubs,
 } from "../../utility/countSubtasks";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 type Props = {
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,19 +14,22 @@ type Props = {
 
 export default function UncategorizedProjectsCard(props: Props) {
 	const { setCardsLoading } = props;
+	const { user } = useAuth();
+	const { id: groupId } = useParams();
+	const url = groupId
+		? `/api/ticket/uncategorized/group/${groupId}`
+		: `/api/ticket/uncategorized/user/${user.current!.userId}`;
 	const {
 		data: uncategorizedTasks,
 		isLoading,
 		ok,
-	} = useInitialFetch<FetchedTicketData[]>(
-		"/api/ticket/project/uncategorized"
-	);
+	} = useInitialFetch<FetchedTicketData[]>(url);
 
 	useEffect(() => {
 		if (setCardsLoading) isLoading ? null : setCardsLoading(false);
 	}, [isLoading, setCardsLoading]);
 
-	countCompletedSubs;
+	//countCompletedSubs;
 
 	return (
 		!isLoading &&
