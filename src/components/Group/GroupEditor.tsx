@@ -90,6 +90,16 @@ export default function GroupEditor(props: Props) {
 						value={form.description}
 						placeholder="Description"
 					/>
+					<label>
+						<input
+							className="mr-2"
+							name="isPrivate"
+							checked={form.isPrivate}
+							onChange={handleChange}
+							type="checkbox"
+						/>
+						Private Group
+					</label>
 					<div className="self-end flex flex-row gap-2">
 						{previousData && (
 							<button

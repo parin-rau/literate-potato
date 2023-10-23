@@ -216,6 +216,7 @@ export const emptyCalendar: Calendar = {
 export interface Group {
 	title: string;
 	groupId: string;
+	isPrivate?: boolean;
 	description: string;
 	manager: { name: string; userId: string };
 	userIds: string[];

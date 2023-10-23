@@ -15,8 +15,8 @@ type Props = {
 	deleteGroup: (_id: string) => void;
 	editGroup: (_id: string) => void;
 	//setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
-	isEditing: boolean;
-	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
+	// isEditing: boolean;
+	// setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 } & (
 	| {
 			setGroup?: never;
@@ -34,9 +34,9 @@ export default function GroupCard(props: Props) {
 	const { user } = useAuth();
 	const {
 		data,
-		isEditing,
-		setEditing,
-		editGroup,
+		// isEditing,
+		// setEditing,
+		//editGroup,
 		deleteGroup,
 		setGroup,
 		setGroups,
@@ -48,6 +48,7 @@ export default function GroupCard(props: Props) {
 	const [isRequested, setRequested] = useState(
 		data.requestUserIds.includes(user.current!.userId)
 	);
+	const [isEditing, setEditing] = useState(false);
 
 	const isMember = data.userIds.includes(user.current!.userId);
 	const request = requestGroup
@@ -68,6 +69,8 @@ export default function GroupCard(props: Props) {
 			  }
 		: null;
 	const isManager = data.manager.userId === user.current!.userId;
+
+	const editGroup = () => setEditing((prev) => !prev);
 
 	const moreOptions = [
 		isManager

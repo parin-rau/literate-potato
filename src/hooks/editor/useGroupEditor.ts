@@ -28,6 +28,7 @@ const init: Group = {
 	projectIds: [],
 	ticketIds: [],
 	timestamp: 0,
+	isPrivate: false,
 };
 
 export function useGroupEditor(props: Props) {
@@ -41,7 +42,11 @@ export function useGroupEditor(props: Props) {
 	const handleChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 			const { name, value } = e.target;
-			setForm((prev) => ({ ...prev, [name]: value }));
+			setForm((prev) =>
+				name === "isPrivate"
+					? { ...prev, isPrivate: !prev.isPrivate }
+					: { ...prev, [name]: value }
+			);
 		},
 		[]
 	);
