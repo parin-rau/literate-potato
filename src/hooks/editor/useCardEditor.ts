@@ -7,7 +7,7 @@ import {
 	initProjectEditor,
 	initTicketEditor,
 } from "../../types";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useProtectedFetch } from "../utility/useProtectedFetch";
 import { v4 as uuidv4 } from "uuid";
 import { arrayExclude, arraysEqual } from "../../utility/arrayComparisons";
@@ -91,6 +91,7 @@ export function useCardEditor(props: Props) {
 
 	const url = useLocation().pathname;
 	const isProjectPage = url.slice(1, 8) === "project";
+	const { id: idParam } = useParams();
 
 	// INITIALIZER
 
@@ -336,15 +337,18 @@ export function useCardEditor(props: Props) {
 				username: user.current!.username,
 				userId: user.current!.userId,
 			},
-			group: { groupId: "", groupTitle: "" },
+			//group: { groupId: "", groupTitle: "" },
 		};
+		const inCurrentView = newTicket.project.projectId === idParam;
+
 		const res1 = await protectedFetch("/api/ticket", {
 			method: "POST",
 			body: JSON.stringify(newTicket),
 		});
 		if (res1.ok) {
 			const response = await res1.json();
-			setCards &&
+			inCurrentView &&
+				setCards &&
 				setCards((prevCards) => [
 					{
 						...newTicket,
@@ -353,13 +357,14 @@ export function useCardEditor(props: Props) {
 					...prevCards,
 				]);
 			if (setCardCache && resetFilters) {
-				setCardCache((prevCards) => [
-					{
-						...newTicket,
-						ticketNumber: response.ticketNumber,
-					},
-					...prevCards,
-				]);
+				inCurrentView &&
+					setCardCache((prevCards) => [
+						{
+							...newTicket,
+							ticketNumber: response.ticketNumber,
+						},
+						...prevCards,
+					]);
 				resetFilters();
 			}
 			setEditor(init?.initState || initTicketEditor);
@@ -381,7 +386,8 @@ export function useCardEditor(props: Props) {
 				);
 
 				if (res2.ok) {
-					setProject &&
+					inCurrentView &&
+						setProject &&
 						setProject((prev) =>
 							prev.map((proj) =>
 								proj.projectId === newTicket.project.projectId
@@ -405,6 +411,7 @@ export function useCardEditor(props: Props) {
 	}, [
 		dataKind,
 		editor,
+		idParam,
 		init?.initState,
 		isPinned,
 		protectedFetch,
@@ -460,8 +467,11 @@ export function useCardEditor(props: Props) {
 					...(patchData as FetchedTicketData),
 					lastModified: Date.now(),
 				};
+				const inCurrentView =
+					updatedTicket.project.projectId === idParam;
 
-				setCards &&
+				inCurrentView &&
+					setCards &&
 					setCards((prevCards) =>
 						prevCards.map((card) =>
 							card.ticketId === updatedTicket.ticketId
@@ -469,7 +479,8 @@ export function useCardEditor(props: Props) {
 								: card
 						)
 					);
-				setCardCache &&
+				inCurrentView &&
+					setCardCache &&
 					setCardCache((prev) =>
 						prev.map((card) =>
 							card.ticketId === updatedTicket.ticketId
@@ -519,7 +530,8 @@ export function useCardEditor(props: Props) {
 						if (res2.ok) {
 							handleProjectChange(previousData.project.projectId);
 
-							setProject &&
+							inCurrentView &&
+								setProject &&
 								setProject((prev) =>
 									prev.map((proj) =>
 										proj.projectId ===
@@ -574,7 +586,8 @@ export function useCardEditor(props: Props) {
 							[updatedTicket.ticketId]
 						);
 						if (res3.ok) {
-							setProject &&
+							inCurrentView &&
+								setProject &&
 								setProject((prev) =>
 									prev.map((proj) =>
 										proj.projectId ===
@@ -610,7 +623,8 @@ export function useCardEditor(props: Props) {
 						);
 
 						if (res4.ok) {
-							setProject &&
+							inCurrentView &&
+								setProject &&
 								setProject((prev) =>
 									prev.map((proj) =>
 										proj.projectId ===
@@ -645,6 +659,7 @@ export function useCardEditor(props: Props) {
 		deletedSubtaskIds,
 		editor,
 		handleProjectChange,
+		idParam,
 		init,
 		previousData,
 		protectedFetch,
@@ -682,14 +697,15 @@ export function useCardEditor(props: Props) {
 			});
 
 			if (res.ok) {
-				setCards((prevCards) => [newCard, ...prevCards]);
+				newCard.group.groupId === idParam &&
+					setCards((prevCards) => [newCard, ...prevCards]);
 				setEditor(initProjectEditor);
 				!isPinned && setExpand(false);
 			}
 		} catch (e) {
 			console.error(e);
 		}
-	}, [dataKind, editor, isPinned, protectedFetch, setCards, user]);
+	}, [dataKind, editor, isPinned, protectedFetch, setCards, user, idParam]);
 
 	const editProject = useCallback(async () => {
 		if (dataKind !== "project" || !previousData) return;
@@ -730,14 +746,17 @@ export function useCardEditor(props: Props) {
 						...(init!.unusedPrevData! as Project),
 						lastModified: Date.now(),
 					};
-					setCards((prevCards) =>
-						prevCards.map((card) =>
-							card.projectId === updatedCard.projectId
-								? updatedCard
-								: card
-						)
-					);
-					setCardCache &&
+					const inCurrentView = updatedCard.group.groupId === idParam;
+					inCurrentView &&
+						setCards((prevCards) =>
+							prevCards.map((card) =>
+								card.projectId === updatedCard.projectId
+									? updatedCard
+									: card
+							)
+						);
+					inCurrentView &&
+						setCardCache &&
 						setCardCache((prev) =>
 							prev.map((card) =>
 								card.projectId === updatedCard.projectId
@@ -755,6 +774,7 @@ export function useCardEditor(props: Props) {
 	}, [
 		dataKind,
 		editor,
+		idParam,
 		init,
 		previousData,
 		protectedFetch,

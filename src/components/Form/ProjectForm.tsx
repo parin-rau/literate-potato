@@ -27,7 +27,7 @@ export default function ProjectForm(props: Props) {
 
 		const getDropdownData = async () => {
 			const defaultGroup = { value: "", label: "No group assigned" };
-			const res = await protectedFetch("/api/project", {
+			const res = await protectedFetch("/api/group", {
 				signal: abortController.signal,
 			});
 			if (res.ok) {

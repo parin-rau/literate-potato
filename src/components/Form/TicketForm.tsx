@@ -183,7 +183,6 @@ export default function TicketForm(props: Props) {
 					options={userList}
 					handleChange={handleChange}
 					stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
-					required
 				/>
 			</div>
 
