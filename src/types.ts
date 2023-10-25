@@ -69,11 +69,12 @@ export interface TicketData {
 	taskStatus: string;
 	project: { projectTitle: string; projectId: string };
 	group: { groupId: string; groupTitle: string };
-	externalResource?: { url: string; text: string };
+	externalResourceURL?: string;
+	externalResourceText?: string;
 	lastModified?: number;
 	ticketNumber?: number;
 	creator: { userId: string; username: string };
-	assignee?: { userId: string; username: string };
+	assignee: { userId: string; username: string };
 }
 
 // export type TicketData = EditorData & {

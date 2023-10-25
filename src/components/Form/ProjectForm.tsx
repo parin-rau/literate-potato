@@ -1,14 +1,48 @@
-import { ProjectEditor } from "../../types";
+import { useState, useEffect } from "react";
+import { Group, ProjectEditor } from "../../types";
+import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
+import SelectDropdown from "../Nav/SelectDropdown";
 
 type Props = {
 	editor: ProjectEditor;
 	handleChange: (
-		_e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+		_e: React.ChangeEvent<
+			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+		>
 	) => void;
+};
+
+type DropdownItem = {
+	label: string;
+	value: string;
 };
 
 export default function ProjectForm(props: Props) {
 	const { editor, handleChange } = props;
+	const [groupList, setGroupList] = useState<DropdownItem[]>([]);
+	const { protectedFetch } = useProtectedFetch();
+
+	useEffect(() => {
+		const abortController = new AbortController();
+
+		const getDropdownData = async () => {
+			const defaultGroup = { value: "", label: "No group assigned" };
+			const res = await protectedFetch("/api/project", {
+				signal: abortController.signal,
+			});
+			if (res.ok) {
+				const fetchedGroups: Group[] = await res.json();
+				const fetchedGroupNames = fetchedGroups.map((g) => ({
+					value: g.groupId,
+					label: g.title,
+				}));
+				setGroupList([defaultGroup, ...fetchedGroupNames]);
+			}
+		};
+		getDropdownData();
+
+		return () => abortController.abort();
+	}, [protectedFetch]);
 
 	return (
 		<>
@@ -21,13 +55,26 @@ export default function ProjectForm(props: Props) {
 				autoFocus
 				required
 			/>
-			<input
+
+			<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
+				<h4 className="px-1">Group</h4>
+				<SelectDropdown
+					name="groupId"
+					value={editor.group.groupId}
+					options={groupList}
+					handleChange={handleChange}
+					stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
+					required
+				/>
+			</div>
+
+			{/* <input
 				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
 				name="creator"
 				value={editor.creator}
 				onChange={handleChange}
 				placeholder="Creator"
-			/>
+			/> */}
 			<textarea
 				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
 				name="description"
@@ -36,7 +83,7 @@ export default function ProjectForm(props: Props) {
 				onChange={handleChange}
 				placeholder="Description"
 			/>
-			<div className="flex flex-row gap-2 items-center">
+			{/* <div className="flex flex-row gap-2 items-center">
 				<h4>Color:</h4>
 				<input
 					className=""
@@ -46,7 +93,7 @@ export default function ProjectForm(props: Props) {
 					onChange={handleChange}
 					placeholder="Color"
 				/>
-			</div>
+			</div> */}
 
 			<div className="space-x-2">
 				<button

@@ -110,6 +110,7 @@ export function useCardEditor(props: Props) {
 							priority,
 							project,
 							group,
+							assignee,
 							...unusedPrevData
 						} = previousData as FetchedTicketData;
 						return {
@@ -122,6 +123,7 @@ export function useCardEditor(props: Props) {
 								tags,
 								project,
 								group,
+								assignee,
 							},
 							unusedPrevData,
 							defaultExpand: true,
@@ -662,6 +664,10 @@ export function useCardEditor(props: Props) {
 			...(editor as ProjectEditor),
 			timestamp: Date.now(),
 			projectId: uuidv4(),
+			creator: {
+				userId: user.current!.userId,
+				username: user.current!.username,
+			},
 			tasksCompletedIds: [],
 			tasksTotalIds: [],
 			subtasksCompletedIds: [],
@@ -682,7 +688,7 @@ export function useCardEditor(props: Props) {
 		} catch (e) {
 			console.error(e);
 		}
-	}, [dataKind, editor, isPinned, protectedFetch, setCards]);
+	}, [dataKind, editor, isPinned, protectedFetch, setCards, user]);
 
 	const editProject = useCallback(async () => {
 		if (dataKind !== "project" || !previousData) return;

@@ -28,7 +28,8 @@ export default function TicketCard(props: Props) {
 		ticketNumber,
 		comments,
 		creator,
-		externalResource,
+		externalResourceURL,
+		externalResourceText,
 	} = props.cardData;
 
 	const { setCards, filters, setFilters, setCardCache, setProject } = props;
@@ -111,7 +112,7 @@ export default function TicketCard(props: Props) {
 					{(description ||
 						subtasks!.length > 0 ||
 						tags.length > 0 ||
-						externalResource) && (
+						externalResourceURL) && (
 						<div className="border-inherit border rounded-lg shadow-sm p-2 space-y-4">
 							{description && (
 								<p className="text-lg">{description}</p>
@@ -137,10 +138,17 @@ export default function TicketCard(props: Props) {
 									/>
 								</div>
 							)}
-							{externalResource && (
-								<a href={externalResource.url} target="_blank">
-									{externalResource.text ?? "Link"}
-								</a>
+							{externalResourceURL && (
+								<span>
+									External Resource:{" "}
+									<a
+										className="underline"
+										href={externalResourceURL}
+										target="_blank"
+									>
+										{externalResourceText ?? "Link"}
+									</a>
+								</span>
 							)}
 						</div>
 					)}
@@ -166,13 +174,25 @@ export default function TicketCard(props: Props) {
 							</Link>
 						</span>
 						<span>
-							<Link to={`/project/${project.projectId}`}>
-								Project:{" "}
+							Project:{" "}
+							<Link
+								className="underline"
+								to={`/project/${project.projectId}`}
+							>
 								{project.projectId ? (
 									<u>{project.projectTitle}</u>
 								) : (
 									"Unassigned"
 								)}
+							</Link>
+						</span>
+						<span>
+							Group:{" "}
+							<Link
+								className="underline"
+								to={`/group/${group.groupId}`}
+							>
+								{group.groupTitle}
 							</Link>
 						</span>
 						<span>Created: {timestampDisplay(timestamp)}</span>
