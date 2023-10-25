@@ -27,6 +27,7 @@ export default function ProjectCard(props: Props) {
 		subtasksCompletedIds,
 		subtasksTotalIds,
 		color,
+		group,
 	} = props.cardData;
 	const { setCards, setCardCache, isHeader } = props;
 	const [isEditing, setEditing] = useState(false);
@@ -173,7 +174,28 @@ export default function ProjectCard(props: Props) {
 								{description}
 							</h2>
 						)}
-						{creator && <h3 className="">Creator: {creator}</h3>}
+						{creator.userId && (
+							<span>
+								Creator:{" "}
+								<Link
+									className="underline"
+									to={`/user/${creator.userId}`}
+								>
+									{creator.username}
+								</Link>
+							</span>
+						)}
+						{group.groupId && (
+							<span>
+								Group:{" "}
+								<Link
+									className="underline"
+									to={`/group/${group.groupId}`}
+								>
+									{group.groupTitle}
+								</Link>
+							</span>
+						)}
 						<span>Created: {timestampDisplay(timestamp)}</span>
 						{tasksTotalIds && tasksTotalIds.length > 0 ? (
 							<ProgressBar

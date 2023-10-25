@@ -97,7 +97,7 @@ export async function getUncategorizedForGroup(groupId: string) {
 		const db = client.db(process.env.VITE_LOCAL_DB);
 		const ticketColl = db.collection<FetchedTicketData>(ticketsColl);
 		const tickets = await ticketColl
-			.find({ "project.projectId": "", groupId })
+			.find({ "project.projectId": "", "group.groupId": groupId })
 			.toArray();
 		await client.close();
 
@@ -127,7 +127,10 @@ export async function getUncategorizedForUser(userId: string) {
 		console.log(groupIds);
 
 		const tickets = await ticketColl
-			.find({ "project.projectId": "", groupId: { $in: groupIds } })
+			.find({
+				"project.projectId": "",
+				"group.groupId": { $in: groupIds },
+			})
 			.toArray();
 
 		res.status = 200;

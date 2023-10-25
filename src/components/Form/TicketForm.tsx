@@ -22,7 +22,7 @@ type DropdownItem = {
 	value: string;
 };
 
-export default function ProjectForm(props: Props) {
+export default function TicketForm(props: Props) {
 	const { editor, handleChange, setEditor, setDeletedSubtaskIds } = props;
 	const [groupList, setGroupList] = useState<DropdownItem[]>([]);
 	const [projectList, setProjectList] = useState<DropdownItem[]>([

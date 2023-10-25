@@ -161,8 +161,9 @@ export function useCardEditor(props: Props) {
 							editorHeading: "Edit Project",
 						};
 					} else {
+						const { group } = props;
 						return {
-							initState: initProjectEditor,
+							initState: { ...initProjectEditor, group },
 							defaultExpand: false,
 							editorHeading: "Create New Project",
 						};
