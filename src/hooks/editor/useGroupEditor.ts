@@ -55,8 +55,10 @@ export function useGroupEditor(props: Props) {
 		setForm(init);
 	}, []);
 
-	const handleExpand = useCallback(() => {
-		setExpand((prev) => !prev);
+	const handleExpand = useCallback((newState?: boolean) => {
+		if (!newState) return setExpand((prev) => !prev);
+
+		setExpand(newState);
 	}, []);
 
 	const handleClose = useCallback(() => {

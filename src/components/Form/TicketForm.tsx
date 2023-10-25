@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { EditorData, Project } from "../../types";
+import { EditorData, Group, Project, User } from "../../types";
 import TagsEditor from "../Editor/TagsEditor";
 import SubtaskEditor from "../Editor/SubtaskEditor";
 import SelectDropdown from "../Nav/SelectDropdown";
 import { optionLookup } from "../../utility/optionLookup";
 import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
+import { useLocation } from "react-router-dom";
 
 type Props = {
 	editor: EditorData;
@@ -17,16 +18,24 @@ type Props = {
 	setDeletedSubtaskIds: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
-type ProjectList = {
+type DropdownItem = {
 	label: string;
 	value: string;
 };
 
 export default function ProjectForm(props: Props) {
 	const { editor, handleChange, setEditor, setDeletedSubtaskIds } = props;
-	const [projectList, setProjectList] = useState<ProjectList[]>([]);
+	const [groupList, setGroupList] = useState<DropdownItem[]>([]);
+	const [projectList, setProjectList] = useState<DropdownItem[]>([
+		{ value: "", label: "Select a group first" },
+	]);
+	const [userList, setUserList] = useState<DropdownItem[]>([
+		{ value: "", label: "Select a group first" },
+	]);
 	const { projectId } = editor.project;
 	const { protectedFetch } = useProtectedFetch();
+	const { pathname } = useLocation();
+	const initGroup = pathname.slice(0, 5) === "/group" ? true : false;
 
 	useEffect(() => {
 		const abortController = new AbortController();
@@ -34,11 +43,11 @@ export default function ProjectForm(props: Props) {
 		async function getProjectTitles() {
 			const defaultProject = { value: "", label: "No project assigned" };
 			try {
-				const res = await protectedFetch("/api/project", {
+				const res1 = await protectedFetch("/api/project", {
 					signal: abortController.signal,
 				});
-				if (res.ok) {
-					const fetchedProjects: Project[] = await res.json();
+				if (res1.ok) {
+					const fetchedProjects: Project[] = await res1.json();
 					const fetchedProjectNames = fetchedProjects.map(
 						(project) => ({
 							value: project.projectId,
@@ -46,17 +55,115 @@ export default function ProjectForm(props: Props) {
 						})
 					);
 					setProjectList([defaultProject, ...fetchedProjectNames]);
+
+					const res2 = await protectedFetch("/api/group", {
+						signal: abortController.signal,
+					});
+					if (res2.ok) {
+						const defaultGroup = {
+							value: "",
+							label: "No group assigned",
+						};
+						const fetchedGroups: Group[] = await res2.json();
+						const fetchedGroupNames = fetchedGroups.map((g) => ({
+							value: g.groupId,
+							label: g.title,
+						}));
+						setGroupList([defaultGroup, ...fetchedGroupNames]);
+
+						const defaultUser = {
+							value: "",
+							label: "No user assigned",
+						};
+
+						const res3 = await protectedFetch(
+							`/api/user/group/${editor.group.groupId}`,
+							{
+								signal: abortController.signal,
+							}
+						);
+						if (res3.ok) {
+							const fetchedGroups: User[] = await res3.json();
+							const fetchedGroupNames = fetchedGroups.map(
+								(u) => ({
+									value: u.userId,
+									label: u.username,
+								})
+							);
+							setUserList([defaultUser, ...fetchedGroupNames]);
+						}
+					}
 				}
 			} catch (e) {
 				console.error(e);
 			}
 		}
+
 		getProjectTitles();
 
 		return () => {
 			abortController.abort();
 		};
-	}, [protectedFetch]);
+	}, [editor.group.groupId, protectedFetch]);
+
+	// useEffect(() => {
+	// 	const abortController = new AbortController();
+
+	// 	async function getGroupTitles() {
+	// 		const defaultGroup = { value: "", label: "No group assigned" };
+	// 		try {
+	// 			const res = await protectedFetch("/api/group", {
+	// 				signal: abortController.signal,
+	// 			});
+	// 			if (res.ok) {
+	// 				const fetchedGroups: Group[] = await res.json();
+	// 				const fetchedGroupNames = fetchedGroups.map((g) => ({
+	// 					value: g.groupId,
+	// 					label: g.title,
+	// 				}));
+	// 				setGroupList([defaultGroup, ...fetchedGroupNames]);
+	// 			}
+	// 		} catch (e) {
+	// 			console.error(e);
+	// 		}
+	// 	}
+	// 	getGroupTitles();
+
+	// 	return () => {
+	// 		abortController.abort();
+	// 	};
+	// }, [protectedFetch]);
+
+	// useEffect(() => {
+	// 	const abortController = new AbortController();
+
+	// 	async function getUsernames() {
+	// 		const defaultUser = { value: "", label: "No user assigned" };
+	// 		try {
+	// 			const res = await protectedFetch(
+	// 				`/api/user/group/${editor.group.groupId}`,
+	// 				{
+	// 					signal: abortController.signal,
+	// 				}
+	// 			);
+	// 			if (res.ok) {
+	// 				const fetchedGroups: User[] = await res.json();
+	// 				const fetchedGroupNames = fetchedGroups.map((u) => ({
+	// 					value: u.userId,
+	// 					label: u.username,
+	// 				}));
+	// 				setUserList([defaultUser, ...fetchedGroupNames]);
+	// 			}
+	// 		} catch (e) {
+	// 			console.error(e);
+	// 		}
+	// 	}
+	// 	getUsernames();
+
+	// 	return () => {
+	// 		abortController.abort();
+	// 	};
+	// }, [editor.group.groupId, protectedFetch]);
 
 	const updateProjectTitle = useCallback(() => {
 		const updatedTitle =
@@ -73,6 +180,7 @@ export default function ProjectForm(props: Props) {
 
 	return (
 		<>
+			<h1>{initGroup}</h1>
 			<input
 				className="text-lg sm:text-xl border rounded-md px-2 shadow-sm bg-inherit border-inherit"
 				name="title"
@@ -82,19 +190,44 @@ export default function ProjectForm(props: Props) {
 				required
 			/>
 
-			<input
+			{/* <input
 				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
 				name="creator"
-				value={editor.creator}
+				value={editor.creator.userId}
 				onChange={handleChange}
 				placeholder="Creator"
-			/>
+			/> */}
+
+			<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
+				<h4 className="px-1">Group</h4>
+				<SelectDropdown
+					name="groupId"
+					value={editor.group.groupId}
+					options={groupList}
+					handleChange={handleChange}
+					stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
+					required
+				/>
+			</div>
+
 			<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
 				<h4 className="px-1">Project</h4>
 				<SelectDropdown
 					name="projectId"
 					value={editor.project.projectId}
 					options={projectList}
+					handleChange={handleChange}
+					stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
+					required
+				/>
+			</div>
+
+			<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
+				<h4 className="px-1">Assignee</h4>
+				<SelectDropdown
+					name="userId"
+					value={editor.assignee.userId}
+					options={userList}
 					handleChange={handleChange}
 					stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
 					required
@@ -109,6 +242,25 @@ export default function ProjectForm(props: Props) {
 				onChange={handleChange}
 				placeholder="Description"
 			/>
+
+			<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
+				<h2>External Resource</h2>
+				<input
+					className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
+					name="externalResource"
+					value={editor.externalResourceURL}
+					onChange={handleChange}
+					placeholder="Resource URL"
+				/>
+				<input
+					className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
+					name="externalResource"
+					value={editor.externalResourceText}
+					onChange={handleChange}
+					placeholder="Link display text"
+				/>
+			</div>
+
 			<SubtaskEditor {...{ editor, setEditor, setDeletedSubtaskIds }} />
 			<TagsEditor {...{ editor, setEditor }} />
 			<div className="grid grid-cols-2 place-items-stretch gap-2 sm:gap-4 rounded-md shadow-none border-inherit">

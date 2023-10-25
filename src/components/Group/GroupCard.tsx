@@ -132,7 +132,7 @@ export default function GroupCard(props: Props) {
 						<div className="flex flex-row gap-2">
 							{!isMember && request && (
 								<button
-									className="p-2 rounde-md bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+									className="px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-semibold"
 									onClick={request.fn}
 								>
 									{request.text}
@@ -141,14 +141,17 @@ export default function GroupCard(props: Props) {
 							{isManager &&
 								data.requestUserIds.length > 0 &&
 								data.requestUserIds.map((u) => (
-									<button
-										className="p-2 rounde-md bg-blue-600 hover:bg-blue-500 text-white font-semibold"
-										onClick={() =>
-											acceptRequest(data.groupId, u)
-										}
-									>
-										{u}
-									</button>
+									<div>
+										<h2>{`Pending Requests ${data.requestUserIds.length}`}</h2>
+										<button
+											className="p-2 rounded bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+											onClick={() =>
+												acceptRequest(data.groupId, u)
+											}
+										>
+											{u}
+										</button>
+									</div>
 								))}
 						</div>
 					)}

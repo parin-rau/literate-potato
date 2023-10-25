@@ -11,9 +11,11 @@ export default function GroupRequest({ requestGroup }: Props) {
 	const [form, setForm] = useState("");
 	const [message, setMessage] = useState("");
 
-	const handleExpand = () => {
+	const handleExpand = (newState?: boolean) => {
 		setMessage("");
-		setExpand((prev) => !prev);
+		if (!newState) return setExpand((prev) => !prev);
+
+		setExpand(newState);
 	};
 
 	const handleCancel = () => {
@@ -42,14 +44,14 @@ export default function GroupRequest({ requestGroup }: Props) {
 				"flex flex-col gap-2  rounded-lg border-2 p-4 dark:border-neutral-700 dark:bg-zinc-900 " +
 				(expand ? " " : " cursor-pointer")
 			}
-			onClick={expand ? () => {} : handleExpand}
+			onClick={() => !expand && setExpand(true)}
 		>
 			<div className="flex flex-row gap-2 justify-between">
 				<h1
 					className="z-10 font-semibold text-xl cursor-pointer"
-					onClick={handleExpand}
+					onClick={() => handleExpand()}
 				>
-					Request to join existing group
+					Request to join group by ID
 				</h1>
 			</div>
 			{expand && (

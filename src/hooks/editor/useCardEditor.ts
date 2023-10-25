@@ -12,6 +12,7 @@ import { useProtectedFetch } from "../utility/useProtectedFetch";
 import { v4 as uuidv4 } from "uuid";
 import { arrayExclude, arraysEqual } from "../../utility/arrayComparisons";
 import { statusColorsLookup } from "../../utility/optionLookup";
+import { useAuth } from "../auth/useAuth";
 //import { useTicketEditor } from "./useTicketEditor";
 //import { useProjectEditor } from "./useProjectEditor";
 
@@ -85,6 +86,7 @@ export function useCardEditor(props: Props) {
 	const [deletedSubtaskIds, setDeletedSubtaskIds] = useState<string[]>([]);
 	const [isPinned, setPinned] = useState(false);
 	const { protectedFetch } = useProtectedFetch();
+	const { user } = useAuth();
 
 	const url = useLocation().pathname;
 	const isProjectPage = url.slice(1, 8) === "project";
@@ -322,6 +324,11 @@ export function useCardEditor(props: Props) {
 			ticketId: uuidv4(),
 			taskStatus: "Not Started",
 			comments: [],
+			creator: {
+				username: user.current!.username,
+				userId: user.current!.userId,
+			},
+			group: { groupId: "", groupTitle: "" },
 		};
 		const res1 = await protectedFetch("/api/ticket", {
 			method: "POST",
@@ -397,6 +404,7 @@ export function useCardEditor(props: Props) {
 		setCardCache,
 		setCards,
 		setProject,
+		user,
 	]);
 
 	const editTicket = useCallback(async () => {
@@ -772,6 +780,22 @@ export function useCardEditor(props: Props) {
 					...(editor as EditorData),
 					project: {
 						...(editor as EditorData).project,
+						[name]: value,
+					},
+				});
+			} else if (name === "groupId" || name === "groupTitle") {
+				setEditor({
+					...(editor as EditorData),
+					group: {
+						...(editor as EditorData).group,
+						[name]: value,
+					},
+				});
+			} else if (name === "userId" || name === "username") {
+				setEditor({
+					...(editor as EditorData),
+					assignee: {
+						...(editor as EditorData).assignee,
 						[name]: value,
 					},
 				});

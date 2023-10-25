@@ -38,12 +38,12 @@ export default function GroupEditor(props: Props) {
 					: " border-2 p-4 dark:border-neutral-700 dark:bg-zinc-900 ") +
 				(expand ? " " : " cursor-pointer")
 			}
-			onClick={expand ? () => {} : handleExpand}
+			onClick={() => !expand && handleExpand(true)}
 		>
 			<div className="flex flex-row gap-2 justify-between">
 				<h1
 					className="z-10 font-semibold text-2xl cursor-pointer"
-					onClick={handleExpand}
+					onClick={() => handleExpand()}
 				>
 					{previousData ? "Edit Group Details" : "Create Group"}
 				</h1>

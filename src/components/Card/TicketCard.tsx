@@ -27,6 +27,7 @@ export default function TicketCard(props: Props) {
 		ticketNumber,
 		comments,
 		creator,
+		externalResource,
 	} = props.cardData;
 
 	const { setCards, filters, setFilters, setCardCache, setProject } = props;
@@ -108,7 +109,8 @@ export default function TicketCard(props: Props) {
 					)}
 					{(description ||
 						subtasks!.length > 0 ||
-						tags.length > 0) && (
+						tags.length > 0 ||
+						externalResource) && (
 						<div className="border-inherit border rounded-lg shadow-sm p-2 space-y-4">
 							{description && (
 								<p className="text-lg">{description}</p>
@@ -134,6 +136,11 @@ export default function TicketCard(props: Props) {
 									/>
 								</div>
 							)}
+							{externalResource && (
+								<a href={externalResource.url} target="_blank">
+									{externalResource.text ?? "Link"}
+								</a>
+							)}
 						</div>
 					)}
 					{comments && (
@@ -148,7 +155,15 @@ export default function TicketCard(props: Props) {
 						</div>
 					)}
 					<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
-						{creator && <span>Creator: {creator}</span>}
+						<span>
+							Creator:{" "}
+							<Link
+								className="underline"
+								to={`/user/${creator.userId}`}
+							>
+								{creator.username}
+							</Link>
+						</span>
 						<span>
 							<Link to={`/project/${project.projectId}`}>
 								Project:{" "}

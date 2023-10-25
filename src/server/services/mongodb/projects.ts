@@ -65,7 +65,9 @@ export async function getProjectsByGroup(groupId: string) {
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(projectsColl);
 
-		const projects = await coll.find({ groupId }).toArray();
+		const projects = await coll
+			.find({ "group.groupId": groupId })
+			.toArray();
 		await client.close();
 
 		res.status = 200;

@@ -42,7 +42,7 @@ export async function getUsersByGroup(groupId: string) {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
 		const coll = db.collection(usersColl);
-		const users = await coll.find({ groupId }).toArray();
+		const users = await coll.find({ groupIds: groupId }).toArray();
 		await client.close();
 
 		if (users) {

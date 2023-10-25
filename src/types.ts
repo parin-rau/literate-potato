@@ -1,11 +1,11 @@
 export interface Project {
 	title: string;
 	description: string;
-	creator: string;
+	creator: { userId: string; username: string };
 	timestamp: number;
 	projectId: string;
 	projectNumber?: number;
-	groupId: string;
+	group: { groupId: string; groupTitle: string };
 	lastModified?: number;
 	tasksCompletedIds: string[];
 	tasksTotalIds: string[];
@@ -18,8 +18,9 @@ export interface Project {
 export type ProjectEditor = {
 	title: string;
 	description: string;
-	creator: string;
-	[key: string]: string | number;
+	creator: { userId: string; username: string };
+	group: { groupId: string; groupTitle: string };
+	[key: string]: string | number | { [key: string]: string };
 };
 
 export type EditorData = {
@@ -34,11 +35,15 @@ export type EditorData = {
 		description: string;
 		completed: boolean;
 	}[];
-	creator: string;
+	creator: { userId: string; username: string };
 	project: {
 		projectTitle: string;
 		projectId: string;
 	};
+	group: { groupTitle: string; groupId: string };
+	externalResourceURL: string;
+	externalResourceText: string;
+	assignee: { userId: string; username: string };
 };
 
 export interface Comment {
@@ -63,10 +68,12 @@ export interface TicketData {
 	timestamp: number;
 	taskStatus: string;
 	project: { projectTitle: string; projectId: string };
-	groupId: string;
+	group: { groupId: string; groupTitle: string };
+	externalResource?: { url: string; text: string };
 	lastModified?: number;
 	ticketNumber?: number;
-	creator?: string;
+	creator: { userId: string; username: string };
+	assignee?: { userId: string; username: string };
 }
 
 // export type TicketData = EditorData & {
@@ -103,16 +110,20 @@ export const initTicketEditor: EditorData = {
 	due: "",
 	tags: [],
 	subtasks: [],
-	creator: "",
+	creator: { userId: "", username: "" },
 	project: { projectTitle: "", projectId: "" },
+	group: { groupTitle: "", groupId: "" },
+	assignee: { username: "", userId: "" },
+	externalResourceURL: "",
+	externalResourceText: "",
 };
 
 export const initProjectEditor: ProjectEditor = {
 	title: "",
 	description: "",
-	creator: "",
+	creator: { userId: "", username: "" },
 	color: "",
-	groupId: "",
+	group: { groupId: "", groupTitle: "" },
 };
 
 export const uncategorizedProject: Project = {
@@ -124,7 +135,7 @@ export const uncategorizedProject: Project = {
 	tasksTotalIds: [],
 	subtasksCompletedIds: [],
 	subtasksTotalIds: [],
-	groupId: "",
+	group: { groupId: "", groupTitle: "" },
 };
 
 export type SortMenu = {
