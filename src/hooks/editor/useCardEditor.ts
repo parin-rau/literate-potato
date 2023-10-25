@@ -19,6 +19,7 @@ import { useAuth } from "../auth/useAuth";
 type CommonProps = {
 	dataKind: string;
 	resetFilters?: () => void;
+	group?: { groupId: string; groupTitle: string };
 };
 
 type CommonProjectProps = {
@@ -108,6 +109,7 @@ export function useCardEditor(props: Props) {
 							subtasks,
 							priority,
 							project,
+							group,
 							...unusedPrevData
 						} = previousData as FetchedTicketData;
 						return {
@@ -119,15 +121,16 @@ export function useCardEditor(props: Props) {
 								subtasks,
 								tags,
 								project,
+								group,
 							},
 							unusedPrevData,
 							defaultExpand: true,
 							editorHeading: "Edit Task",
 						};
 					} else {
-						const { project } = props;
+						const { project, group } = props;
 						return {
-							initState: { ...initTicketEditor, project },
+							initState: { ...initTicketEditor, project, group },
 							defaultExpand: false,
 							editorHeading: "Create New Task",
 						};
@@ -140,6 +143,7 @@ export function useCardEditor(props: Props) {
 							description,
 							creator,
 							color,
+							group,
 							...unusedPrevData
 						} = previousData as Project;
 						return {
@@ -148,6 +152,7 @@ export function useCardEditor(props: Props) {
 								description,
 								creator,
 								color,
+								group,
 							},
 							unusedPrevData,
 							defaultExpand: true,

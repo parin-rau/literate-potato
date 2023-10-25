@@ -24,6 +24,7 @@ export default function TicketCard(props: Props) {
 		lastModified,
 		subtasks,
 		project,
+		group,
 		ticketNumber,
 		comments,
 		creator,
@@ -195,6 +196,7 @@ export default function TicketCard(props: Props) {
 							React.SetStateAction<FetchedTicketData[]>
 						>,
 						setStatusColors,
+						group,
 					}}
 					dataKind="ticket"
 					previousData={{ ...props.cardData }}

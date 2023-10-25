@@ -15,7 +15,10 @@ export default function GroupPage() {
 		// 	<div>{`Group Page ${groupId}`}</div>
 		// </div>
 		!isLoading && (
-			<ProjectHomePage title={group.title ?? "Group"} groupId={id}>
+			<ProjectHomePage
+				title={group.title ?? "Group"}
+				group={{ groupId: group.groupId, groupTitle: group.title }}
+			>
 				<GroupCard
 					data={group}
 					{...{

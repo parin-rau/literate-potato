@@ -61,6 +61,7 @@ export default function ProjectPage() {
 								projectTitle={project[0].title}
 								projectId={projectId}
 								setProject={setProject}
+								group={project[0].group}
 							/>
 						</>
 					)}

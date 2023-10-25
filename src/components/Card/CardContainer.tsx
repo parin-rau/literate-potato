@@ -28,7 +28,7 @@ type ProjectProps = {
 
 type Props = {
 	styles?: string;
-	groupId?: string;
+	group?: { groupId: string; groupTitle: string };
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 } & (TicketProps | ProjectProps);
 
@@ -45,7 +45,7 @@ export default function CardContainer<
 		projectTitle,
 		setProject,
 		setCardsLoading,
-		groupId,
+		group,
 	} = props;
 
 	const [sortMeta, setSortMeta] = useState<
@@ -65,8 +65,8 @@ export default function CardContainer<
 			? projectId
 				? `/api/ticket/project/${projectId}`
 				: "/api/ticket"
-			: groupId
-			? `/api/project/group/${groupId}`
+			: group?.groupId
+			? `/api/project/group/${group.groupId}`
 			: `/api/project`;
 
 	const {
@@ -206,6 +206,7 @@ export default function CardContainer<
 					dataKind,
 					setCards,
 					project,
+					group,
 					resetFilters,
 					setProject,
 					setCardCache,

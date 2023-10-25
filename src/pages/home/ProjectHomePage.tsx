@@ -6,7 +6,7 @@ import { usePageTitle } from "../../hooks/utility/usePageTitle";
 
 export default function ProjectHomePage(props: {
 	title: string;
-	groupId?: string;
+	group?: { groupId: string; groupTitle: string };
 	children?: React.ReactNode;
 }) {
 	usePageTitle(props.title);
@@ -26,7 +26,7 @@ export default function ProjectHomePage(props: {
 						dataKind="project"
 						styles={cardContainerStyles}
 						setCardsLoading={setCardsLoading}
-						groupId={props.groupId}
+						group={props.group}
 					/>
 
 					{cardsLoading ? (
