@@ -5,7 +5,7 @@ export const usersRouter = Router();
 
 //usersRouter.get("/", users.getCurrentUser)
 usersRouter.get("/:id", users.getUserById);
-usersRouter.get("/group/:groupId", users.getUsersByGroup);
+usersRouter.get("/group/:groupId/:kind?", users.getUsersByGroup);
 
 usersRouter.patch("/:id", users.updateUser);
 

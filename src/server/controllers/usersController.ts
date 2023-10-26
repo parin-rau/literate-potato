@@ -8,8 +8,8 @@ export async function getUserById(req: Request, res: Response) {
 }
 
 export async function getUsersByGroup(req: Request, res: Response) {
-	const { groupId } = req.params;
-	const { status, users } = await usersService.getUsersByGroup(groupId);
+	const { groupId, kind } = req.params;
+	const { status, users } = await usersService.getUsersByGroup(groupId, kind);
 	res.status(status).json(users);
 }
 

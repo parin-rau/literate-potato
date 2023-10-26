@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Group } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import GroupEditor from "./GroupEditor";
 import CountLabel from "../Display/CountLabel";
 import { useAuth } from "../../hooks/auth/useAuth";
+import MemberManager from "./MemberManager";
 
 type Props = {
 	data: Group;
@@ -49,6 +50,9 @@ export default function GroupCard(props: Props) {
 		data.requestUserIds.includes(user.current!.userId)
 	);
 	const [isEditing, setEditing] = useState(false);
+	const [showMembers, setShowMembers] = useState(false);
+	const { id } = useParams();
+	const isCurrentPage = data.groupId === id;
 
 	const isMember = data.userIds.includes(user.current!.userId);
 	const request = requestGroup
@@ -71,6 +75,7 @@ export default function GroupCard(props: Props) {
 	const isManager = data.manager.userId === user.current!.userId;
 
 	const editGroup = () => setEditing((prev) => !prev);
+	const editMembers = () => setShowMembers((prev) => !prev);
 
 	const moreOptions = [
 		isManager
@@ -85,6 +90,12 @@ export default function GroupCard(props: Props) {
 		user.current?.userId === data.manager.userId
 			? `/user`
 			: `/user/${data.manager.userId}`;
+
+	const memberButtons = [{ fn: leaveGroup, label: "Kick" }];
+	const requestButtons = [
+		{ fn: acceptRequest, label: "Accept" },
+		{ fn: denyRequest, label: "Deny" },
+	];
 
 	return (
 		<div className="flex flex-col gap-2 p-4 rounded-lg border-2 dark:border-neutral-700 dark:bg-zinc-900">
@@ -153,6 +164,34 @@ export default function GroupCard(props: Props) {
 										</button>
 									</div>
 								))}
+							{isManager && isCurrentPage && (
+								<div className="flex flex-col gap-2">
+									<button
+										className="px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+										type="button"
+										onClick={editMembers}
+									>
+										Edit Members
+									</button>
+									{showMembers && (
+										<>
+											<MemberManager
+												title="Members"
+												managerId={data.manager.userId}
+												groupId={data.groupId}
+												buttons={memberButtons}
+											/>
+											{/* <MemberManager
+												title="Requests"
+												groupId={data.groupId}
+												managerId={data.manager.userId}
+												buttons={requestButtons}
+												userKind="request"
+											/> */}
+										</>
+									)}
+								</div>
+							)}
 						</div>
 					)}
 				</>

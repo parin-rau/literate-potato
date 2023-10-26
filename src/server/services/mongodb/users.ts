@@ -33,17 +33,39 @@ export async function getUserById(id: string) {
 	}
 }
 
-export async function getUsersByGroup(groupId: string) {
+export async function getUsersByGroup(groupId: string, kind?: string) {
 	const res: { status: number; users?: unknown } = {
 		status: 500,
 	};
 
-	try {
+	const findUsers = async (kind?: string) => {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
-		const coll = db.collection(usersColl);
-		const users = await coll.find({ groupIds: groupId }).toArray();
-		await client.close();
+		const coll = db.collection<User>(usersColl);
+
+		switch (kind) {
+			case "request": {
+				const users = await coll
+					.find({ requestGroupIdsIds: groupId })
+					.toArray();
+				await client.close();
+				return users;
+			}
+			default: {
+				const users = await coll.find({ groupIds: groupId }).toArray();
+				await client.close();
+				return users;
+			}
+		}
+	};
+
+	try {
+		// const client = await connectToDatabase();
+		// const db = client.db(process.env.VITE_LOCAL_DB);
+		// const coll = db.collection(usersColl);
+		// const users = await coll.find({ groupIds: groupId }).toArray();
+		// await client.close();
+		const users = await findUsers(kind);
 
 		if (users) {
 			users.map((u) => trimObject(u, trimFilter));

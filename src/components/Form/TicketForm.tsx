@@ -41,13 +41,15 @@ export default function TicketForm(props: Props) {
 	const isTicketHomePage = pathname === "/ticket";
 
 	useEffect(() => {
-		const abortController = new AbortController();
+		const groupAbortController = new AbortController();
+		const projectAbortController = new AbortController();
+		const userAbortController = new AbortController();
 
 		async function getDropdownData() {
 			const defaultGroup = { value: "", label: "No group assigned" };
 			try {
 				const res1 = await protectedFetch("/api/group", {
-					signal: abortController.signal,
+					signal: groupAbortController.signal,
 				});
 				if (res1.ok) {
 					const fetchedGroups: Group[] = await res1.json();
@@ -60,7 +62,7 @@ export default function TicketForm(props: Props) {
 					const res2 = await protectedFetch(
 						`/api/project/group/${editor.group.groupId}`,
 						{
-							signal: abortController.signal,
+							signal: projectAbortController.signal,
 						}
 					);
 					if (res2.ok) {
@@ -96,7 +98,7 @@ export default function TicketForm(props: Props) {
 						const res3 = await protectedFetch(
 							`/api/user/group/${editor.group.groupId}`,
 							{
-								signal: abortController.signal,
+								signal: userAbortController.signal,
 							}
 						);
 						if (res3.ok) {
@@ -119,7 +121,9 @@ export default function TicketForm(props: Props) {
 		getDropdownData();
 
 		return () => {
-			abortController.abort();
+			groupAbortController.abort();
+			projectAbortController.abort();
+			userAbortController.abort();
 		};
 	}, [editor.group.groupId, protectedFetch]);
 
