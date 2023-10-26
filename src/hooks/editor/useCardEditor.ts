@@ -370,7 +370,7 @@ export function useCardEditor(props: Props) {
 					]);
 				resetFilters();
 			}
-			setEditor(init?.initState || initTicketEditor);
+			setEditor(init?.initState ?? initTicketEditor);
 			!isPinned && setExpand(false);
 			if (newTicket.project.projectId) {
 				const subtasksTotalIds = newTicket.subtasks.map(
@@ -702,13 +702,22 @@ export function useCardEditor(props: Props) {
 			if (res.ok) {
 				newCard.group.groupId === idParam &&
 					setCards((prevCards) => [newCard, ...prevCards]);
-				setEditor(initProjectEditor);
+				setEditor(init!.initState ?? initProjectEditor);
 				!isPinned && setExpand(false);
 			}
 		} catch (e) {
 			console.error(e);
 		}
-	}, [dataKind, editor, isPinned, protectedFetch, setCards, user, idParam]);
+	}, [
+		dataKind,
+		editor,
+		user,
+		protectedFetch,
+		idParam,
+		setCards,
+		init,
+		isPinned,
+	]);
 
 	const editProject = useCallback(async () => {
 		if (dataKind !== "project" || !previousData) return;

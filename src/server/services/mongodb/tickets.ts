@@ -1,12 +1,13 @@
 import "dotenv/config";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
-import { FetchedTicketData, TicketData, User } from "../../../types";
+import { FetchedTicketData, Group, TicketData, User } from "../../../types";
 import { countPerElement } from "../../../utility/arrayComparisons";
 
 const ticketsColl = process.env.LOCAL_TICKETS ?? "tickets";
 //const projectsColl = process.env.LOCAL_PROJECTS ?? "projects";
 const usersColl = process.env.LOCAL_USERS ?? "users";
+const groupsColl = process.env.LOCAL_GROUPS ?? "groups";
 
 export async function getTicket(id: string) {
 	const res: { status: number; ticket?: unknown } = {
@@ -196,13 +197,20 @@ export async function createTicket(partialNewTicket: TicketData) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(ticketsColl);
-		const ticketNumber = (await coll.countDocuments({})) + 1;
+		const tickets = db.collection<FetchedTicketData>(ticketsColl);
+		const groups = db.collection<Group>(groupsColl);
+
+		const ticketNumber = (await tickets.countDocuments({})) + 1;
 		const newTicket = { ...partialNewTicket, ticketNumber: ticketNumber };
-		const result = await coll.insertOne(newTicket);
+
+		const result1 = await tickets.insertOne(newTicket);
+		const result2 = await groups.updateOne(
+			{ groupId: newTicket.group.groupId },
+			{ $addToSet: { ticketIds: newTicket.ticketId } }
+		);
 		await client.close();
 
-		res.success = result.acknowledged;
+		res.success = result1.acknowledged && result2.acknowledged;
 		res.status = 200;
 		res.ticketNumber = ticketNumber;
 		return res;
@@ -274,12 +282,17 @@ export async function deleteTicket(id: string) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(ticketsColl);
-		const result = await coll.deleteOne({ ticketId: id });
+		const tickets = db.collection<FetchedTicketData>(ticketsColl);
+		const groups = db.collection<Group>(groupsColl);
+		const result1 = await tickets.deleteOne({ ticketId: id });
+		const result2 = await groups.updateOne(
+			{ ticketIds: id },
+			{ $pull: { ticketIds: id } }
+		);
 		await client.close();
 
 		res.status = 200;
-		res.success = result.acknowledged;
+		res.success = result1.acknowledged && result2.acknowledged;
 		return res;
 	} catch (err) {
 		console.error(err);

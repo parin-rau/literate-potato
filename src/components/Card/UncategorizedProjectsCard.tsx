@@ -33,7 +33,8 @@ export default function UncategorizedProjectsCard(props: Props) {
 
 	return (
 		!isLoading &&
-		ok && (
+		ok &&
+		uncategorizedTasks.length > 0 && (
 			<Link
 				className="m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600 hover:bg-slate-50 dark:hover:border-zinc-400"
 				to={`/project/uncategorized`}

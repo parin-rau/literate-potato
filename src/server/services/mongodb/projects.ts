@@ -96,7 +96,7 @@ export async function createProject(newProject: Project) {
 		const result1 = await projects.insertOne(newProject);
 		const result2 = await groups.updateOne(
 			{ groupId: newProject.group.groupId },
-			{ $addToSet: { projectIds: newProject.group.groupId } }
+			{ $addToSet: { projectIds: newProject.projectId } }
 		);
 		await client.close();
 
@@ -290,6 +290,7 @@ export async function deleteProject(id: string) {
 		status: 500,
 		success: false,
 	};
+	console.log(id);
 
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
