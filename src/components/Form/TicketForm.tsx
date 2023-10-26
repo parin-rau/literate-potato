@@ -5,6 +5,7 @@ import SubtaskEditor from "../Editor/SubtaskEditor";
 import SelectDropdown from "../Nav/SelectDropdown";
 import { optionLookup } from "../../utility/optionLookup";
 import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
+import { useLocation } from "react-router-dom";
 
 type Props = {
 	editor: EditorData;
@@ -15,6 +16,7 @@ type Props = {
 	) => void;
 	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
 	setDeletedSubtaskIds: React.Dispatch<React.SetStateAction<string[]>>;
+	isNewItem: boolean;
 };
 
 type DropdownItem = {
@@ -23,7 +25,8 @@ type DropdownItem = {
 };
 
 export default function TicketForm(props: Props) {
-	const { editor, handleChange, setEditor, setDeletedSubtaskIds } = props;
+	const { editor, handleChange, setEditor, setDeletedSubtaskIds, isNewItem } =
+		props;
 	const [groupList, setGroupList] = useState<DropdownItem[]>([]);
 	const [projectList, setProjectList] = useState<DropdownItem[]>([
 		{ value: "", label: "Select a group first" },
@@ -34,6 +37,8 @@ export default function TicketForm(props: Props) {
 	const [error, setError] = useState("");
 	const { projectId } = editor.project;
 	const { protectedFetch } = useProtectedFetch();
+	const { pathname } = useLocation();
+	const isTicketHomePage = pathname === "/ticket";
 
 	useEffect(() => {
 		const abortController = new AbortController();
@@ -150,17 +155,19 @@ export default function TicketForm(props: Props) {
 				placeholder="Creator"
 			/> */}
 
-			<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
-				<h4 className="px-1">Group</h4>
-				<SelectDropdown
-					name="groupId"
-					value={editor.group.groupId}
-					options={groupList}
-					handleChange={handleChange}
-					stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
-					required
-				/>
-			</div>
+			{isTicketHomePage && isNewItem && (
+				<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
+					<h4 className="px-1">Group</h4>
+					<SelectDropdown
+						name="groupId"
+						value={editor.group.groupId}
+						options={groupList}
+						handleChange={handleChange}
+						stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
+						required
+					/>
+				</div>
+			)}
 
 			<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
 				<h4 className="px-1">Project</h4>

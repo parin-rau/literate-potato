@@ -1,9 +1,10 @@
 import "dotenv/config";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
-import { Project } from "../../../types";
+import { Group, Project } from "../../../types";
 
 const projectsColl = process.env.LOCAL_PROJECTS ?? "projects";
+const groupsColl = process.env.LOCAL_GROUPS ?? "groups";
 
 export async function getProject(id: string) {
 	const res: { status: number; success: boolean; project?: unknown } = {
@@ -87,15 +88,20 @@ export async function createProject(newProject: Project) {
 	};
 
 	try {
-		const client: mongoDB.MongoClient = await connectToDatabase();
-		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(projectsColl);
+		const client = await connectToDatabase();
+		const db = client.db(process.env.VITE_LOCAL_DB);
+		const projects = db.collection<Project>(projectsColl);
+		const groups = db.collection<Group>(groupsColl);
 
-		const result = await coll.insertOne(newProject);
+		const result1 = await projects.insertOne(newProject);
+		const result2 = await groups.updateOne(
+			{ groupId: newProject.group.groupId },
+			{ $addToSet: { projectIds: newProject.group.groupId } }
+		);
 		await client.close();
 
 		res.status = 201;
-		res.success = result.acknowledged;
+		res.success = result1.acknowledged && result2.acknowledged;
 		return res;
 	} catch (err) {
 		console.error(err);
@@ -288,11 +294,17 @@ export async function deleteProject(id: string) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(projectsColl);
-		const result = await coll.deleteOne({ projectId: id });
+		const projects = db.collection<Project>(projectsColl);
+		const groups = db.collection<Group>(groupsColl);
+
+		const result1 = await projects.deleteOne({ projectId: id });
+		const result2 = await groups.updateOne(
+			{ projectIds: id },
+			{ $pull: { projectIds: id } }
+		);
 		await client.close();
 
-		res.success = result.acknowledged;
+		res.success = result1.acknowledged && result2.acknowledged;
 		res.status = 200;
 		return res;
 	} catch (err) {

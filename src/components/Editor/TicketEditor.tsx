@@ -27,6 +27,8 @@ export default function TicketEditor(props: Props) {
 		setDeletedSubtaskIds,
 	} = state;
 
+	const isNewItem = !previousData ? true : false;
+
 	return (
 		<div
 			className={
@@ -109,12 +111,17 @@ export default function TicketEditor(props: Props) {
 							>,
 							handleChange,
 							setDeletedSubtaskIds,
+							isNewItem,
 						}}
 					/>
 				)}
 				{expand && dataKind === "project" && (
 					<ProjectForm
-						{...{ editor: editor as ProjectEditor, handleChange }}
+						{...{
+							editor: editor as ProjectEditor,
+							handleChange,
+							isNewItem,
+						}}
 					/>
 				)}
 			</form>

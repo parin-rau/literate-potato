@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Group, ProjectEditor } from "../../types";
 import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
 import SelectDropdown from "../Nav/SelectDropdown";
+import { useLocation } from "react-router-dom";
 
 type Props = {
 	editor: ProjectEditor;
@@ -10,6 +11,7 @@ type Props = {
 			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 		>
 	) => void;
+	isNewItem: boolean;
 };
 
 type DropdownItem = {
@@ -18,9 +20,11 @@ type DropdownItem = {
 };
 
 export default function ProjectForm(props: Props) {
-	const { editor, handleChange } = props;
+	const { editor, handleChange, isNewItem } = props;
 	const [groupList, setGroupList] = useState<DropdownItem[]>([]);
 	const { protectedFetch } = useProtectedFetch();
+	const { pathname } = useLocation();
+	const isProjectHomePage = pathname === "/project";
 
 	useEffect(() => {
 		const abortController = new AbortController();
@@ -56,17 +60,19 @@ export default function ProjectForm(props: Props) {
 				required
 			/>
 
-			<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
-				<h4 className="px-1">Group</h4>
-				<SelectDropdown
-					name="groupId"
-					value={editor.group.groupId}
-					options={groupList}
-					handleChange={handleChange}
-					stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
-					required
-				/>
-			</div>
+			{isProjectHomePage && isNewItem && (
+				<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
+					<h4 className="px-1">Group</h4>
+					<SelectDropdown
+						name="groupId"
+						value={editor.group.groupId}
+						options={groupList}
+						handleChange={handleChange}
+						stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
+						required
+					/>
+				</div>
+			)}
 
 			{/* <input
 				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"

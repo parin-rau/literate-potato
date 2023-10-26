@@ -164,7 +164,10 @@ export function useCardEditor(props: Props) {
 					} else {
 						const { group } = props;
 						return {
-							initState: { ...initProjectEditor, group },
+							initState: {
+								...initProjectEditor,
+								group: group ?? { groupId: "", groupTitle: "" },
+							},
 							defaultExpand: false,
 							editorHeading: "Create New Project",
 						};
