@@ -96,6 +96,18 @@ export default function GroupCard(props: Props) {
 		{ fn: acceptRequest, label: "Accept" },
 		{ fn: denyRequest, label: "Deny" },
 	];
+	const categories = [
+		{
+			title: "Members",
+			buttons: memberButtons,
+			url: (groupId: string) => `/api/user/group/${groupId}`,
+		},
+		{
+			title: "Requests",
+			buttons: requestButtons,
+			url: (groupId: string) => `/api/user/group/${groupId}/request`,
+		},
+	];
 
 	return (
 		<div className="flex flex-col gap-2 p-4 rounded-lg border-2 dark:border-neutral-700 dark:bg-zinc-900">
@@ -171,15 +183,16 @@ export default function GroupCard(props: Props) {
 										type="button"
 										onClick={editMembers}
 									>
-										Edit Members
+										{!showMembers
+											? "Edit Members"
+											: "Hide Members"}
 									</button>
 									{showMembers && (
 										<>
 											<MemberManager
-												title="Members"
 												managerId={data.manager.userId}
 												groupId={data.groupId}
-												buttons={memberButtons}
+												categories={categories}
 											/>
 											{/* <MemberManager
 												title="Requests"
