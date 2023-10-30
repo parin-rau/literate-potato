@@ -126,8 +126,6 @@ export async function joinGroup(
 		success: false,
 	};
 
-	console.log(groupId, userId, action);
-
 	const updateCollections = async () => {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);

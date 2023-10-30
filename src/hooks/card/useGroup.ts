@@ -252,10 +252,13 @@ export function useSingleGroup(propGroupId: string) {
 			const url = `/api/group/${groupId}/user/${userId}/leave`;
 			const res = await protectedFetch(url, { method: "PATCH" });
 			if (res.ok) {
-				navigate("/group");
+				setGroup((prev) => ({
+					...prev,
+					userIds: prev.userIds.filter((i) => i !== userId),
+				}));
 			}
 		},
-		[navigate, protectedFetch]
+		[protectedFetch, setGroup]
 	);
 
 	return {

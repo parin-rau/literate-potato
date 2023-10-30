@@ -6,6 +6,8 @@ import GroupEditor from "./GroupEditor";
 import CountLabel from "../Display/CountLabel";
 import { useAuth } from "../../hooks/auth/useAuth";
 import MemberManager from "./MemberManager";
+import ToggleButton from "../Nav/ToggleButton";
+import CollapseIcon from "../Svg/CollapseIcon";
 
 type Props = {
 	data: Group;
@@ -96,18 +98,18 @@ export default function GroupCard(props: Props) {
 		{ fn: acceptRequest, label: "Accept" },
 		{ fn: denyRequest, label: "Deny" },
 	];
-	const categories = [
-		{
-			title: "Members",
-			buttons: memberButtons,
-			url: (groupId: string) => `/api/user/group/${groupId}`,
-		},
-		{
-			title: "Requests",
-			buttons: requestButtons,
-			url: (groupId: string) => `/api/user/group/${groupId}/request`,
-		},
-	];
+	// const categories = [
+	// 	{
+	// 		title: "Members",
+	// 		buttons: memberButtons,
+	// 		url: (groupId: string) => `/api/user/group/${groupId}`,
+	// 	},
+	// 	{
+	// 		title: "Requests",
+	// 		buttons: requestButtons,
+	// 		url: (groupId: string) => `/api/user/group/${groupId}/request`,
+	// 	},
+	// ];
 
 	return (
 		<div className="flex flex-col gap-2 p-4 rounded-lg border-2 dark:border-neutral-700 dark:bg-zinc-900">
@@ -161,47 +163,22 @@ export default function GroupCard(props: Props) {
 									{request.text}
 								</button>
 							)}
-							{isManager &&
-								data.requestUserIds.length > 0 &&
-								data.requestUserIds.map((u) => (
-									<div>
-										<h2>{`Pending Requests ${data.requestUserIds.length}`}</h2>
-										<button
-											className="p-2 rounded bg-blue-600 hover:bg-blue-500 text-white font-semibold"
-											onClick={() =>
-												acceptRequest(data.groupId, u)
-											}
-										>
-											{u}
-										</button>
-									</div>
-								))}
 							{isManager && isCurrentPage && (
 								<div className="flex flex-col gap-2">
-									<button
-										className="px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-semibold"
-										type="button"
-										onClick={editMembers}
-									>
-										{!showMembers
-											? "Edit Members"
-											: "Hide Members"}
-									</button>
+									<ToggleButton onClick={editMembers}>
+										<CollapseIcon
+											isCollapsed={!showMembers}
+										/>
+										<h3>Edit Members</h3>
+									</ToggleButton>
+
 									{showMembers && (
-										<>
-											<MemberManager
-												managerId={data.manager.userId}
-												groupId={data.groupId}
-												categories={categories}
-											/>
-											{/* <MemberManager
-												title="Requests"
-												groupId={data.groupId}
-												managerId={data.manager.userId}
-												buttons={requestButtons}
-												userKind="request"
-											/> */}
-										</>
+										<MemberManager
+											managerId={data.manager.userId}
+											groupId={data.groupId}
+											memberFns={memberButtons}
+											requestFns={requestButtons}
+										/>
 									)}
 								</div>
 							)}

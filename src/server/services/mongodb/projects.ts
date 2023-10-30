@@ -132,8 +132,6 @@ export async function updateProject(
 		success: false,
 	};
 
-	console.log(data);
-
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
@@ -156,7 +154,6 @@ export async function updateProject(
 
 			const { newTaskStatus } = data;
 
-			console.log(newTaskStatus);
 			if (!newTaskStatus) {
 				result.message = "newTaskStatus not defined in req body";
 				result.success = true;
@@ -290,7 +287,6 @@ export async function deleteProject(id: string) {
 		status: 500,
 		success: false,
 	};
-	console.log(id);
 
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();

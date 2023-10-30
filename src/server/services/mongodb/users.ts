@@ -46,7 +46,7 @@ export async function getUsersByGroup(groupId: string, kind?: string) {
 		switch (kind) {
 			case "request": {
 				const users = await coll
-					.find({ requestGroupIdsIds: groupId })
+					.find({ requestGroupIds: groupId })
 					.toArray();
 				await client.close();
 				return users;

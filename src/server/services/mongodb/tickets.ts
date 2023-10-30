@@ -125,7 +125,6 @@ export async function getUncategorizedForUser(userId: string) {
 		const groupIds = await users
 			.findOne({ userId })
 			.then((u) => u?.groupIds.map((g) => g));
-		console.log(groupIds);
 
 		const tickets = await ticketColl
 			.find({

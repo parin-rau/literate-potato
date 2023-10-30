@@ -29,7 +29,6 @@ export async function getUncategorizedForGroup(req: Request, res: Response) {
 
 export async function getUncategorizedForUser(req: Request, res: Response) {
 	const { userId } = req.params;
-	console.log(userId);
 	const { status, tickets } =
 		await ticketsService.getUncategorizedForUser(userId);
 	res.status(status).send(tickets);
