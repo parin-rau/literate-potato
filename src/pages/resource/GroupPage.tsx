@@ -11,11 +11,9 @@ export default function GroupPage() {
 	const { isLoading } = state;
 
 	return (
-		// <div className="grid place-items-center h-screen">
-		// 	<div>{`Group Page ${groupId}`}</div>
-		// </div>
 		!isLoading && (
 			<ProjectHomePage
+				hideTitle
 				title={group.title ?? "Group"}
 				group={{ groupId: group.groupId, groupTitle: group.title }}
 			>

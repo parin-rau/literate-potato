@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import CardContainer from "../../components/Card/CardContainer";
 import ProjectCard from "../../components/Card/ProjectCard";
 import { FetchedTicketData, Project, uncategorizedProject } from "../../types";
@@ -10,10 +10,15 @@ export default function ProjectPage() {
 	const projectId = useParams().id || "";
 	const navigate = useNavigate();
 
-	if (projectId === "") {
-		navigate("/");
-		console.error("Project undefined");
-	}
+	useEffect(() => {
+		const checkUndefinedId = () => {
+			if (projectId === "") {
+				navigate("/");
+				console.error("Project undefined");
+			}
+		};
+		checkUndefinedId();
+	}, [navigate, projectId]);
 
 	const arrayTransform = useCallback((p: Project) => [p], []);
 	const uncategorizedProjectTransform = useMemo(

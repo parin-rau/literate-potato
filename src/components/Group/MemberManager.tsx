@@ -8,25 +8,15 @@ interface Btn {
 	label: string;
 }
 
-// interface Loading {
-// 	index: number;
-// 	started: boolean;
-// 	loaded: boolean;
-// }
-
 interface Category {
 	buttons: Btn[];
 	title: string;
-	//url: (_id: string) => string;
 }
 
 interface CategoryProps extends Category {
 	groupId: string;
 	managerId: string;
 	users: User[];
-	// startLoading: Loading[];
-	// setLoading: React.Dispatch<React.SetStateAction<Loading[]>>;
-	// index: number;
 }
 
 interface BtnFns {
@@ -59,7 +49,7 @@ const isManager = (userId: string, managerId: string) => userId === managerId;
 function UserBtn({ fn, label, groupId, userId }: BtnProps) {
 	return (
 		<button
-			className="px-2 py-1 bg-blue-600 hover:bg-blue-500 rounded-md"
+			className="px-2 py-1 text-white bg-blue-600 hover:bg-blue-500 rounded-md"
 			onClick={() => fn(groupId, userId)}
 		>
 			{label}
@@ -88,45 +78,8 @@ function MemberCategory({
 	groupId,
 	managerId,
 	buttons,
-	users, // startLoading,
-	// setLoading,
-} // index,
-// url,
-: CategoryProps) {
-	// const [users, setUsers] = useState<User[]>([]);
-	// const { protectedFetch } = useProtectedFetch();
-	// const resourceUrl = url(groupId);
-
-	// useEffect(() => {
-	// 	const abortController = new AbortController();
-
-	// 	const isNextIndex = (array: unknown[], id: number) => {
-	// 		return id === index + 1 && id < array.length;
-	// 	};
-
-	// 	const getMembers = async () => {
-	// 		const res = await protectedFetch(resourceUrl, {
-	// 			signal: abortController.signal,
-	// 		});
-	// 		if (res.ok) {
-	// 			const data = await res.json();
-	// 			setUsers(data);
-	// 			setLoading((prev) =>
-	// 				prev.map((l) =>
-	// 					l.index === index || isNextIndex(prev, l.index)
-	// 						? l.index === index
-	// 							? { ...l, loaded: true }
-	// 							: { ...l, started: true }
-	// 						: l
-	// 				)
-	// 			);
-	// 		}
-	// 	};
-	// 	getMembers();
-
-	// 	return () => abortController.abort();
-	// }, [index, protectedFetch, resourceUrl, setLoading]);
-
+	users,
+}: CategoryProps) {
 	return (
 		users.length > 0 && (
 			<div className="flex flex-col gap-2">
@@ -149,50 +102,12 @@ function MemberCategory({
 	);
 }
 
-// export default function MemberManager({
-// 	groupId,
-// 	managerId,
-// 	categories,
-// }: Props) {
-// 	const [startLoading, setLoading] = useState(
-// 		categories.map((_c, index) => ({
-// 			index,
-// 			started: index === 0 ? true : false,
-// 			loaded: false,
-// 		}))
-// 	);
-
-// 	return (
-// 		categories.length > 0 && (
-// 			<div className="flex flex-col gap-2">
-// 				{categories.map(
-// 					(c, index) =>
-// 						startLoading[index].started && (
-// 							<MemberCategory
-// 								{...{
-// 									...c,
-// 									index,
-// 									groupId,
-// 									managerId,
-// 									startLoading,
-// 									setLoading,
-// 								}}
-// 							/>
-// 						)
-// 				)}
-// 			</div>
-// 		)
-// 	);
-// }
-
 export default function MemberManager({
 	groupId,
 	managerId,
 	memberFns,
 	requestFns,
 }: Props) {
-	//const [members, setMembers] = useState<User[]>([]);
-	//const [requests, setRequests] = useState<User[]>([]);
 	const [users, setUsers] = useState<{ members: User[]; requests: User[] }>({
 		members: [],
 		requests: [],

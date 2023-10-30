@@ -2,8 +2,7 @@ import GroupContainer from "../../components/Group/GroupContainer";
 
 export default function GroupHomePage() {
 	return (
-		//<div className="grid h-screen place-items-center">Group Home Page</div>
-		<div>
+		<div className="container mx-auto">
 			<GroupContainer />
 		</div>
 	);

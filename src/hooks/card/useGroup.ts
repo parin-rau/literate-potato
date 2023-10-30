@@ -142,7 +142,6 @@ export function useGroup() {
 			);
 	}, [groups, user]);
 
-	// FOR DEBUGGING
 	const otherGroups = useMemo(() => {
 		const isUnique = (gr: Group[] | undefined, id: string) => {
 			if (!gr) return true;

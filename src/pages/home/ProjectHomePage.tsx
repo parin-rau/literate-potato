@@ -6,6 +6,7 @@ import { usePageTitle } from "../../hooks/utility/usePageTitle";
 
 export default function ProjectHomePage(props: {
 	title: string;
+	hideTitle?: boolean;
 	group?: { groupId: string; groupTitle: string };
 	children?: React.ReactNode;
 }) {
@@ -18,7 +19,9 @@ export default function ProjectHomePage(props: {
 	return (
 		<div className="flex flex-col gap-4 pt-20 px-2">
 			<div className="sm:container sm:mx-auto flex flex-col gap-6">
-				<h1 className="font-bold text-4xl">{props.title}</h1>
+				{!props.hideTitle && (
+					<h1 className="font-bold text-4xl">{props.title}</h1>
+				)}
 				{props.children}
 				<div className="flex flex-col container gap-4">
 					<CardContainer
