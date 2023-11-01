@@ -8,6 +8,7 @@ import { useState } from "react";
 import CountLabel from "../Display/CountLabel";
 import timestampDisplay from "../../utility/timestampDisplay";
 import { useAuth } from "../../hooks/auth/useAuth";
+import { ThumbUp, ThumbDown } from "../Svg/ThumbIcons";
 
 interface ContainerProps {
 	numComments: number;
@@ -23,6 +24,11 @@ function CommentCard({ comment: c, deleteComment, setComments }: CardProps) {
 	const [isEdit, setEdit] = useState(false);
 	const { user } = useAuth();
 	const isAuthor = user.current!.userId === c.userId;
+	const [reacted, setReacted] = useState({
+		isLiked: c.likes.includes(user.current!.userId),
+		isDisliked: c.dislikes.includes(user.current!.userId),
+	});
+	const { protectedFetch } = useProtectedFetch();
 
 	const editComment = () => {
 		setEdit(true);
@@ -33,12 +39,60 @@ function CommentCard({ comment: c, deleteComment, setComments }: CardProps) {
 		{ name: "Edit", fn: editComment },
 	];
 
+	const likeComment = async () => {
+		const { isLiked } = reacted;
+		if (isLiked) return;
+
+		setReacted({ isLiked: true, isDisliked: false });
+		setComments((prev) =>
+			prev.map((cm) =>
+				cm.commentId === c.commentId
+					? {
+							...cm,
+							likes: [...cm.likes, user.current!.userId],
+							dislikes: cm.dislikes.filter(
+								(i) => i !== user.current!.userId
+							),
+					  }
+					: cm
+			)
+		);
+		await protectedFetch(
+			`/api/comment/${c.commentId}/like/${user.current!.userId}`,
+			{ method: "PATCH" }
+		);
+	};
+
+	const dislikeComment = async () => {
+		const { isDisliked } = reacted;
+		if (isDisliked) return;
+
+		setReacted({ isLiked: false, isDisliked: true });
+		setComments((prev) =>
+			prev.map((cm) =>
+				cm.commentId === c.commentId
+					? {
+							...cm,
+							likes: cm.likes.filter(
+								(i) => i !== user.current!.userId
+							),
+							dislikes: [...cm.dislikes, user.current!.userId],
+					  }
+					: cm
+			)
+		);
+		await protectedFetch(
+			`/api/comment/${c.commentId}/dislike/${user.current!.userId}`,
+			{ method: "PATCH" }
+		);
+	};
+
 	return !isEdit ? (
 		<div className="flex flex-col gap-2 p-3 rounded-lg border border-neutral-300 dark:border-neutral-700 shadow-md">
 			<div className="flex flex-row justify-between">
 				<div className="flex flex-row gap-4 items-baseline">
 					<Link
-						className="font-semibold text-lg"
+						className="font-semibold text-lg hover:underline"
 						to={`/user/${c.userId}`}
 					>
 						{c.username}
@@ -60,6 +114,18 @@ function CommentCard({ comment: c, deleteComment, setComments }: CardProps) {
 				)}
 			</div>
 			<span>{c.content}</span>
+			<div className="flex flex-row gap-4">
+				<ThumbUp
+					isSelected={reacted.isLiked}
+					fn={likeComment}
+					count={c.likes.length}
+				/>
+				<ThumbDown
+					isSelected={reacted.isDisliked}
+					fn={dislikeComment}
+					count={c.dislikes.length}
+				/>
+			</div>
 		</div>
 	) : (
 		<CommentEditor
@@ -82,7 +148,7 @@ export default function CommentContainer({ numComments }: ContainerProps) {
 	const { protectedFetch } = useProtectedFetch();
 
 	const expandComments = () => {
-		setExpand(true);
+		setExpand((prev) => !prev);
 	};
 
 	const deleteComment = async (id: string) => {
@@ -95,7 +161,13 @@ export default function CommentContainer({ numComments }: ContainerProps) {
 
 	return isExpand ? (
 		<div className="flex flex-col gap-2">
-			<CountLabel count={numComments} text="Comment" showZero />
+			<button
+				className="p-2 dark:hover:bg-neutral-700 hover:bg-slate-200 w-fit rounded-md"
+				type="button"
+				onClick={expandComments}
+			>
+				<CountLabel count={numComments} text="Comment" showZero />
+			</button>
 			<CommentEditor setComments={setComments} />
 			{!isLoading &&
 				comments.map((c) => (
@@ -105,7 +177,11 @@ export default function CommentContainer({ numComments }: ContainerProps) {
 				))}
 		</div>
 	) : (
-		<button className="" type="button" onClick={expandComments}>
+		<button
+			className="p-2 dark:hover:bg-neutral-700 hover:bg-slate-200 w-fit rounded-md"
+			type="button"
+			onClick={expandComments}
+		>
 			<CountLabel count={numComments} text="Comment" showZero />
 		</button>
 	);

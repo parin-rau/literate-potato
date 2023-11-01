@@ -8,5 +8,6 @@ commentsRouter.get("/ticket/:ticketId", comments.getTicketComments);
 commentsRouter.post("/", comments.createComment);
 
 commentsRouter.patch("/:id", comments.editComment);
+commentsRouter.patch("/:id/:action/:userId", comments.reactComment);
 
 commentsRouter.delete("/:id", comments.deleteComment);

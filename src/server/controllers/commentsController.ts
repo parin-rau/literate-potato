@@ -23,6 +23,16 @@ export async function editComment(req: Request, res: Response) {
 	res.sendStatus(status);
 }
 
+export async function reactComment(req: Request, res: Response) {
+	const { id: commentId, userId, action } = req.params;
+	const { status } = await commentsService.reactComment(
+		commentId,
+		userId,
+		action
+	);
+	res.sendStatus(status);
+}
+
 export async function deleteComment(req: Request, res: Response) {
 	const { id } = req.params;
 	const { status } = await commentsService.deleteComment(id);

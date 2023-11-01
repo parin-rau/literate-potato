@@ -54,6 +54,8 @@ export interface Comment {
 	timestamp: number;
 	lastModified?: number;
 	content: string;
+	likes: string[];
+	dislikes: string[];
 }
 
 export interface TicketData {

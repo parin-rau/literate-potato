@@ -93,6 +93,52 @@ export async function editComment(
 	}
 }
 
+export async function reactComment(
+	commentId: string,
+	userId: string,
+	reaction: string
+) {
+	const res: { status: number; success: boolean } = {
+		status: 500,
+		success: false,
+	};
+
+	const updateAction = (r: string) => {
+		switch (r) {
+			case "like":
+				return {
+					$addToSet: { likes: userId },
+					$pull: { dislikes: userId },
+				};
+			case "dislike":
+				return {
+					$addToSet: { dislikes: userId },
+					$pull: { likes: userId },
+				};
+			default:
+				return {};
+		}
+	};
+
+	try {
+		const client = await connectToDatabase();
+		const db = client.db(process.env.VITE_LOCAL_DB);
+		const comments = db.collection<Comment>(commentsColl);
+
+		const result = await comments.updateOne(
+			{ commentId },
+			updateAction(reaction)
+		);
+
+		res.status = 200;
+		res.success = result.acknowledged;
+		return res;
+	} catch (e) {
+		console.error(e);
+		return res;
+	}
+}
+
 export async function deleteComment(id: string) {
 	const res: { status: number; success: boolean } = {
 		status: 500,
