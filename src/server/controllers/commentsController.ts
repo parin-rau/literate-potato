@@ -1,54 +1,30 @@
-import "dotenv/config";
 import { Request, Response } from "express";
-import * as mongoDB from "mongodb";
-import { connectToDatabase } from "../../db/mongodb";
-
-const localTickets = process.env.LOCAL_TICKETS ?? "tickets";
-
-const localComments = process.env.LOCAL_COMMENTS ?? "comments";
+import * as commentsService from "../services/mongodb/comments";
 
 export async function getTicketComments(req: Request, res: Response) {
-	try {
-		const { ticketId } = req.params;
-		const client: mongoDB.MongoClient = await connectToDatabase();
-		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const ticketColl: mongoDB.Collection = db.collection(localTickets);
-		const commentColl: mongoDB.Collection = db.collection(localComments);
-		const foundTicket = await ticketColl.findOne({
-			ticketId,
-		});
-		if (!foundTicket) return res.sendStatus(404);
-
-		const commentIds = foundTicket.commentIds;
-
-		const foundComments = await commentColl
-			.find({
-				commentId: { $in: commentIds },
-			})
-			.limit(50)
-			.toArray();
-		await client.close();
-
-		res.status(200).send(foundComments);
-	} catch (e) {
-		console.error(e);
-	}
+	const { ticketId } = req.params;
+	const { status, comments } =
+		await commentsService.getTicketComments(ticketId);
+	res.status(status).send(comments);
 }
 
-export async function createNewComment(req: Request, res: Response) {
-	try {
-		const { ticketId } = req.params;
-		const {} = req.body;
+export async function createComment(req: Request, res: Response) {
+	const comment = await req.body;
+	const { status } = await commentsService.createComment(comment);
+	res.sendStatus(status);
+}
 
-		const client: mongoDB.MongoClient = await connectToDatabase();
-		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const ticketColl: mongoDB.Collection = db.collection(localTickets);
-		const commentColl: mongoDB.Collection = db.collection(localComments);
+export async function editComment(req: Request, res: Response) {
+	const { id } = req.params;
+	const patchData = await req.body;
 
-		await client.close();
+	const { status } = await commentsService.editComment(id, patchData);
 
-		res.status(200).send(foundComments);
-	} catch (e) {
-		console.error(e);
-	}
+	res.sendStatus(status);
+}
+
+export async function deleteComment(req: Request, res: Response) {
+	const { id } = req.params;
+	const { status } = await commentsService.deleteComment(id);
+	res.sendStatus(status);
 }

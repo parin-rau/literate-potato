@@ -3,7 +3,7 @@ import { EditorData, Group, Project, User } from "../../types";
 import TagsEditor from "../Editor/TagsEditor";
 import SubtaskEditor from "../Editor/SubtaskEditor";
 import SelectDropdown from "../Nav/SelectDropdown";
-import { optionLookup } from "../../utility/optionLookup";
+//import { optionLookup } from "../../utility/optionLookup";
 import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
 import { useLocation } from "react-router-dom";
 
@@ -226,7 +226,7 @@ export default function TicketForm(props: Props) {
 
 			<SubtaskEditor {...{ editor, setEditor, setDeletedSubtaskIds }} />
 			<TagsEditor {...{ editor, setEditor }} />
-			<div className="grid grid-cols-2 place-items-stretch gap-2 sm:gap-4 rounded-md shadow-none border-inherit">
+			<div className="grid grid-cols-1 place-items-stretch gap-2 sm:gap-4 rounded-md shadow-none border-inherit">
 				<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
 					<h4 className="px-1">Due Date</h4>
 					<input
@@ -235,9 +235,10 @@ export default function TicketForm(props: Props) {
 						type="date"
 						value={editor.due}
 						onChange={handleChange}
+						required
 					/>
 				</div>
-				<div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
+				{/* <div className="flex flex-col sm:border sm:rounded-md shadow-none sm:shadow-sm p-2 space-y-2 border-inherit">
 					<h4 className="px-1">Priority</h4>
 					<SelectDropdown
 						name="priority"
@@ -246,9 +247,9 @@ export default function TicketForm(props: Props) {
 						handleChange={handleChange}
 						stylesOverride="bg-slate-100 dark:bg-zinc-800 h-8"
 					/>
-				</div>
+				</div> */}
 			</div>
-			<div className="space-x-2">
+			<div className="flex flex-row gap-2 items-baseline">
 				<button
 					className="transition duration-200 mt-2 text-md text-white font-bold bg-blue-500 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 py-2 px-4 rounded-md max-w-min"
 					type="submit"

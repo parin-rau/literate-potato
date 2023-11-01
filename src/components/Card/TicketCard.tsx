@@ -44,6 +44,7 @@ export default function TicketCard(props: Props) {
 		statusColors,
 		setStatusColors,
 		isOverdue,
+		isTicketPage,
 	} = useTicket(props);
 
 	const moreOptions = [
@@ -90,9 +91,9 @@ export default function TicketCard(props: Props) {
 									/>
 								</>
 							)}
-							{priority && (
+							{/* {priority && (
 								<p className="">Priority: {priority}</p>
-							)}
+							)} */}
 							{due && (
 								<p
 									className={
@@ -155,11 +156,15 @@ export default function TicketCard(props: Props) {
 					{comments && (
 						<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
 							<span>
-								<Link to={`/ticket/${ticketId}`}>
-									{`${comments.length} Comment${
-										comments.length !== 1 && "s"
-									}`}
-								</Link>
+								{isTicketPage ? (
+									"Hiya"
+								) : (
+									<Link to={`/ticket/${ticketId}`}>
+										{`${comments.length} Comment${
+											comments.length !== 1 && "s"
+										}`}
+									</Link>
+								)}
 							</span>
 						</div>
 					)}

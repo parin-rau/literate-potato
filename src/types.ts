@@ -47,8 +47,12 @@ export type EditorData = {
 };
 
 export interface Comment {
+	userId: string;
+	username: string;
+	ticketId: string;
 	commentId: string;
 	timestamp: number;
+	lastModified?: number;
 	content: string;
 }
 

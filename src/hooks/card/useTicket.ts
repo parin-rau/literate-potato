@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useProtectedFetch } from "../utility/useProtectedFetch";
 import { statusColorsLookup } from "../../utility/optionLookup";
 import { FetchedTicketData, Project, TicketData } from "../../types";
@@ -35,6 +35,8 @@ export function useTicket(props: Props) {
 	);
 	const [isEditing, setEditing] = useState(false);
 	const { protectedFetch } = useProtectedFetch();
+	const { id } = useParams();
+	const isTicketPage = id === ticketId;
 
 	const handleTaskChange = useCallback(
 		async (
@@ -443,5 +445,6 @@ export function useTicket(props: Props) {
 		statusColors,
 		setStatusColors,
 		isOverdue,
+		isTicketPage,
 	};
 }

@@ -1,13 +1,21 @@
 import "dotenv/config";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
-import { FetchedTicketData, Group, TicketData, User } from "../../../types";
+import {
+	Comment,
+	FetchedTicketData,
+	Group,
+	Project,
+	TicketData,
+	User,
+} from "../../../types";
 import { countPerElement } from "../../../utility/arrayComparisons";
 
 const ticketsColl = process.env.LOCAL_TICKETS ?? "tickets";
-//const projectsColl = process.env.LOCAL_PROJECTS ?? "projects";
+const projectsColl = process.env.LOCAL_PROJECTS ?? "projects";
 const usersColl = process.env.LOCAL_USERS ?? "users";
 const groupsColl = process.env.LOCAL_GROUPS ?? "groups";
+const commentsColl = process.env.LOCAL_COMMENTS ?? "comments";
 
 export async function getTicket(id: string) {
 	const res: { status: number; ticket?: unknown } = {
@@ -64,7 +72,6 @@ export async function getAllTicketsForProject(projectId: string) {
 		if (projectId === "uncategorized") {
 			const foundTickets = await tickets
 				.find({ "project.projectId": "" })
-				.limit(50)
 				.toArray();
 			await client.close();
 
@@ -74,7 +81,6 @@ export async function getAllTicketsForProject(projectId: string) {
 		} else {
 			const foundTickets = await tickets
 				.find({ "project.projectId": projectId })
-				.limit(50)
 				.toArray();
 			await client.close();
 
@@ -152,28 +158,11 @@ export async function getTicketCountsForCalendar(dateRange: string[]) {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const ticketColl: mongoDB.Collection = db.collection(ticketsColl);
-		// const projectColl: mongoDB.Collection = db.collection(projects);
-
 		const foundTickets = await ticketColl
 			.find({ due: { $in: dateRange } })
 			.toArray();
 
-		// const foundTicketsParents: string[] = foundTickets.map(
-		// 	(t) => t.project.projectId
-		// );
-
-		// const foundProjects = await projectColl
-		// 	.find({
-		// 		projectId: { $in: foundTicketsParents },
-		// 	})
-		// 	.toArray();
-
 		await client.close();
-
-		// const colors = foundProjects.map((p) => ({
-		// 	color: p.color,
-		// 	projectId: p.projectId,
-		// }));
 
 		const dueDates: string[] = foundTickets.map((t) => t.due);
 		const countedDates = countPerElement(dueDates);
@@ -283,15 +272,33 @@ export async function deleteTicket(id: string) {
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const tickets = db.collection<FetchedTicketData>(ticketsColl);
 		const groups = db.collection<Group>(groupsColl);
+		const projects = db.collection<Project>(projectsColl);
+		const comments = db.collection<Comment>(commentsColl);
+
 		const result1 = await tickets.deleteOne({ ticketId: id });
 		const result2 = await groups.updateOne(
 			{ ticketIds: id },
 			{ $pull: { ticketIds: id } }
 		);
+		const result3 = await projects.updateOne(
+			{ tasksTotalIds: id },
+			{
+				$pull: {
+					tasksCompletedIds: id,
+					tasksTotalIds: id,
+				},
+			}
+		);
+		const result4 = await comments.deleteMany({ ticketId: id });
+
 		await client.close();
 
 		res.status = 200;
-		res.success = result1.acknowledged && result2.acknowledged;
+		res.success =
+			result1.acknowledged &&
+			result2.acknowledged &&
+			result3.acknowledged &&
+			result4.acknowledged;
 		return res;
 	} catch (err) {
 		console.error(err);

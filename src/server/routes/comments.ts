@@ -5,4 +5,8 @@ export const commentsRouter = express.Router();
 
 commentsRouter.get("/ticket/:ticketId", comments.getTicketComments);
 
-commentsRouter.post("/ticket/:ticketId", comments.createNewComment);
+commentsRouter.post("/:id", comments.createComment);
+
+commentsRouter.patch("/:id", comments.editComment);
+
+commentsRouter.delete("/:id", comments.deleteComment);
