@@ -115,6 +115,10 @@ export async function reactComment(
 					$addToSet: { dislikes: userId },
 					$pull: { likes: userId },
 				};
+			case "reset":
+				return {
+					$pull: { likes: userId, dislikes: userId },
+				};
 			default:
 				return {};
 		}

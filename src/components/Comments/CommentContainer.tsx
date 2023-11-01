@@ -39,9 +39,33 @@ function CommentCard({ comment: c, deleteComment, setComments }: CardProps) {
 		{ name: "Edit", fn: editComment },
 	];
 
+	const resetReaction = async () => {
+		setReacted({ isLiked: false, isDisliked: false });
+		setComments((prev) =>
+			prev.map((cm) =>
+				cm.commentId === c.commentId
+					? {
+							...cm,
+							likes: cm.likes.filter(
+								(i) => i !== user.current!.userId
+							),
+							dislikes: cm.dislikes.filter(
+								(i) => i !== user.current!.userId
+							),
+					  }
+					: cm
+			)
+		);
+
+		await protectedFetch(
+			`/api/comment/${c.commentId}/reset/${user.current!.userId}`,
+			{ method: "PATCH" }
+		);
+	};
+
 	const likeComment = async () => {
 		const { isLiked } = reacted;
-		if (isLiked) return;
+		if (isLiked) return await resetReaction();
 
 		setReacted({ isLiked: true, isDisliked: false });
 		setComments((prev) =>
@@ -65,7 +89,7 @@ function CommentCard({ comment: c, deleteComment, setComments }: CardProps) {
 
 	const dislikeComment = async () => {
 		const { isDisliked } = reacted;
-		if (isDisliked) return;
+		if (isDisliked) return await resetReaction();
 
 		setReacted({ isLiked: false, isDisliked: true });
 		setComments((prev) =>
