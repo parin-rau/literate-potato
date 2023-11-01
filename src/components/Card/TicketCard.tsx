@@ -10,6 +10,8 @@ import TicketEditor from "../Editor/TicketEditor";
 import ProgressBar from "../Display/ProgressBar";
 import { countCompletedSubs } from "../../utility/countSubtasks";
 import { useTicket, Props } from "../../hooks/card/useTicket";
+import CommentContainer from "../Comments/CommentContainer";
+import CountLabel from "../Display/CountLabel";
 
 export default function TicketCard(props: Props) {
 	const {
@@ -153,21 +155,6 @@ export default function TicketCard(props: Props) {
 							)}
 						</div>
 					)}
-					{comments && (
-						<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
-							<span>
-								{isTicketPage ? (
-									"Hiya"
-								) : (
-									<Link to={`/ticket/${ticketId}`}>
-										{`${comments.length} Comment${
-											comments.length !== 1 && "s"
-										}`}
-									</Link>
-								)}
-							</span>
-						</div>
-					)}
 					<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
 						<span>
 							Creator:{" "}
@@ -207,6 +194,26 @@ export default function TicketCard(props: Props) {
 							</i>
 						)}
 					</div>
+					{comments && (
+						<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
+							<span>
+								{isTicketPage ? (
+									<CommentContainer
+										numComments={comments.length}
+									/>
+								) : (
+									<Link to={`/ticket/${ticketId}`}>
+										<CountLabel
+											count={comments.length}
+											text="Comment"
+											showZero
+										/>
+									</Link>
+								)}
+							</span>
+						</div>
+					)}
+
 					{/* <p>ticket: {ticketId}</p>
 				<p>project: {projectId}</p> */}
 				</div>

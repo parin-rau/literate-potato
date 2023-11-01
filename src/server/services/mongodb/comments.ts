@@ -19,7 +19,7 @@ export async function getTicketComments(ticketId: string) {
 
 		const foundComments = await commentColl
 			.find({ ticketId })
-			.sort({ timestamp: -1 })
+			.sort({ timestamp: 1 })
 			.toArray();
 		await client.close();
 

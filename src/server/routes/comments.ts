@@ -5,7 +5,7 @@ export const commentsRouter = express.Router();
 
 commentsRouter.get("/ticket/:ticketId", comments.getTicketComments);
 
-commentsRouter.post("/:id", comments.createComment);
+commentsRouter.post("/", comments.createComment);
 
 commentsRouter.patch("/:id", comments.editComment);
 
