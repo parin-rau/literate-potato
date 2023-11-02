@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Project } from "../../types";
 import timestampDisplay from "../../utility/timestampDisplay";
 import MenuDropdown from "../Nav/MenuDropdown";
@@ -31,9 +31,10 @@ export default function ProjectCard(props: Props) {
 	} = props.cardData;
 	const { setCards, setCardCache, isHeader } = props;
 	const [isEditing, setEditing] = useState(false);
-	//const [isDropdown, setDropdown] = useState(false);
+	const [isHover, setHover] = useState(false);
 	const { protectedFetch } = useProtectedFetch();
 	const navigate = useNavigate();
+	const { pathname } = useLocation();
 
 	const moreOptions = [
 		{ name: "Delete", fn: deleteCard, projectId },
@@ -60,6 +61,14 @@ export default function ProjectCard(props: Props) {
 		percentCompletedString: `${subtaskPercentCompletedNum.toString()}%`,
 	};
 
+	const onMouseEnter = (_e: React.MouseEvent) => {
+		setHover(true);
+	};
+
+	const onMouseLeave = (_e: React.MouseEvent) => {
+		setHover(false);
+	};
+
 	async function deleteCard() {
 		try {
 			const res1 = await protectedFetch(`/api/project/${projectId}`, {
@@ -81,14 +90,11 @@ export default function ProjectCard(props: Props) {
 						}
 					);
 					if (res2.ok) {
-						// setCards((prevCards) =>
-						// 	prevCards.filter((card) => card.projectId !== id)
-						// );
-						// setCardCache &&
-						// 	setCardCache((prev) =>
-						// 		prev.filter((card) => card.projectId !== id)
-						// 	);
-						navigate("/");
+						pathname === `/project/${projectId}` && navigate(-1);
+						const fn = (prev: Project[]) =>
+							prev.filter((p) => p.projectId !== projectId);
+						setCards((prev) => fn(prev));
+						setCardCache && setCardCache((prev) => fn(prev));
 					}
 				} catch (e) {
 					console.error(e);
@@ -102,13 +108,6 @@ export default function ProjectCard(props: Props) {
 	function editCard() {
 		setEditing(true);
 	}
-
-	// function disableLink() {
-	// 	const styles: React.CSSProperties = isDropdown
-	// 		? { pointerEvents: "none" }
-	// 		: {};
-	// 	return styles;
-	// }
 
 	return (
 		<div className="flex flex-col gap-2">
@@ -130,12 +129,13 @@ export default function ProjectCard(props: Props) {
 				className={
 					isHeader && !isEditing
 						? ""
-						: "m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600 hover:bg-slate-50 dark:hover:border-zinc-400 "
+						: "m-1 h-full border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600 hover:bg-slate-50 " +
+						  (isHover && " dark:hover:border-zinc-400")
 				}
 			>
 				{!isEditing && (
-					<Link
-						to={`/project/${projectId}`}
+					<div
+						//to={`/project/${projectId}`}
 						className={
 							"flex flex-col px-4 py-2 space-y-1 dark:border-neutral-700 z-0 " +
 							(isHeader ? "pointer-events-none" : "")
@@ -143,12 +143,17 @@ export default function ProjectCard(props: Props) {
 						// style={disableLink()}
 					>
 						{!isHeader && (
-							<div className="flex flex-row flex-grow justify-between items-baseline space-x-2 z-10">
-								<div className="flex flex-col sm:flex-row sm:items-baseline space-y-1 sm:space-x-4">
+							<div className="flex flex-row flex-grow justify-between items-baseline gap-2 z-10">
+								<div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
 									<div className="flex flex-row space-x-2 items-center">
-										<h1 className="font-semibold text-2xl sm:text-3xl hover:underline">
+										<Link
+											className="font-semibold text-2xl sm:text-3xl hover:underline"
+											to={`/project/${projectId}`}
+											onMouseEnter={onMouseEnter}
+											onMouseLeave={onMouseLeave}
+										>
 											{title}
-										</h1>
+										</Link>
 										{color && (
 											<div
 												className="p-3 rounded-md"
@@ -178,7 +183,7 @@ export default function ProjectCard(props: Props) {
 							<span>
 								Creator:{" "}
 								<Link
-									className="underline"
+									className="hover:underline"
 									to={`/user/${creator.userId}`}
 								>
 									{creator.username}
@@ -189,7 +194,7 @@ export default function ProjectCard(props: Props) {
 							<span>
 								Group:{" "}
 								<Link
-									className="underline"
+									className="hover:underline"
 									to={`/group/${group.groupId}`}
 								>
 									{group.groupTitle}
@@ -209,7 +214,7 @@ export default function ProjectCard(props: Props) {
 								caption="Subtasks"
 							/>
 						) : null}
-					</Link>
+					</div>
 				)}
 				{isEditing && (
 					<TicketEditor
