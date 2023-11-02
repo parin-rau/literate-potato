@@ -48,6 +48,8 @@ export default function CommentEditor({
 			username: user.current!.username,
 			ticketId: ticketId!,
 			timestamp: prevComment ? prevComment.timestamp : Date.now(),
+			likes: [],
+			dislikes: [],
 		};
 		if (prevComment) comment.lastModified = Date.now();
 
@@ -89,15 +91,15 @@ export default function CommentEditor({
 					placeholder="Write comment..."
 				/>
 				{text && (
-					<div className="flex flex-row gap-2 self-end">
+					<div className="flex flex-row gap-2 self-start">
 						<button
-							className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded-md"
+							className="px-3 py-1 text-white font-semibold bg-blue-600 hover:bg-blue-500 rounded-md"
 							type="submit"
 						>
 							Post
 						</button>
 						<button
-							className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded-md"
+							className="px-3 py-1 text-white font-semibold bg-blue-600 hover:bg-blue-500 rounded-md"
 							type="button"
 							onClick={handleCancel}
 						>

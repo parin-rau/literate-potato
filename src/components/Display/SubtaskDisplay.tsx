@@ -22,15 +22,15 @@ export default function SubtaskDisplay(props: Props) {
 					role="button"
 					tabIndex={0}
 					className={
-						"duration-100 hover:bg-slate-300 dark:hover:bg-zinc-700 text-sm rounded px-1 py-1 flex flex-row space-x-4 m-1 justify-between items-center cursor-pointer text-left " +
+						"box-content text-sm rounded px-1 py-1 flex flex-row space-x-4 m-1 justify-between items-center cursor-pointer text-left " +
 						(subtask.completed
-							? " bg-transparent outline outline-1 text-slate-400 dark:text-zinc-400 outline-neutral-200 dark:outline-zinc-500 dark:hover:outline-none hover:outline-none"
-							: " bg-slate-200 dark:bg-zinc-800")
+							? " bg-transparent outline outline-1 text-slate-400 dark:text-zinc-400 outline-neutral-200 dark:outline-zinc-700 dark:hover:outline-zinc-400 hover:outline-slate-700 focus:ring-2 ring-slate-500 dark:ring-white"
+							: " bg-slate-100 dark:bg-zinc-800 hover:bg-slate-300 dark:hover:bg-zinc-700")
 					}
 					title={
 						!deleteSubtask && !editSubtask
 							? subtask.completed
-								? "Mark Uncompleted"
+								? "Mark Incomplete"
 								: "Mark Completed"
 							: ""
 					}

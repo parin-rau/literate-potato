@@ -18,22 +18,11 @@ export function useTicket(props: Props) {
 	const { taskStatus, ticketId, project, subtasks } = props.cardData;
 	const { setCards, setCardCache, setProject } = props;
 	const navigate = useNavigate();
-
-	// const statusColorsLookup = useCallback((currentStatus: string) => {
-	// 	const currentOption = optionLookup.taskStatus.find(
-	// 		(option) => option.value === currentStatus
-	// 	);
-	// 	const optionColors =
-	// 		currentOption?.bgColor && currentOption?.textColor
-	// 			? `${currentOption.bgColor} ${currentOption.textColor}`
-	// 			: "bg-slate-100 text-black";
-	// 	return optionColors;
-	// }, []);
-
 	const [statusColors, setStatusColors] = useState(
 		statusColorsLookup(taskStatus)
 	);
 	const [isEditing, setEditing] = useState(false);
+	const [isHover, setHover] = useState(false);
 	const { protectedFetch } = useProtectedFetch();
 	const { id } = useParams();
 	const isTicketPage = id === ticketId;
@@ -435,6 +424,14 @@ export function useTicket(props: Props) {
 		}
 	}, []);
 
+	const onMouseEnter = useCallback((_e: React.MouseEvent) => {
+		setHover(true);
+	}, []);
+
+	const onMouseLeave = useCallback((_e: React.MouseEvent) => {
+		setHover(false);
+	}, []);
+
 	return {
 		deleteCard,
 		editCard,
@@ -446,5 +443,10 @@ export function useTicket(props: Props) {
 		setStatusColors,
 		isOverdue,
 		isTicketPage,
+		hover: {
+			isHover,
+			onMouseEnter,
+			onMouseLeave,
+		},
 	};
 }

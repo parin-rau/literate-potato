@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
 import { SidebarToggle } from "./Sidebar";
 import HamburgerToggle from "./HamburgerToggle";
-import SidebarRight from "./SidebarRight";
 import ToggleButton from "./ToggleButton";
 import DarkModeIcon from "../Svg/DarkModeIcon";
 import InboxIcon from "../Svg/InboxIcon";
@@ -12,7 +11,6 @@ export default function NavBar() {
 	const navigate = useNavigate();
 	const [theme, setTheme] = useState<string>(localStorage.theme);
 	const [isOpenSidebar, setOpenSidebar] = useState(false);
-	const [isOpenSecondarySidebar, setOpenSecondarySidebar] = useState(false);
 
 	function handleThemeToggle() {
 		theme === "dark" ? setTheme("light") : setTheme("dark");
@@ -39,14 +37,6 @@ export default function NavBar() {
 		}
 	}
 
-	function handleSecondarySidebarToggle(isOpen?: boolean) {
-		if (isOpen === true || isOpen === false) {
-			setOpenSecondarySidebar(isOpen);
-		} else {
-			setOpenSecondarySidebar((prev) => !prev);
-		}
-	}
-
 	function handleInboxClick() {
 		navigate("/notification");
 	}
@@ -62,25 +52,17 @@ export default function NavBar() {
 						onClick={handleSidebarToggle}
 					/>
 					<SearchBar linkTo="/search" />
-					<ToggleButton onClick={handleThemeToggle}>
-						<DarkModeIcon theme={theme} />
-					</ToggleButton>
+
 					<ToggleButton onClick={handleInboxClick}>
 						<InboxIcon notificationCount={3} />
 					</ToggleButton>
-					<HamburgerToggle
-						type="button"
-						onClick={handleSecondarySidebarToggle}
-					/>
+
+					<ToggleButton onClick={handleThemeToggle}>
+						<DarkModeIcon theme={theme} />
+					</ToggleButton>
 				</div>
 			</div>
 			<SidebarToggle {...{ isOpenSidebar, handleSidebarToggle }} />
-			<SidebarRight
-				{...{
-					isOpenSidebar: isOpenSecondarySidebar,
-					handleSidebarToggle: handleSecondarySidebarToggle,
-				}}
-			/>
 		</>
 	);
 }

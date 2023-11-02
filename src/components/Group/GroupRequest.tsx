@@ -41,8 +41,10 @@ export default function GroupRequest({ requestGroup }: Props) {
 	return (
 		<div
 			className={
-				"flex flex-col gap-2  rounded-lg border-2 p-4 dark:border-neutral-700 dark:bg-zinc-900 " +
-				(expand ? " " : " cursor-pointer")
+				"flex flex-col gap-2 h-fit rounded-lg border-2 p-4 border-black dark:border-zinc-600 dark:bg-zinc-900 " +
+				(expand
+					? " "
+					: " cursor-pointer dark:hover:border-zinc-400 hover:bg-slate-100")
 			}
 			onClick={() => !expand && setExpand(true)}
 		>
@@ -71,18 +73,17 @@ export default function GroupRequest({ requestGroup }: Props) {
 					)}
 					<div className="self-end flex flex-row gap-2">
 						<button
-							className="font-semibold px-3 py-1 w-fit text-white rounded-md bg-blue-700 hover:bg-blue-600"
+							className="font-semibold px-3 py-1 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
+							type="submit"
+						>
+							Submit
+						</button>
+						<button
+							className="font-semibold px-3 py-1 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
 							type="button"
 							onClick={handleCancel}
 						>
 							Cancel
-						</button>
-
-						<button
-							className="font-semibold px-3 py-1 w-fit text-white rounded-md bg-blue-700 hover:bg-blue-600"
-							type="submit"
-						>
-							Submit
 						</button>
 					</div>
 				</form>

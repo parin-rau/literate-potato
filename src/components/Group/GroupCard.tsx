@@ -45,6 +45,7 @@ export default function GroupCard(props: Props) {
 		data.requestUserIds.includes(user.current!.userId)
 	);
 	const [isEditing, setEditing] = useState(false);
+	const [isHover, setHover] = useState(false);
 	const [showMembers, setShowMembers] = useState(false);
 	const { id } = useParams();
 	const isCurrentPage = data.groupId === id;
@@ -71,6 +72,8 @@ export default function GroupCard(props: Props) {
 
 	const editGroup = () => setEditing((prev) => !prev);
 	const editMembers = () => setShowMembers((prev) => !prev);
+	const onMouseEnter = (_e: React.MouseEvent) => setHover(true);
+	const onMouseLeave = (_e: React.MouseEvent) => setHover(false);
 
 	const moreOptions = [
 		isManager
@@ -105,7 +108,16 @@ export default function GroupCard(props: Props) {
 					<MenuDropdown options={moreOptions} cardId={data.groupId} />
 				</div>
 			)}
-			<div className="flex flex-col gap-2 p-4 rounded-lg border-2 dark:border-neutral-700 dark:bg-zinc-900">
+			<div
+				className={
+					"flex flex-col gap-2 p-4 rounded-lg dark:bg-zinc-900 " +
+					(!isCurrentPage &&
+						" border-2 border-black dark:border-zinc-600 ") +
+					(!isCurrentPage &&
+						isHover &&
+						" hover:bg-slate-100 dark:hover:border-zinc-400")
+				}
+			>
 				{!isEditing ? (
 					<>
 						{!isCurrentPage && (
@@ -113,6 +125,8 @@ export default function GroupCard(props: Props) {
 								<Link
 									to={`/group/${data.groupId}`}
 									className="font-semibold text-3xl hover:underline"
+									onMouseEnter={onMouseEnter}
+									onMouseLeave={onMouseLeave}
 								>
 									{data.title}
 								</Link>

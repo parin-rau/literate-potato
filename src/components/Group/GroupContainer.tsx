@@ -9,9 +9,9 @@ export default function GroupContainer() {
 		derivedState;
 
 	return (
-		<div className="flex flex-col mt-16 mx-auto p-2 gap-6">
+		<div className="flex flex-col mt-20 gap-6">
 			<h1 className="font-bold text-4xl">Groups Home</h1>
-			<div className="@container/cards flex flex-col p-2 gap-4 rounded-lg dark:bg-neutral-900">
+			<div className="@container/cards  flex flex-col p-2 gap-4 rounded-lg dark:bg-neutral-900">
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 					<GroupEditor {...{ setGroups: cardSetters.setGroups }} />
 					<GroupRequest

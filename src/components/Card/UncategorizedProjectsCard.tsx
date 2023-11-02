@@ -2,10 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
 import { useEffect } from "react";
 import { FetchedTicketData } from "../../types";
-import {
-	//countCompletedSubs,
-	countTotalSubs,
-} from "../../utility/countSubtasks";
+import { countTotalSubs } from "../../utility/countSubtasks";
 import { useAuth } from "../../hooks/auth/useAuth";
 
 type Props = {
@@ -28,8 +25,6 @@ export default function UncategorizedProjectsCard(props: Props) {
 	useEffect(() => {
 		if (setCardsLoading) isLoading ? null : setCardsLoading(false);
 	}, [isLoading, setCardsLoading]);
-
-	//countCompletedSubs;
 
 	return (
 		!isLoading &&

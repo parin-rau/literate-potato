@@ -129,16 +129,17 @@ export default function ProjectCard(props: Props) {
 				className={
 					isHeader && !isEditing
 						? ""
-						: "m-1 h-full border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600 hover:bg-slate-50 " +
-						  (isHover && " dark:hover:border-zinc-400")
+						: "m-1 h-full border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600  " +
+						  (isHover &&
+								" dark:hover:border-zinc-400 hover:bg-slate-100")
 				}
 			>
 				{!isEditing && (
 					<div
 						//to={`/project/${projectId}`}
 						className={
-							"flex flex-col px-4 py-2 space-y-1 dark:border-neutral-700 z-0 " +
-							(isHeader ? "pointer-events-none" : "")
+							"flex flex-col px-4 py-2 space-y-1 dark:border-neutral-700 z-0 "
+							// + (isHeader ? "pointer-events-none" : "")
 						}
 						// style={disableLink()}
 					>
@@ -201,7 +202,7 @@ export default function ProjectCard(props: Props) {
 								</Link>
 							</span>
 						)}
-						<span>Created: {timestampDisplay(timestamp)}</span>
+						<span>Created {timestampDisplay(timestamp)}</span>
 						{tasksTotalIds && tasksTotalIds.length > 0 ? (
 							<ProgressBar
 								progress={{ ...taskProgress }}

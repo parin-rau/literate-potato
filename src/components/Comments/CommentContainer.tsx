@@ -112,7 +112,7 @@ function CommentCard({ comment: c, deleteComment, setComments }: CardProps) {
 	};
 
 	return !isEdit ? (
-		<div className="flex flex-col gap-2 p-3 rounded-lg border border-neutral-300 dark:border-neutral-700 shadow-md">
+		<div className="flex flex-col gap-2 p-3 rounded-lg border border-neutral-300 dark:border-neutral-600 shadow-md">
 			<div className="flex flex-row justify-between">
 				<div className="flex flex-row gap-4 items-baseline">
 					<Link
@@ -184,21 +184,26 @@ export default function CommentContainer({ numComments }: ContainerProps) {
 	};
 
 	return isExpand ? (
-		<div className="flex flex-col gap-2">
-			<button
-				className="p-2 dark:hover:bg-neutral-700 hover:bg-slate-200 w-fit rounded-md"
-				type="button"
-				onClick={expandComments}
-			>
-				<CountLabel count={numComments} text="Comment" showZero />
-			</button>
-			<CommentEditor setComments={setComments} />
-			{!isLoading &&
-				comments.map((c) => (
-					<CommentCard
-						{...{ comment: c, deleteComment, setComments }}
-					/>
-				))}
+		<div className="flex flex-col gap-8">
+			<div className="flex flex-col gap-2">
+				<button
+					className="p-2 dark:hover:bg-neutral-700 hover:bg-slate-200 w-fit rounded-md"
+					type="button"
+					onClick={expandComments}
+				>
+					<CountLabel count={numComments} text="Comment" showZero />
+				</button>
+				<CommentEditor setComments={setComments} />
+			</div>
+			{!isLoading && (
+				<div className="flex flex-col gap-2">
+					{comments.map((c) => (
+						<CommentCard
+							{...{ comment: c, deleteComment, setComments }}
+						/>
+					))}
+				</div>
+			)}
 		</div>
 	) : (
 		<button

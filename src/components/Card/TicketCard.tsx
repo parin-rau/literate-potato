@@ -47,6 +47,7 @@ export default function TicketCard(props: Props) {
 		setStatusColors,
 		isOverdue,
 		isTicketPage,
+		hover,
 	} = useTicket(props);
 
 	const moreOptions = [
@@ -55,13 +56,25 @@ export default function TicketCard(props: Props) {
 	];
 
 	return (
-		<div className="m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600">
+		<div
+			className={
+				"m-1 border-black border-2 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-600 " +
+				(hover.isHover &&
+					!isTicketPage &&
+					" dark:hover:border-zinc-400 hover:bg-slate-100")
+			}
+		>
 			{!isEditing && (
 				<div className="flex flex-col px-4 py-4 space-y-2 dark:border-neutral-700">
 					<div className="flex flex-row flex-grow justify-between items-baseline space-x-2">
 						<Link
 							to={`/ticket/${ticketId}`}
-							className="font-semibold text-2xl sm:text-3xl hover:underline"
+							className={
+								"font-semibold text-2xl sm:text-3xl hover:underline " +
+								(isTicketPage && " pointer-events-none")
+							}
+							onMouseEnter={hover.onMouseEnter}
+							onMouseLeave={hover.onMouseLeave}
 						>
 							{title}
 						</Link>
@@ -93,9 +106,6 @@ export default function TicketCard(props: Props) {
 									/>
 								</>
 							)}
-							{/* {priority && (
-								<p className="">Priority: {priority}</p>
-							)} */}
 							{due && (
 								<p
 									className={
@@ -105,9 +115,12 @@ export default function TicketCard(props: Props) {
 											"text-red-500 font-semibold")
 									}
 								>
-									Due: {due}
-									{taskStatus !== "Completed" &&
-										isOverdue(due) && <i> Overdue</i>}
+									{isOverdue(due) &&
+									taskStatus !== "Completed" ? (
+										<i>Due {due}</i>
+									) : (
+										`Due ${due}`
+									)}
 								</p>
 							)}
 						</div>
@@ -159,7 +172,7 @@ export default function TicketCard(props: Props) {
 						<span>
 							Creator:{" "}
 							<Link
-								className="underline"
+								className="hover:underline"
 								to={`/user/${creator.userId}`}
 							>
 								{creator.username}
@@ -168,41 +181,50 @@ export default function TicketCard(props: Props) {
 						<span>
 							Project:{" "}
 							<Link
-								className="underline"
+								className="hover:underline"
 								to={`/project/${project.projectId}`}
 							>
-								{project.projectId ? (
-									<u>{project.projectTitle}</u>
-								) : (
-									"Unassigned"
-								)}
+								{project.projectId
+									? project.projectTitle
+									: "Unassigned"}
 							</Link>
 						</span>
 						<span>
 							Group:{" "}
 							<Link
-								className="underline"
+								className="hover:underline"
 								to={`/group/${group.groupId}`}
 							>
 								{group.groupTitle}
 							</Link>
 						</span>
-						<span>Created: {timestampDisplay(timestamp)}</span>
+						<span>Created {timestampDisplay(timestamp)}</span>
 						{lastModified && (
 							<i>
-								Last Activity: {timestampDisplay(lastModified)}
+								Last Activity {timestampDisplay(lastModified)}
 							</i>
 						)}
 					</div>
 					{comments && (
-						<div className="flex flex-col shadow-sm border border-inherit p-2 rounded-lg">
+						<div
+							className={
+								"flex flex-col shadow-sm border border-inherit p-2 rounded-lg pointer-events-none" +
+								(!isTicketPage && " dark:hover:bg-zinc-800")
+							}
+							role={isTicketPage ? "none" : "button"}
+							onMouseEnter={hover.onMouseEnter}
+							onMouseLeave={hover.onMouseLeave}
+						>
 							<span>
 								{isTicketPage ? (
 									<CommentContainer
 										numComments={comments.length}
 									/>
 								) : (
-									<Link to={`/ticket/${ticketId}`}>
+									<Link
+										className="pointer-events-auto"
+										to={`/ticket/${ticketId}`}
+									>
 										<CountLabel
 											count={comments.length}
 											text="Comment"
