@@ -1,7 +1,10 @@
 import CalendarContainer from "../../components/Calendar/CalendarContainer";
 import CardContainer from "../../components/Card/CardContainer";
+import { usePageTitle } from "../../hooks/utility/usePageTitle";
 
 export default function TicketHomePage() {
+	usePageTitle("Tasks Home");
+
 	return (
 		<div className="pt-20 flex flex-col gap-4 px-2">
 			<div className="sm:container sm:mx-auto flex flex-col gap-6">

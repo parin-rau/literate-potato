@@ -1,11 +1,11 @@
 import { useProfile } from "../../hooks/card/useProfile";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { LoadingSpinner } from "../Nav/Loading";
-import { useAuth } from "../../hooks/auth/useAuth";
+//import { useAuth } from "../../hooks/auth/useAuth";
 
 export default function ProfileContainer() {
-	const { user } = useAuth();
-	const { id } = useParams();
+	// const { user } = useAuth();
+	// const { id } = useParams();
 	// const userId = pathname.slice(6);
 	// const navigate = useNavigate();
 
@@ -13,14 +13,14 @@ export default function ProfileContainer() {
 	// 	user.current?.userId === userId ? navigate("/user") : null;
 	// }, [user, navigate, userId]);
 
-	const { profile, isLoading } = useProfile();
+	const { profile, isLoading, isCurrentUser } = useProfile();
 
 	return (
-		<div className="container mt-16 mx-auto">
+		<div className="container mt-20 mx-auto">
 			{isLoading ? (
 				<LoadingSpinner />
 			) : (
-				<div className="rounded-lg p-2 border-2 border-black dark:border-neutral-600">
+				<div className="flex flex-col gap-2 rounded-lg p-2 border-2 border-black dark:border-neutral-600">
 					<h1>Profile</h1>
 					<ul>
 						<li>
@@ -50,6 +50,14 @@ export default function ProfileContainer() {
 							</ul>
 						</li>
 					</ul>
+					{isCurrentUser && (
+						<Link
+							className="p-2 w-fit rounded-md bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600"
+							to={"/settings"}
+						>
+							Edit Profile
+						</Link>
+					)}
 				</div>
 			)}
 		</div>

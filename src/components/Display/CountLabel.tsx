@@ -4,6 +4,7 @@ type Props = {
 	className?: string;
 	pluralNonS?: string;
 	showZero?: boolean;
+	onClick?: () => void;
 };
 
 export default function CountLabel({
@@ -12,12 +13,23 @@ export default function CountLabel({
 	className,
 	pluralNonS,
 	showZero,
+	onClick,
 }: Props) {
+	const labelText = `${count} ${text}${
+		count !== 1 ? (pluralNonS ? pluralNonS : "s") : ""
+	}`;
+
 	return (
-		(count > 0 || showZero) && (
-			<p className={className}>{`${count} ${text}${
-				count !== 1 ? (pluralNonS ? pluralNonS : "s") : ""
-			}`}</p>
-		)
+		(count > 0 || showZero) &&
+		(onClick ? (
+			<button
+				className={className + " w-fit hover:underline"}
+				onClick={onClick}
+			>
+				{labelText}
+			</button>
+		) : (
+			<p className={className}>{labelText}</p>
+		))
 	);
 }

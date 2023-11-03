@@ -8,6 +8,7 @@ import { useAuth } from "../../hooks/auth/useAuth";
 import MemberManager from "./MemberManager";
 import ToggleButton from "../Nav/ToggleButton";
 import CollapseIcon from "../Svg/CollapseIcon";
+import MemberContainer from "./MemberContainer";
 
 type Props = {
 	data: Group;
@@ -46,6 +47,7 @@ export default function GroupCard(props: Props) {
 	);
 	const [isEditing, setEditing] = useState(false);
 	const [isHover, setHover] = useState(false);
+	const [showManager, setShowManager] = useState(false);
 	const [showMembers, setShowMembers] = useState(false);
 	const { id } = useParams();
 	const isCurrentPage = data.groupId === id;
@@ -71,9 +73,10 @@ export default function GroupCard(props: Props) {
 	const isManager = data.manager.userId === user.current!.userId;
 
 	const editGroup = () => setEditing((prev) => !prev);
-	const editMembers = () => setShowMembers((prev) => !prev);
+	const editMembers = () => setShowManager((prev) => !prev);
 	const onMouseEnter = (_e: React.MouseEvent) => setHover(true);
 	const onMouseLeave = (_e: React.MouseEvent) => setHover(false);
+	const onMemberClick = () => setShowMembers((prev) => !prev);
 
 	const moreOptions = [
 		isManager
@@ -140,11 +143,18 @@ export default function GroupCard(props: Props) {
 						<p>Group ID: {data.groupId}</p>
 						<p>
 							{"Manager: "}
-							<Link className="underline" to={profileLink}>
+							<Link className="hover:underline" to={profileLink}>
 								{data.manager.name}
 							</Link>
 						</p>
-						<CountLabel count={data.userIds.length} text="Member" />
+						<CountLabel
+							count={data.userIds.length}
+							text="Member"
+							onClick={onMemberClick}
+						/>
+						{showMembers && (
+							<MemberContainer groupId={data.groupId} />
+						)}
 						<CountLabel
 							count={data.projectIds.length}
 							text="Project"
@@ -166,7 +176,7 @@ export default function GroupCard(props: Props) {
 							<div className="flex flex-row gap-2">
 								{!isMember && request && (
 									<button
-										className="px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+										className="px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 text-white font-semibold"
 										onClick={request.fn}
 									>
 										{request.text}
@@ -176,12 +186,12 @@ export default function GroupCard(props: Props) {
 									<div className="flex flex-col gap-2">
 										<ToggleButton onClick={editMembers}>
 											<CollapseIcon
-												isCollapsed={!showMembers}
+												isCollapsed={!showManager}
 											/>
 											<h3>Edit Members</h3>
 										</ToggleButton>
 
-										{showMembers && (
+										{showManager && (
 											<MemberManager
 												managerId={data.manager.userId}
 												groupId={data.groupId}

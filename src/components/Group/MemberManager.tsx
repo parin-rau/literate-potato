@@ -49,7 +49,7 @@ const isManager = (userId: string, managerId: string) => userId === managerId;
 function UserBtn({ fn, label, groupId, userId }: BtnProps) {
 	return (
 		<button
-			className="px-2 py-1 text-white bg-blue-600 hover:bg-blue-500 rounded-md"
+			className="px-2 py-1 text-white bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 rounded-md"
 			onClick={() => fn(groupId, userId)}
 		>
 			{label}
