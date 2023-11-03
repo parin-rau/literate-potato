@@ -5,10 +5,12 @@ type Props = {
 	value: string;
 	handleChange: (_e: React.ChangeEvent<HTMLInputElement>) => void;
 	placeholder: string;
+	passwordChangeForm?: boolean;
 };
 
 export default function PasswordInput(props: Props) {
-	const { name, value, handleChange, placeholder } = props;
+	const { name, value, handleChange, placeholder, passwordChangeForm } =
+		props;
 	const [showPass, setShowPass] = useState(false);
 
 	function togglePassVisibility() {
@@ -16,7 +18,12 @@ export default function PasswordInput(props: Props) {
 	}
 
 	return (
-		<div className="relative flex flex-row justify-end items-center">
+		<div
+			className={
+				"relative justify-end flex flex-row border-inherit bg-inherit items-center " +
+				(passwordChangeForm ? "self-start" : "")
+			}
+		>
 			<input
 				className="text-sm sm:text-base rounded-md border px-2 py-1 shadow-sm bg-inherit border-inherit"
 				name={name}

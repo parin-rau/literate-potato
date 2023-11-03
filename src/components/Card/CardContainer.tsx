@@ -78,6 +78,11 @@ export default function CardContainer<
 	const getStableCards = useGetter({ cards, cardCache });
 
 	useEffect(() => {
+		if (dataKind === "ticket" && setCardsLoading && !isLoading)
+			setCardsLoading(false);
+	}, [dataKind, isLoading, setCardsLoading]);
+
+	useEffect(() => {
 		function filterCards() {
 			const { cards: stableCards, cardCache: stableCardCache } =
 				getStableCards();

@@ -3,7 +3,7 @@ import { Login, Register } from "../../types";
 import { useAuth } from "../../hooks/auth/useAuth";
 import { firstLetterCap } from "../../utility/charCaseFunctions";
 import { Link } from "react-router-dom";
-import PasswordInput from "../Nav/PasswordInput";
+import PasswordInput from "./PasswordInput";
 import ErrorMsg from "../Display/ErrorMsg";
 
 type Props = {
