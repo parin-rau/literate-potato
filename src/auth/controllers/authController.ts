@@ -38,3 +38,15 @@ export async function logoutUser(req: Request, res: Response) {
 		.clearCookie(clearCookie.name, clearCookie.options)
 		.sendStatus(status);
 }
+
+export async function changeUsername(req: Request, res: Response) {
+	const patch = await req.body;
+	const { status } = await authService.changeUsername(patch);
+	return res.sendStatus(status);
+}
+
+export async function changePassword(req: Request, res: Response) {
+	const patch = await req.body;
+	const { status } = await authService.changePassword(patch);
+	return res.sendStatus(status);
+}

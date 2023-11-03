@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PasswordInput from "../Form/PasswordInput";
 import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 interface Props {
 	isOpen: boolean;
@@ -19,9 +20,11 @@ export default function PasswordForm({
 	isOpen,
 	handleOpen,
 	handleClose,
+	setMessage,
 }: Props) {
 	const [passwordForm, setPasswordForm] = useState(initPasswordForm);
 	const { protectedFetch } = useProtectedFetch();
+	const { user } = useAuth();
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -35,9 +38,15 @@ export default function PasswordForm({
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		const res = await protectedFetch(``, {
+		const passwordMatch =
+			passwordForm.newPassword === passwordForm.confirmPassword;
+		if (!passwordMatch) return setMessage("New password does not match");
+
+		const submission = { ...passwordForm, userId: user.current!.userId };
+
+		const res = await protectedFetch(`/api/auth/change-password`, {
 			method: "PATCH",
-			body: JSON.stringify(passwordForm),
+			body: JSON.stringify(submission),
 		});
 		if (res.ok) {
 			handleCancel();
@@ -83,7 +92,7 @@ export default function PasswordForm({
 							/>
 							<PasswordInput
 								{...{
-									name: "currentPassword",
+									name: "confirmPassword",
 									value: passwordForm.confirmPassword,
 									handleChange,
 									placeholder: "Confirm New Password",

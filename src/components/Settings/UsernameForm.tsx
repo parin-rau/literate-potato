@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 interface Props {
 	isOpen: boolean;
@@ -15,6 +16,7 @@ export default function UsernameForm({
 }: Props) {
 	const [usernameForm, setUsernameForm] = useState("");
 	const { protectedFetch } = useProtectedFetch();
+	const { user } = useAuth();
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = e.target;
@@ -28,9 +30,14 @@ export default function UsernameForm({
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		const res = await protectedFetch(``, {
+		const submission = {
+			username: usernameForm,
+			userId: user.current!.userId,
+		};
+
+		const res = await protectedFetch(`/api/auth/change-username`, {
 			method: "PATCH",
-			body: JSON.stringify(usernameForm),
+			body: JSON.stringify(submission),
 		});
 		if (res.ok) {
 			handleCancel();

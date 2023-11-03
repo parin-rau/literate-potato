@@ -3,7 +3,7 @@ import "dotenv/config";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
 import { formatRegistration, validateLogin } from "../../userValidation";
-import { Login, UserToken, Register } from "../../../types";
+import { Login, UserToken, Register, User } from "../../../types";
 import jwt from "jsonwebtoken";
 import * as EmailValidator from "email-validator";
 
@@ -217,6 +217,82 @@ export async function logoutUser(cookies: Record<string, unknown>) {
 		await client.close();
 
 		res.status = 204;
+		res.success = updateUser.acknowledged;
+		return res;
+	} catch (e) {
+		console.error(e);
+		return res;
+	}
+}
+
+export async function changeUsername(data: {
+	username: string;
+	userId: string;
+}) {
+	const res: { status: number; success: boolean } = {
+		status: 500,
+		success: false,
+	};
+	try {
+		const client = await connectToDatabase();
+		const db = client.db(process.env.VITE_LOCAL_DB);
+		const coll = db.collection<User>(localUsers);
+
+		const updateUser = await coll.updateOne(
+			{ userId: data.userId },
+			{ $set: { username: data.username } }
+		);
+
+		res.status = 200;
+		res.success = updateUser.acknowledged;
+		return res;
+	} catch (e) {
+		console.error(e);
+		return res;
+	}
+}
+
+export async function changePassword({
+	userId,
+	currentPassword,
+	newPassword,
+	confirmPassword,
+}: {
+	userId: string;
+	currentPassword: string;
+	newPassword: string;
+	confirmPassword: string;
+}) {
+	const res: { status: number; success: boolean } = {
+		status: 500,
+		success: false,
+	};
+
+	if (newPassword !== confirmPassword) {
+		res.status = 403;
+		return res;
+	}
+
+	try {
+		const client = await connectToDatabase();
+		const db = client.db(process.env.VITE_LOCAL_DB);
+		const coll = db.collection<User>(localUsers);
+
+		const passwordMatch = await coll
+			.findOne({ userId })
+			.then((u) => u?.password === currentPassword);
+
+		if (!passwordMatch) {
+			res.status = 403;
+			return res;
+		}
+
+		const updateUser = await coll.updateOne(
+			{ userId },
+			{ $set: { password: newPassword } }
+		);
+
+		res.status = 200;
 		res.success = updateUser.acknowledged;
 		return res;
 	} catch (e) {
