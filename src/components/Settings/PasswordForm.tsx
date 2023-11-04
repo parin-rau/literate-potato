@@ -44,7 +44,7 @@ export default function PasswordForm({
 
 		const submission = { ...passwordForm, userId: user.current!.userId };
 
-		const res = await protectedFetch(`/api/auth/change-password`, {
+		const res = await protectedFetch(`/auth/change-password`, {
 			method: "PATCH",
 			body: JSON.stringify(submission),
 		});

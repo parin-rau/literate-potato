@@ -27,6 +27,12 @@ export async function formatRegistration(data: RegisterData) {
 			userId: uuidv4(),
 			timestamp: Date.now(),
 			roles: [1],
+			groupIds: [],
+			managedGroupIds: [],
+			requestGroupIds: [],
+			projectIds: [],
+			ticketIds: { completed: [], total: [] },
+			subtaskIds: { completed: [], total: [] },
 		};
 
 		return user;

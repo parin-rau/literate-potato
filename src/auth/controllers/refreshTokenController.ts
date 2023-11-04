@@ -8,7 +8,7 @@ export async function handleRefreshToken(req: Request, res: Response) {
 		await refreshTokenService.generateToken(cookies);
 
 	if (!success || !accessToken || !cookie) {
-		return res.status(status).send(message);
+		return res.status(status).send({ message });
 	} else {
 		return res
 			.status(status)

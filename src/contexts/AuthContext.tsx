@@ -106,12 +106,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			});
 
 			if ([400, 401, 403].some((n) => res.status === n)) {
-				setErr("Unable to refresh access token. Signing out");
+				const { message }: { message: string } = await res.json();
+				setErr(message);
 				return await signOut();
 			}
 
 			if (!res.ok) {
-				setErr("Something went wrong. Signing out");
+				setErr("Something went wrong. Signing out.");
 				return await signOut();
 			}
 

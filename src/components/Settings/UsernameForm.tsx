@@ -35,7 +35,7 @@ export default function UsernameForm({
 			userId: user.current!.userId,
 		};
 
-		const res = await protectedFetch(`/api/auth/change-username`, {
+		const res = await protectedFetch(`/auth/change-username`, {
 			method: "PATCH",
 			body: JSON.stringify(submission),
 		});
@@ -67,7 +67,7 @@ export default function UsernameForm({
 									"rounded px-2 py-1 bg-transparent border dark:border-zinc-600 border-slate-400",
 								name: "newUsername",
 								value: usernameForm,
-								handleChange,
+								onChange: handleChange,
 								placeholder: "New Username",
 								required: true,
 								size: 40,

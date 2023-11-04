@@ -229,14 +229,22 @@ export async function changeUsername(data: {
 	username: string;
 	userId: string;
 }) {
-	const res: { status: number; success: boolean } = {
+	const res: { status: number; success: boolean; message: string } = {
 		status: 500,
 		success: false,
+		message: "Something went wrong",
 	};
 	try {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
 		const coll = db.collection<User>(localUsers);
+
+		const isExistingUsername =
+			(await coll.countDocuments({ username: data.username })) > 0;
+		if (isExistingUsername) {
+			res.message = "Username already taken";
+			return res;
+		}
 
 		const updateUser = await coll.updateOne(
 			{ userId: data.userId },
@@ -245,6 +253,7 @@ export async function changeUsername(data: {
 
 		res.status = 200;
 		res.success = updateUser.acknowledged;
+		res.message = `Username updated to "${data.username}"`;
 		return res;
 	} catch (e) {
 		console.error(e);
@@ -263,13 +272,15 @@ export async function changePassword({
 	newPassword: string;
 	confirmPassword: string;
 }) {
-	const res: { status: number; success: boolean } = {
+	const res: { status: number; success: boolean; message: string } = {
 		status: 500,
 		success: false,
+		message: "Something went wrong",
 	};
 
 	if (newPassword !== confirmPassword) {
 		res.status = 403;
+		res.message = "Both new password fields must match";
 		return res;
 	}
 
@@ -284,6 +295,7 @@ export async function changePassword({
 
 		if (!passwordMatch) {
 			res.status = 403;
+			res.message = "Old password is incorrect";
 			return res;
 		}
 
@@ -294,6 +306,7 @@ export async function changePassword({
 
 		res.status = 200;
 		res.success = updateUser.acknowledged;
+		res.message = "Password successfully updated";
 		return res;
 	} catch (e) {
 		console.error(e);

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Login, Register } from "../../types";
 import * as authService from "../services/mongodb/auth";
+import * as refreshTokenService from "../services/mongodb/refreshToken";
 
 export async function createNewUser(req: Request, res: Response) {
 	const data: {
@@ -10,7 +11,7 @@ export async function createNewUser(req: Request, res: Response) {
 
 	const { status, message } = await authService.registerUser(data);
 
-	return res.status(status).send(message);
+	return res.status(status).send({ message });
 }
 
 export async function loginUser(req: Request, res: Response) {
@@ -20,7 +21,7 @@ export async function loginUser(req: Request, res: Response) {
 		await authService.loginUser(data);
 
 	if (!success || !accessToken || !cookie) {
-		return res.status(status).json(message);
+		return res.status(status).json({ message });
 	} else {
 		return res
 			.status(status)
@@ -41,12 +42,42 @@ export async function logoutUser(req: Request, res: Response) {
 
 export async function changeUsername(req: Request, res: Response) {
 	const patch = await req.body;
-	const { status } = await authService.changeUsername(patch);
-	return res.sendStatus(status);
+	const { cookies } = req;
+	console.log(cookies, patch);
+	const { status: authStatus, message: authMessage } =
+		await authService.changeUsername(patch);
+
+	if (authStatus !== 200) return res.status(authStatus).send(authMessage);
+
+	const { status, success, message, accessToken, cookie } =
+		await refreshTokenService.generateToken(cookies, patch.username);
+
+	if (!success || !accessToken || !cookie) {
+		return res.status(status).send({ message });
+	} else {
+		return res
+			.status(status)
+			.cookie(cookie.name, cookie.val, cookie.options)
+			.json({ accessToken, message });
+	}
 }
 
 export async function changePassword(req: Request, res: Response) {
 	const patch = await req.body;
-	const { status } = await authService.changePassword(patch);
-	return res.sendStatus(status);
+	const { cookies } = req;
+	const { status: authStatus, message: authMessage } =
+		await authService.changePassword(patch);
+	if (authStatus !== 200) return res.status(authStatus).send(authMessage);
+
+	const { status, success, message, accessToken, cookie } =
+		await refreshTokenService.generateToken(cookies);
+
+	if (!success || !accessToken || !cookie) {
+		return res.status(status).send({ message });
+	} else {
+		return res
+			.status(status)
+			.cookie(cookie.name, cookie.val, cookie.options)
+			.json({ accessToken, message });
+	}
 }

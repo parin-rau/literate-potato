@@ -8,7 +8,10 @@ import { arraysEqual } from "../../../utility/arrayComparisons";
 
 const localUsers = process.env.LOCAL_USERS ?? "users";
 
-export async function generateToken(cookies: Record<string, string>) {
+export async function generateToken(
+	cookies: Record<string, string>,
+	newUsername?: string
+) {
 	const res: {
 		status: number;
 		success: boolean;
@@ -22,6 +25,7 @@ export async function generateToken(cookies: Record<string, string>) {
 
 	if (!cookies.refreshToken) {
 		res.status = 401;
+		res.message = "No refresh token sent with request";
 		return res;
 	}
 
@@ -31,18 +35,18 @@ export async function generateToken(cookies: Record<string, string>) {
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const coll: mongoDB.Collection = db.collection(localUsers);
 
-		const foundUser = await coll.findOne({
-			$or: [{ refreshToken }, { gracePeriodToken: refreshToken }],
-		});
+		const foundUser = await coll.findOne({ refreshToken });
 
 		if (!foundUser) {
 			await client.close();
 			res.status = 403;
+			res.message = "User not found";
 			return res;
 		}
 
 		if (!process.env.REFRESH_JWT_SECRET || !process.env.ACCESS_JWT_SECRET) {
 			await client.close();
+			res.message = "Internal server error";
 			return res;
 		}
 
@@ -52,17 +56,28 @@ export async function generateToken(cookies: Record<string, string>) {
 		) as UserDecode;
 
 		if (
-			foundUser.username !== decoded.username ||
-			foundUser.userId !== decoded.userId ||
-			!arraysEqual(foundUser.roles, decoded.roles)
+			newUsername &&
+			(foundUser.userId !== decoded.userId ||
+				!arraysEqual(foundUser.roles, decoded.roles))
 		) {
 			await client.close();
 			res.status = 403;
+			res.message = "Username updated. Refresh token error";
+			return res;
+		} else if (
+			!newUsername &&
+			(foundUser.username !== decoded.username ||
+				foundUser.userId !== decoded.userId ||
+				!arraysEqual(foundUser.roles, decoded.roles))
+		) {
+			await client.close();
+			res.status = 403;
+			res.message = "Refresh token does not match user";
 			return res;
 		}
 
 		const user = {
-			username: decoded.username,
+			username: newUsername ?? decoded.username,
 			userId: decoded.userId,
 			roles: decoded.roles,
 		};
@@ -113,3 +128,39 @@ export async function generateToken(cookies: Record<string, string>) {
 		return res;
 	}
 }
+
+// export async function changeUsername(cookies: Record<string, string>, newUsername: string) {
+// 	const res: {
+// 		status: number;
+// 		success: boolean;
+// 		message?: string;
+// 		accessToken?: string;
+// 		cookie?: { name: string; val: string; options: CookieOptions };
+// 	} = {
+// 		status: 500,
+// 		success: false,
+// 	};
+
+// 	if (!cookies.refreshToken) {
+// 		res.status = 401;
+// 		return res;
+// 	}
+// }
+
+// export async function changePassword(cookies: Record<string, string>, newPassword: string) {
+// 	const res: {
+// 		status: number;
+// 		success: boolean;
+// 		message?: string;
+// 		accessToken?: string;
+// 		cookie?: { name: string; val: string; options: CookieOptions };
+// 	} = {
+// 		status: 500,
+// 		success: false,
+// 	};
+
+// 	if (!cookies.refreshToken) {
+// 		res.status = 401;
+// 		return res;
+// 	}
+// }

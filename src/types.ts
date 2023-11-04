@@ -178,7 +178,7 @@ export interface User {
 	timestamp: number;
 	lastModified?: number;
 	groupIds: string[];
-	managedGroupIds: string;
+	managedGroupIds: string[];
 	requestGroupIds: string[];
 	projectIds: string[];
 	ticketIds: { completed: string[]; total: string[] };
