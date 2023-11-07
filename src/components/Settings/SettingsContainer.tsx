@@ -7,22 +7,22 @@ const isOpenInit = {
 	passwordForm: false,
 };
 
-interface MessageProps {
-	text: string;
-}
+// interface MessageProps {
+// 	text: string;
+// }
 
-const Message = ({ text }: MessageProps) => {
-	return (
-		<div className="p-2 flex flex-col gap-4 bg-green-700">
-			<h3>Notice</h3>
-			<span>{text}</span>
-		</div>
-	);
-};
+// const Message = ({ text }: MessageProps) => {
+// 	return (
+// 		<div className="p-2 flex flex-col gap-4 bg-green-700">
+// 			<h3>Notice</h3>
+// 			<span>{text}</span>
+// 		</div>
+// 	);
+// };
 
 export default function SettingsContainer() {
 	const [isOpen, setOpen] = useState(isOpenInit);
-	const [message, setMessage] = useState("");
+	// const [message, setMessage] = useState("");
 
 	const handleClose = (key?: string) => {
 		if (!key) return setOpen(isOpenInit);
@@ -38,20 +38,20 @@ export default function SettingsContainer() {
 
 	return (
 		<div className="flex flex-col gap-4">
-			{message && <Message text={message} />}
+			{/* {message && <Message text={message} />} */}
 			<h1 className="font-bold text-3xl">Settings</h1>
-			<div className="flex flex-col rounded-lg border-2 border-black dark:border-zinc-400">
+			<div className="flex flex-col rounded-lg border-2 border-black dark:border-zinc-600">
 				<UsernameForm
 					isOpen={isOpen.usernameForm}
 					handleOpen={handleUserOpen}
 					handleClose={handleClose}
-					setMessage={setMessage}
+					// setMessage={setMessage}
 				/>
 				<PasswordForm
 					isOpen={isOpen.passwordForm}
 					handleOpen={handlePassOpen}
 					handleClose={handleClose}
-					setMessage={setMessage}
+					//setMessage={setMessage}
 				/>
 			</div>
 		</div>

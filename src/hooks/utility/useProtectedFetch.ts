@@ -1,16 +1,22 @@
 import { useCallback, useState } from "react";
 import { useAuth } from "../auth/useAuth";
 
+interface ExtraOptions {
+	allow4xx?: boolean;
+}
+
 export function useProtectedFetch() {
 	const [isLoading, setLoading] = useState<boolean | null>(null);
-	const [error, setError] = useState<string | unknown | null>(null);
+	const [error, setError] = useState<string | null>(null);
+	const [message, setMessage] = useState<string | null>(null);
 	const [ok, setOk] = useState<boolean | null>(null);
 	const { user, refreshAccessToken, signOut } = useAuth();
 
 	const protectedFetch = useCallback(
 		async (
 			endpoint: RequestInfo | URL,
-			customOptions?: RequestInit
+			fetchOptions?: RequestInit,
+			extraOptions?: ExtraOptions
 		): Promise<Response> => {
 			try {
 				setLoading(true);
@@ -36,13 +42,16 @@ export function useProtectedFetch() {
 				};
 				const initOptions = {
 					...defaultOptions,
-					...customOptions,
+					...fetchOptions,
 				};
 
 				const res = await fetch(endpoint, initOptions);
+				const isErrorResponse = [400, 401, 403].some(
+					(n) => res.status === n
+				);
 
 				if (!res.ok) {
-					if ([400, 401, 403].some((n) => res.status === n)) {
+					if (!extraOptions?.allow4xx && isErrorResponse) {
 						await refreshAccessToken();
 
 						const retryAccessToken = user.current.token;
@@ -61,15 +70,24 @@ export function useProtectedFetch() {
 							);
 
 							if (retryRes.ok) {
-								// setError("Failed to refresh access token");
-								// setOk(false);
-								// await signOut();
-								// return res;
+								const clone = retryRes.clone();
+								const { message: resMsg }: { message: string } =
+									await retryRes.json();
+								if (resMsg) setMessage(resMsg);
+
 								setOk(true);
 								setLoading(false);
-								return retryRes;
+								return clone;
 							}
 						}
+					} else if (extraOptions?.allow4xx && isErrorResponse) {
+						const clone = res.clone();
+						const { message: resMsg }: { message: string } =
+							await res.json();
+						setError(resMsg);
+						setOk(true);
+						setLoading(false);
+						return clone;
 					}
 
 					setError("Expired refresh token");
@@ -78,11 +96,16 @@ export function useProtectedFetch() {
 					return res;
 				}
 
+				const clone = res.clone();
+				const { message: resMsg }: { message: string } =
+					await res.json();
+				setMessage(resMsg);
+
 				setOk(true);
 				setLoading(false);
-				return res;
+				return clone;
 			} catch (e) {
-				setError(e);
+				setError("Internal server error.");
 				setOk(false);
 				console.error(e);
 				return new Response(undefined, {
@@ -94,5 +117,13 @@ export function useProtectedFetch() {
 		[user, refreshAccessToken, signOut]
 	);
 
-	return { ok, error, isLoading, protectedFetch };
+	return {
+		ok,
+		error,
+		setError,
+		message,
+		setMessage,
+		isLoading,
+		protectedFetch,
+	};
 }

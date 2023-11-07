@@ -43,11 +43,11 @@ export async function logoutUser(req: Request, res: Response) {
 export async function changeUsername(req: Request, res: Response) {
 	const patch = await req.body;
 	const { cookies } = req;
-	console.log(cookies, patch);
 	const { status: authStatus, message: authMessage } =
 		await authService.changeUsername(patch);
 
-	if (authStatus !== 200) return res.status(authStatus).send(authMessage);
+	if (authStatus !== 200)
+		return res.status(authStatus).send({ message: authMessage });
 
 	const { status, success, message, accessToken, cookie } =
 		await refreshTokenService.generateToken(cookies, patch.username);
@@ -56,9 +56,9 @@ export async function changeUsername(req: Request, res: Response) {
 		return res.status(status).send({ message });
 	} else {
 		return res
-			.status(status)
+			.status(authStatus)
 			.cookie(cookie.name, cookie.val, cookie.options)
-			.json({ accessToken, message });
+			.send({ accessToken, message: authMessage });
 	}
 }
 
@@ -67,7 +67,8 @@ export async function changePassword(req: Request, res: Response) {
 	const { cookies } = req;
 	const { status: authStatus, message: authMessage } =
 		await authService.changePassword(patch);
-	if (authStatus !== 200) return res.status(authStatus).send(authMessage);
+	if (authStatus !== 200)
+		return res.status(authStatus).send({ message: authMessage });
 
 	const { status, success, message, accessToken, cookie } =
 		await refreshTokenService.generateToken(cookies);
@@ -76,8 +77,8 @@ export async function changePassword(req: Request, res: Response) {
 		return res.status(status).send({ message });
 	} else {
 		return res
-			.status(status)
+			.status(authStatus)
 			.cookie(cookie.name, cookie.val, cookie.options)
-			.json({ accessToken, message });
+			.send({ accessToken, message: authMessage });
 	}
 }

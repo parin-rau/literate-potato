@@ -242,6 +242,7 @@ export async function changeUsername(data: {
 		const isExistingUsername =
 			(await coll.countDocuments({ username: data.username })) > 0;
 		if (isExistingUsername) {
+			res.status = 403;
 			res.message = "Username already taken";
 			return res;
 		}

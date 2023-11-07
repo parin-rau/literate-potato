@@ -2,12 +2,15 @@ import { useState } from "react";
 import PasswordInput from "../Form/PasswordInput";
 import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
 import { useAuth } from "../../hooks/auth/useAuth";
+import ErrorMsg from "../Display/ErrorMsg";
+import Message from "../Display/Message";
+import jwtDecode from "../../utility/jwtDecode";
+import { UserDecode } from "../../types";
 
 interface Props {
 	isOpen: boolean;
 	handleOpen: () => void;
 	handleClose: (_k?: string) => void;
-	setMessage: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const initPasswordForm = {
@@ -20,10 +23,10 @@ export default function PasswordForm({
 	isOpen,
 	handleOpen,
 	handleClose,
-	setMessage,
 }: Props) {
 	const [passwordForm, setPasswordForm] = useState(initPasswordForm);
-	const { protectedFetch } = useProtectedFetch();
+	const { protectedFetch, message, error, setMessage, setError } =
+		useProtectedFetch();
 	const { user } = useAuth();
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,8 +35,9 @@ export default function PasswordForm({
 	};
 
 	const handleCancel = () => {
-		setPasswordForm(initPasswordForm);
 		handleClose("passwordForm");
+		setPasswordForm(initPasswordForm);
+		setError("");
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -44,17 +48,36 @@ export default function PasswordForm({
 
 		const submission = { ...passwordForm, userId: user.current!.userId };
 
-		const res = await protectedFetch(`/auth/change-password`, {
-			method: "PATCH",
-			body: JSON.stringify(submission),
-		});
+		const res = await protectedFetch(
+			`/auth/change-password`,
+			{
+				method: "PATCH",
+				body: JSON.stringify(submission),
+			},
+			{ allow4xx: true }
+		);
 		if (res.ok) {
+			const { accessToken }: { accessToken: string } = await res.json();
+			const decoded = jwtDecode<UserDecode>(accessToken);
+			if (!decoded || typeof decoded === "string") return await signOut();
+
+			console.log({ token: accessToken, ...decoded });
+			user.current = { token: accessToken, ...decoded };
+
 			handleCancel();
 		}
 	};
 
 	return (
-		<div className="p-4">
+		<div
+			className={
+				"p-2 flex flex-col gap-4 " +
+				(isOpen &&
+					" m-4 border border-black dark:border-zinc-600 rounded-lg")
+			}
+		>
+			{message && <Message msg={message} />}
+			{error && <ErrorMsg msg={error} />}
 			{!isOpen ? (
 				<button
 					className="font-semibold p-2 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
@@ -64,7 +87,7 @@ export default function PasswordForm({
 					Change Password
 				</button>
 			) : (
-				<div className="flex flex-col p-2 gap-4 border-2 border-black dark:border-zinc-600 rounded-lg">
+				<div className="flex flex-col p-2 gap-4 ">
 					<h2 className="font-semibold">Change Password</h2>
 					<form
 						className="flex flex-col gap-6 dark:border-zinc-600 border-slate-400"
@@ -120,4 +143,7 @@ export default function PasswordForm({
 			)}
 		</div>
 	);
+}
+function signOut() {
+	throw new Error("Function not implemented.");
 }
