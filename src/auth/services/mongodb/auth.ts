@@ -2,7 +2,12 @@ import { CookieOptions } from "express";
 import "dotenv/config";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
-import { formatRegistration, validateLogin } from "../../userValidation";
+import {
+	formatRegistration,
+	hashPassword,
+	validateLogin,
+	validatePassword,
+} from "../../userValidation";
 import { Login, UserToken, Register, User } from "../../../types";
 import jwt from "jsonwebtoken";
 import * as EmailValidator from "email-validator";
@@ -292,17 +297,18 @@ export async function changePassword({
 
 		const passwordMatch = await coll
 			.findOne({ userId })
-			.then((u) => u?.password === currentPassword);
+			.then((u) => validatePassword(currentPassword, u?.password));
 
 		if (!passwordMatch) {
 			res.status = 403;
-			res.message = "Old password is incorrect";
+			res.message = "Incorrect current password";
 			return res;
 		}
 
+		const hashed = await hashPassword(newPassword);
 		const updateUser = await coll.updateOne(
 			{ userId },
-			{ $set: { password: newPassword } }
+			{ $set: { password: hashed } }
 		);
 
 		res.status = 200;

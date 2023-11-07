@@ -13,12 +13,17 @@ type LoginData = {
 
 const saltRounds = 10;
 
+export async function hashPassword(rawPass: string) {
+	const hashPass = await hash(rawPass, saltRounds);
+	return hashPass;
+}
+
 export async function formatRegistration(data: RegisterData) {
 	const { kind } = data;
 	if (kind === "register") {
 		const { form } = data;
 		const { username, email, password } = form;
-		const hashPass = await hash(password, saltRounds);
+		const hashPass = await hashPassword(password);
 
 		const user: User = {
 			username,
@@ -45,4 +50,11 @@ export async function validateLogin(data: LoginData, hashPass: string) {
 		const hashCompare = await compare(form.password, hashPass);
 		return hashCompare;
 	}
+}
+
+export async function validatePassword(rawPass: string, hashPass?: string) {
+	if (!hashPass) return false;
+
+	const hashCompare = await compare(rawPass, hashPass);
+	return hashCompare;
 }
