@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { LoadingSpinner } from "../Nav/Loading";
 import timestampDisplay from "../../utility/timestampDisplay";
 import MemberContainer from "../Group/MemberContainer";
+import CollapseToggle from "../Nav/CollapseToggle";
 
 export default function ProfileContainer() {
 	const { profile, isLoading, isCurrentUser } = useProfile();
@@ -14,12 +15,12 @@ export default function ProfileContainer() {
 			{isLoading ? (
 				<LoadingSpinner />
 			) : (
-				<div className="flex flex-col gap-2 ">
+				<div className="flex flex-col gap-6 ">
 					<h1 className="px-4 font-bold text-4xl">Profile</h1>
-					<div className="flex flex-col gap-2 rounded-lg p-2 border-2 border-black dark:border-zinc-600">
+					<div className="flex flex-col gap-4 rounded-lg p-2 border-2 border-black dark:border-zinc-600">
 						<ul>
 							<li>
-								<h1 className="font-semibold text-xl">
+								<h1 className="font-semibold text-2xl">
 									{profile.username}
 								</h1>
 							</li>
@@ -28,47 +29,28 @@ export default function ProfileContainer() {
 							)}`}</li>
 							<li>
 								<Link
-									className="underline"
+									className="hover:underline"
 									to={`/search/${profile.userId}/ticket`}
-								>{`Tasks completed: ${profile.ticketIds.completed.length}/${profile.ticketIds.total.length}`}</Link>
+								>{`Tasks completed: ${profile.ticketIds.completed.length}`}</Link>
 							</li>
 							<li>
 								<Link
-									className="underline"
+									className="hover:underline"
 									to={`/search/${profile.userId}/ticket`}
-								>{`Subtasks completed: ${profile.subtaskIds.completed.length}/${profile.subtaskIds.total.length}`}</Link>
+								>{`Subtasks completed: ${profile.subtaskIds.completed.length}`}</Link>
 							</li>
 							<li>
-								<button
-									className="hover:underline"
-									type="button"
-									onClick={() =>
-										setShowGroups((prev) => !prev)
-									}
-								>
-									{`Group Membership${
-										showGroups ? " (hide)" : ""
-									}`}
-								</button>
+								<CollapseToggle
+									isOpen={showGroups}
+									setOpen={setShowGroups}
+									text="Group Membership"
+								/>
 								{showGroups && (
 									<MemberContainer
 										userId={profile.userId}
 										dataKind="GROUP"
 									/>
 								)}
-								{/* <ul>
-									Group membership:
-									{profile.groupIds.map((g) => (
-										<li>
-											<Link
-												className="hover:underline"
-												to={`/group/${g}`}
-											>
-												{g}
-											</Link>
-										</li>
-									))}
-								</ul> */}
 							</li>
 						</ul>
 						{isCurrentUser && (

@@ -1,28 +1,15 @@
 import { useState } from "react";
 import UsernameForm from "./UsernameForm";
 import PasswordForm from "./PasswordForm";
+import CollapseToggle from "../Nav/CollapseToggle";
 
 const isOpenInit = {
 	usernameForm: false,
 	passwordForm: false,
 };
 
-// interface MessageProps {
-// 	text: string;
-// }
-
-// const Message = ({ text }: MessageProps) => {
-// 	return (
-// 		<div className="p-2 flex flex-col gap-4 bg-green-700">
-// 			<h3>Notice</h3>
-// 			<span>{text}</span>
-// 		</div>
-// 	);
-// };
-
 export default function SettingsContainer() {
 	const [isOpen, setOpen] = useState(isOpenInit);
-	// const [message, setMessage] = useState("");
 
 	const handleClose = (key?: string) => {
 		if (!key) return setOpen(isOpenInit);
@@ -31,27 +18,40 @@ export default function SettingsContainer() {
 	};
 
 	const handleUserOpen = () =>
-		setOpen({ usernameForm: true, passwordForm: false });
+		setOpen((prev) => ({
+			usernameForm: !prev.usernameForm,
+			passwordForm: false,
+		}));
 
 	const handlePassOpen = () =>
-		setOpen({ usernameForm: false, passwordForm: true });
+		setOpen((prev) => ({
+			usernameForm: false,
+			passwordForm: !prev.passwordForm,
+		}));
 
 	return (
 		<div className="flex flex-col gap-4">
-			{/* {message && <Message text={message} />} */}
 			<h1 className="font-bold text-3xl">Settings</h1>
-			<div className="flex flex-col rounded-lg border-2 border-black dark:border-zinc-600">
+			<div className="p-2 flex flex-col rounded-lg border-2 border-black dark:border-zinc-600">
+				<CollapseToggle
+					text="Change Username"
+					isOpen={isOpen.usernameForm}
+					setOpen={handleUserOpen}
+				/>
 				<UsernameForm
 					isOpen={isOpen.usernameForm}
 					handleOpen={handleUserOpen}
 					handleClose={handleClose}
-					// setMessage={setMessage}
+				/>
+				<CollapseToggle
+					text="Change Password"
+					isOpen={isOpen.passwordForm}
+					setOpen={handlePassOpen}
 				/>
 				<PasswordForm
 					isOpen={isOpen.passwordForm}
 					handleOpen={handlePassOpen}
 					handleClose={handleClose}
-					//setMessage={setMessage}
 				/>
 			</div>
 		</div>

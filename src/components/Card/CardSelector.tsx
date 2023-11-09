@@ -68,5 +68,7 @@ export default function CardSelector(props: Props) {
 					/>
 				</>
 			);
+		default:
+			return;
 	}
 }

@@ -36,8 +36,8 @@ export async function formatRegistration(data: RegisterData) {
 			managedGroupIds: [],
 			requestGroupIds: [],
 			projectIds: [],
-			ticketIds: { completed: [], total: [] },
-			subtaskIds: { completed: [], total: [] },
+			ticketIds: { completed: [] },
+			subtaskIds: { completed: [] },
 		};
 
 		return user;

@@ -8,15 +8,10 @@ import ErrorMsg from "../Display/ErrorMsg";
 
 interface Props {
 	isOpen: boolean;
-	handleOpen: () => void;
 	handleClose: (_k?: string) => void;
 }
 
-export default function UsernameForm({
-	isOpen,
-	handleOpen,
-	handleClose,
-}: Props) {
+export default function UsernameForm({ isOpen, handleClose }: Props) {
 	const [usernameForm, setUsernameForm] = useState("");
 	const { protectedFetch, message, error, setError, setMessage } =
 		useProtectedFetch();
@@ -70,24 +65,17 @@ export default function UsernameForm({
 	};
 
 	return (
-		<div
-			className={
-				"p-2 flex flex-col gap-4 " +
-				(isOpen &&
-					" m-4 border border-black dark:border-zinc-600 rounded-lg")
-			}
-		>
-			{message && <Message msg={message} />}
-			{error && <ErrorMsg msg={error} />}
-			{!isOpen ? (
-				<button
-					className="font-semibold p-2 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
-					type="button"
-					onClick={handleOpen}
-				>
-					Change Username
-				</button>
-			) : (
+		isOpen && (
+			<div
+				className={
+					"p-2 flex flex-col gap-4 " +
+					(isOpen &&
+						" m-4 border border-black dark:border-zinc-600 rounded-lg")
+				}
+			>
+				{message && <Message msg={message} />}
+				{error && <ErrorMsg msg={error} />}
+
 				<div className="flex flex-col gap-4">
 					<h2 className="font-semibold">Change Username</h2>
 					<form
@@ -125,7 +113,7 @@ export default function UsernameForm({
 						</div>
 					</form>
 				</div>
-			)}
-		</div>
+			</div>
+		)
 	);
 }

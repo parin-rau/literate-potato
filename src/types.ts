@@ -181,8 +181,8 @@ export interface User {
 	managedGroupIds: string[];
 	requestGroupIds: string[];
 	projectIds: string[];
-	ticketIds: { completed: string[]; total: string[] };
-	subtaskIds: { completed: string[]; total: string[] };
+	ticketIds: { completed: string[] };
+	subtaskIds: { completed: string[] };
 }
 
 export interface UserToken {

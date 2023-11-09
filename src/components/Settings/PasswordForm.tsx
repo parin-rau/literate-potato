@@ -9,7 +9,6 @@ import { UserDecode } from "../../types";
 
 interface Props {
 	isOpen: boolean;
-	handleOpen: () => void;
 	handleClose: (_k?: string) => void;
 }
 
@@ -19,19 +18,17 @@ const initPasswordForm = {
 	confirmPassword: "",
 };
 
-export default function PasswordForm({
-	isOpen,
-	handleOpen,
-	handleClose,
-}: Props) {
+export default function PasswordForm({ isOpen, handleClose }: Props) {
 	const [passwordForm, setPasswordForm] = useState(initPasswordForm);
 	const { protectedFetch, message, error, setMessage, setError } =
 		useProtectedFetch();
-	const { user } = useAuth();
+	const { user, signOut } = useAuth();
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		setPasswordForm((prev) => ({ ...prev, [name]: value }));
+		setMessage("");
+		setError("");
 	};
 
 	const handleCancel = () => {
@@ -44,7 +41,7 @@ export default function PasswordForm({
 		e.preventDefault();
 		const passwordMatch =
 			passwordForm.newPassword === passwordForm.confirmPassword;
-		if (!passwordMatch) return setMessage("New password does not match");
+		if (!passwordMatch) return setError("New password fields must match");
 
 		const submission = { ...passwordForm, userId: user.current!.userId };
 
@@ -69,24 +66,16 @@ export default function PasswordForm({
 	};
 
 	return (
-		<div
-			className={
-				"p-2 flex flex-col gap-4 " +
-				(isOpen &&
-					" m-4 border border-black dark:border-zinc-600 rounded-lg")
-			}
-		>
-			{message && <Message msg={message} />}
-			{error && <ErrorMsg msg={error} />}
-			{!isOpen ? (
-				<button
-					className="font-semibold p-2 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
-					type="button"
-					onClick={handleOpen}
-				>
-					Change Password
-				</button>
-			) : (
+		isOpen && (
+			<div
+				className={
+					"p-2 flex flex-col gap-4 " +
+					(isOpen &&
+						" m-4 border border-black dark:border-zinc-600 rounded-lg")
+				}
+			>
+				{message && <Message msg={message} />}
+				{error && <ErrorMsg msg={error} />}
 				<div className="flex flex-col p-2 gap-4 ">
 					<h2 className="font-semibold">Change Password</h2>
 					<form
@@ -140,10 +129,7 @@ export default function PasswordForm({
 						</div>
 					</form>
 				</div>
-			)}
-		</div>
+			</div>
+		)
 	);
-}
-function signOut() {
-	throw new Error("Function not implemented.");
 }
