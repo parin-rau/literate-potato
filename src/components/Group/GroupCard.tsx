@@ -153,7 +153,10 @@ export default function GroupCard(props: Props) {
 							onClick={onMemberClick}
 						/>
 						{showMembers && (
-							<MemberContainer groupId={data.groupId} />
+							<MemberContainer
+								groupId={data.groupId}
+								dataKind="USER"
+							/>
 						)}
 						<CountLabel
 							count={data.projectIds.length}

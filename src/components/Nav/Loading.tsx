@@ -1,6 +1,10 @@
-export function LoadingSpinner() {
+export function LoadingSpinner({ notFullscreen }: { notFullscreen?: boolean }) {
+	const className = notFullscreen
+		? "grid place-items-center"
+		: "grid place-items-center h-screen";
+
 	return (
-		<div className="grid place-items-center h-screen">
+		<div className={className}>
 			<svg
 				className="animate-spin -ml-1 mr-3 h-5 w-5 text-zinc-500 dark:text-zinc-300"
 				xmlns="http://www.w3.org/2000/svg"

@@ -52,6 +52,32 @@ export async function getAllGroups() {
 	}
 }
 
+export async function getGroupsByUserId(userId: string) {
+	const res: { status: number; success: boolean; groups?: unknown } = {
+		status: 500,
+		success: false,
+	};
+
+	try {
+		const client = await connectToDatabase();
+		const db = client.db(process.env.VITE_LOCAL_DB);
+		const coll = db.collection<Group>(groupsColl);
+		const groups = await coll
+			.find({ userIds: userId })
+			.sort({ title: 1 })
+			.toArray();
+		await client.close();
+
+		res.success = true;
+		res.status = 200;
+		res.groups = groups;
+		return res;
+	} catch (e) {
+		console.error(e);
+		return res;
+	}
+}
+
 export async function createGroup(newGroup: Group) {
 	const res: { status: number; success: boolean } = {
 		status: 500,

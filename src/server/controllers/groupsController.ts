@@ -12,6 +12,12 @@ export async function getAllGroups(_req: Request, res: Response) {
 	res.status(status).send(groups);
 }
 
+export async function getGroupsByUserId(req: Request, res: Response) {
+	const { userId } = req.params;
+	const { status, groups } = await groupsService.getGroupsByUserId(userId);
+	res.status(status).send(groups);
+}
+
 export async function createGroup(req: Request, res: Response) {
 	const data = await req.body;
 	const { status } = await groupsService.createGroup(data);

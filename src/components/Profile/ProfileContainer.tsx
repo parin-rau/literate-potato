@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { useProfile } from "../../hooks/card/useProfile";
 import { Link } from "react-router-dom";
 import { LoadingSpinner } from "../Nav/Loading";
+import timestampDisplay from "../../utility/timestampDisplay";
+import MemberContainer from "../Group/MemberContainer";
 
 export default function ProfileContainer() {
 	const { profile, isLoading, isCurrentUser } = useProfile();
+	const [showGroups, setShowGroups] = useState(false);
 
 	return (
 		<div className="container mt-20 mx-auto">
@@ -19,26 +23,52 @@ export default function ProfileContainer() {
 									{profile.username}
 								</h1>
 							</li>
-							<li>{`Account age: ${profile.timestamp}`}</li>
+							<li>{`Account created ${timestampDisplay(
+								profile.timestamp
+							)}`}</li>
 							<li>
 								<Link
 									className="underline"
-									to={`/user/${profile.userId}/ticket`}
+									to={`/search/${profile.userId}/ticket`}
 								>{`Tasks completed: ${profile.ticketIds.completed.length}/${profile.ticketIds.total.length}`}</Link>
 							</li>
 							<li>
 								<Link
 									className="underline"
-									to={`/user/${profile.userId}/ticket`}
+									to={`/search/${profile.userId}/ticket`}
 								>{`Subtasks completed: ${profile.subtaskIds.completed.length}/${profile.subtaskIds.total.length}`}</Link>
 							</li>
 							<li>
-								<ul>
+								<button
+									className="hover:underline"
+									type="button"
+									onClick={() =>
+										setShowGroups((prev) => !prev)
+									}
+								>
+									{`Group Membership${
+										showGroups ? " (hide)" : ""
+									}`}
+								</button>
+								{showGroups && (
+									<MemberContainer
+										userId={profile.userId}
+										dataKind="GROUP"
+									/>
+								)}
+								{/* <ul>
 									Group membership:
 									{profile.groupIds.map((g) => (
-										<li>{g}</li>
+										<li>
+											<Link
+												className="hover:underline"
+												to={`/group/${g}`}
+											>
+												{g}
+											</Link>
+										</li>
 									))}
-								</ul>
+								</ul> */}
 							</li>
 						</ul>
 						{isCurrentUser && (

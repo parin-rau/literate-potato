@@ -313,7 +313,7 @@ export async function changePassword({
 
 		res.status = 200;
 		res.success = updateUser.acknowledged;
-		res.message = "Password successfully updated";
+		res.message = "Password updated successfully";
 		return res;
 	} catch (e) {
 		console.error(e);
