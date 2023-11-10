@@ -4,6 +4,7 @@ import { useProtectedFetch } from "../utility/useProtectedFetch";
 import { statusColorsLookup } from "../../utility/optionLookup";
 import { FetchedTicketData, Project, TicketData } from "../../types";
 import { arrayExclude } from "../../utility/arrayComparisons";
+import { useAuth } from "../auth/useAuth";
 
 export type Props = {
 	cardData: FetchedTicketData;
@@ -24,6 +25,7 @@ export function useTicket(props: Props) {
 	const [isEditing, setEditing] = useState(false);
 	const [isHover, setHover] = useState(false);
 	const { protectedFetch } = useProtectedFetch();
+	const { user } = useAuth();
 	const { id } = useParams();
 	const isTicketPage = id === ticketId;
 
@@ -91,7 +93,10 @@ export function useTicket(props: Props) {
 			try {
 				const res = await protectedFetch(`/api/ticket/${ticketId}`, {
 					method: "PATCH",
-					body: JSON.stringify({ taskStatus: newTaskStatus }),
+					body: JSON.stringify({
+						data: { taskStatus: newTaskStatus },
+						meta: { userId: user.current!.userId, ticketId },
+					}),
 				});
 				if (res.ok) {
 					const res2 = await handleTaskChange(
@@ -143,6 +148,7 @@ export function useTicket(props: Props) {
 			project.projectId,
 			setCards,
 			setProject,
+			user,
 		]
 	);
 
@@ -304,8 +310,15 @@ export function useTicket(props: Props) {
 						{
 							method: "PATCH",
 							body: JSON.stringify({
-								subtasks: updatedSubtasks,
-								taskStatus: updatedTaskStatus,
+								data: {
+									subtasks: updatedSubtasks,
+									taskStatus: updatedTaskStatus,
+								},
+								meta: {
+									userId: user.current!.userId,
+									subtaskId: id,
+									ticketId,
+								},
 							}),
 						}
 					);
@@ -407,6 +420,7 @@ export function useTicket(props: Props) {
 			subtasks,
 			ticketId,
 			taskStatus,
+			user,
 		]
 	);
 

@@ -57,9 +57,8 @@ export async function createTicket(req: Request, res: Response) {
 
 export async function updateTicket(req: Request, res: Response) {
 	const { id } = req.params;
-	const data = await req.body;
-	console.log(data);
-	const { status } = await ticketsService.updateTicket(id, data);
+	const { data, meta } = await req.body;
+	const { status } = await ticketsService.updateTicket(id, data, meta);
 	res.sendStatus(status);
 }
 

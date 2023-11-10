@@ -240,7 +240,13 @@ export async function createTicket(partialNewTicket: TicketData) {
 	}
 }
 
-export async function updateTicket(id: string, data: Record<string, unknown>) {
+export async function updateTicket(
+	id: string,
+	data: Record<string, unknown>,
+	meta: { userId?: string; ticketId?: string; subtaskId?: string }
+) {
+	const { userId, ticketId, subtaskId } = meta;
+
 	const res: { status: number; success: boolean } = {
 		status: 500,
 		success: false,
@@ -249,14 +255,58 @@ export async function updateTicket(id: string, data: Record<string, unknown>) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(ticketsColl);
-		const result = await coll.updateOne(
+		const tickets = db.collection<FetchedTicketData>(ticketsColl);
+		const users = db.collection<User>(usersColl);
+		const updateTicket = await tickets.updateOne(
 			{ ticketId: id },
 			{ $set: { ...data, lastModified: Date.now() } }
 		);
+
+		if (userId) {
+			const isCompleted = await users
+				.findOne({ userId })
+				.then(
+					(u) =>
+						u?.ticketIds.completed.includes(id) ||
+						u?.subtaskIds.completed.includes(id)
+				);
+
+			if (!isCompleted) {
+				if (ticketId && data.taskStatus === "Completed") {
+					const addTask = await users.updateOne(
+						{ userId },
+						{ $addToSet: { "ticketIds.completed": id } }
+					);
+					res.success = addTask.acknowledged;
+				}
+				if (subtaskId) {
+					const addSubtask = await users.updateOne(
+						{ userId },
+						{ $addToSet: { "subtaskIds.completed": id } }
+					);
+					res.success = addSubtask.acknowledged;
+				}
+			} else {
+				if (ticketId && data.taskStatus !== "Completed") {
+					const removeTask = await users.updateOne(
+						{ userId },
+						{ $pull: { "ticketIds.completed": id } }
+					);
+					res.success = removeTask.acknowledged;
+				}
+				if (subtaskId) {
+					const removeSubtask = await users.updateOne(
+						{ userId },
+						{ $pull: { "subtaskIds.completed": id } }
+					);
+					res.success = removeSubtask.acknowledged;
+				}
+			}
+		}
+
 		await client.close();
 
-		res.success = result.acknowledged;
+		res.success = updateTicket.acknowledged;
 		res.status = 200;
 		return res;
 	} catch (err) {

@@ -32,7 +32,7 @@ export default function SettingsContainer() {
 	return (
 		<div className="flex flex-col gap-4">
 			<h1 className="font-bold text-3xl">Settings</h1>
-			<div className="p-2 flex flex-col rounded-lg border-2 border-black dark:border-zinc-600">
+			<div className="p-2 flex flex-col rounded-lg bg-slate-100 dark:bg-neutral-900 border-2 border-black dark:border-zinc-600">
 				<CollapseToggle
 					text="Change Username"
 					isOpen={isOpen.usernameForm}
