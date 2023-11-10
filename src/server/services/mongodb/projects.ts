@@ -1,10 +1,11 @@
 import "dotenv/config";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
-import { Group, Project } from "../../../types";
+import { Group, Project, User } from "../../../types";
 
 const projectsColl = process.env.LOCAL_PROJECTS ?? "projects";
 const groupsColl = process.env.LOCAL_GROUPS ?? "groups";
+const usersColl = process.env.LOCAL_USERS ?? "users";
 
 export async function getProject(id: string) {
 	const res: { status: number; success: boolean; project?: unknown } = {
@@ -48,6 +49,39 @@ export async function getAllProjects() {
 		res.status = 200;
 		res.success = true;
 		res.projects = projects;
+		return res;
+	} catch (err) {
+		console.error(err);
+		return res;
+	}
+}
+
+export async function getProjectsByUser(userId: string) {
+	const res: { status: number; success: boolean; projects?: unknown[] } = {
+		status: 500,
+		success: false,
+	};
+
+	try {
+		const client: mongoDB.MongoClient = await connectToDatabase();
+		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
+		const projects = db.collection<Project>(projectsColl);
+		const users = db.collection<User>(usersColl);
+
+		const foundGroups = await users
+			.findOne({ userId })
+			.then((u) => u?.groupIds);
+
+		if (!foundGroups) return res;
+
+		const foundProjects = await projects
+			.find({ "group.groupId": { $in: foundGroups } })
+			.toArray();
+		await client.close();
+
+		res.status = 200;
+		res.success = true;
+		res.projects = foundProjects;
 		return res;
 	} catch (err) {
 		console.error(err);

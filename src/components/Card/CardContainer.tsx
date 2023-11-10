@@ -9,6 +9,7 @@ import { useGetter } from "../../hooks/utility/useGetter";
 import { LoadingSpinner } from "../Nav/Loading";
 import ToggleButton from "../Nav/ToggleButton";
 import CollapseIcon from "../Svg/CollapseIcon";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 type TicketProps = {
 	containerTitle: string;
@@ -48,6 +49,7 @@ export default function CardContainer<
 		group,
 	} = props;
 
+	const { user } = useAuth();
 	const [sortMeta, setSortMeta] = useState<
 		{ property: string; categories: string[] } | undefined
 	>();
@@ -64,10 +66,10 @@ export default function CardContainer<
 		dataKind === "ticket"
 			? projectId
 				? `/api/ticket/project/${projectId}`
-				: "/api/ticket"
+				: `/api/ticket/user/${user.current!.userId}`
 			: group?.groupId
 			? `/api/project/group/${group.groupId}`
-			: `/api/project`;
+			: `/api/project/user/${user.current!.userId}`;
 
 	const {
 		data: cards,

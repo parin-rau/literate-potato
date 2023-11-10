@@ -18,7 +18,7 @@ export default function ProfileContainer() {
 				<div className="flex flex-col gap-6 ">
 					<h1 className="px-4 font-bold text-4xl">Profile</h1>
 					<div className="flex flex-col gap-4 rounded-lg p-2 border-2 border-black dark:border-zinc-600">
-						<ul>
+						<ul className="flex flex-col gap-1">
 							<li>
 								<h1 className="font-semibold text-2xl">
 									{profile.username}
@@ -43,9 +43,9 @@ export default function ProfileContainer() {
 								<CollapseToggle
 									isOpen={showGroups}
 									setOpen={setShowGroups}
-									text="Group Membership"
+									text={`Group Membership (${profile.groupIds.length})`}
 								/>
-								{showGroups && (
+								{showGroups && profile.groupIds.length > 0 && (
 									<MemberContainer
 										userId={profile.userId}
 										dataKind="GROUP"
@@ -58,7 +58,7 @@ export default function ProfileContainer() {
 								className="p-2 w-fit rounded-md bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600"
 								to={"/settings"}
 							>
-								Edit Profile
+								Edit Account
 							</Link>
 						)}
 					</div>

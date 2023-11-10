@@ -23,6 +23,13 @@ export async function getAllProjects(_req: Request, res: Response) {
 	}
 }
 
+export async function getProjectsByUser(req: Request, res: Response) {
+	const { userId } = req.params;
+	const { status, projects } =
+		await projectsService.getProjectsByUser(userId);
+	return res.status(status).send(projects);
+}
+
 export async function getProjectsByGroup(req: Request, res: Response) {
 	const { groupId } = req.params;
 	const { status, success, projects } =

@@ -13,6 +13,13 @@ export async function getAllTickets(_req: Request, res: Response) {
 	res.status(status).send(tickets);
 }
 
+export async function getAllTicketsForUser(req: Request, res: Response) {
+	const { userId } = req.params;
+	const { status, tickets } =
+		await ticketsService.getAllTicketsForUser(userId);
+	res.status(status).send(tickets);
+}
+
 export async function getAllTicketsForProject(req: Request, res: Response) {
 	const { projectId } = req.params;
 	const { status, tickets } =

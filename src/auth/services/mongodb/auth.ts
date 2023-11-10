@@ -256,6 +256,7 @@ export async function changeUsername(data: {
 			{ userId: data.userId },
 			{ $set: { username: data.username } }
 		);
+		await client.close();
 
 		res.status = 200;
 		res.success = updateUser.acknowledged;
@@ -310,6 +311,7 @@ export async function changePassword({
 			{ userId },
 			{ $set: { password: hashed } }
 		);
+		await client.close();
 
 		res.status = 200;
 		res.success = updateUser.acknowledged;

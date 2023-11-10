@@ -59,6 +59,38 @@ export async function getAllTickets() {
 	}
 }
 
+export async function getAllTicketsForUser(userId: string) {
+	const res: { status: number; tickets?: unknown } = {
+		status: 500,
+	};
+
+	try {
+		const client = await connectToDatabase();
+		const db = client.db(process.env.VITE_LOCAL_DB);
+		const tickets = db.collection<FetchedTicketData>(ticketsColl);
+		const users = db.collection<User>(usersColl);
+
+		const foundGroups = await users
+			.findOne({ userId })
+			.then((u) => u?.groupIds);
+
+		if (!foundGroups) return res;
+
+		const foundTickets = await tickets
+			.find({ "group.groupId": { $in: foundGroups } })
+			.sort({ timestamp: 1 })
+			.toArray();
+		await client.close();
+
+		res.status = 200;
+		res.tickets = foundTickets;
+		return res;
+	} catch (err) {
+		console.error(err);
+		return res;
+	}
+}
+
 export async function getAllTicketsForProject(projectId: string) {
 	const res: { status: number; tickets?: unknown } = {
 		status: 500,

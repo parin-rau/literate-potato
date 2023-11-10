@@ -83,31 +83,8 @@ export interface TicketData {
 	assignee: { userId: string; username: string };
 }
 
-// export type TicketData = EditorData & {
-// 	_id?: string;
-// 	ticketId: string;
-// 	comments?: {
-// 		_id: string;
-// 		timestamp: number;
-// 		content: string;
-// 	};
-// 	timestamp: number;
-// };
-
 export interface FetchedTicketData extends TicketData {
 	_id?: string;
-	// ticketId: string;
-	// title: string;
-	// description?: string;
-	// priority?: "Low" | "Medium" | "High";
-	// due?: string;
-	// tags?: string[];
-	// comments?: {
-	// 	_id: string;
-	// 	timestamp: number;
-	// 	content: string;
-	// }[];
-	// timestamp: number;
 }
 
 export const initTicketEditor: EditorData = {

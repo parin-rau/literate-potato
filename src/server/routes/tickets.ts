@@ -5,6 +5,7 @@ export const ticketsRouter = express.Router();
 
 ticketsRouter.get("/", tickets.getAllTickets);
 ticketsRouter.get("/:id", tickets.getTicket);
+ticketsRouter.get("/user/:userId", tickets.getAllTicketsForUser);
 ticketsRouter.get("/project/:projectId", tickets.getAllTicketsForProject);
 ticketsRouter.get(
 	"/uncategorized/user/:userId",

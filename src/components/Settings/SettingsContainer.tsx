@@ -40,7 +40,6 @@ export default function SettingsContainer() {
 				/>
 				<UsernameForm
 					isOpen={isOpen.usernameForm}
-					handleOpen={handleUserOpen}
 					handleClose={handleClose}
 				/>
 				<CollapseToggle
@@ -50,7 +49,6 @@ export default function SettingsContainer() {
 				/>
 				<PasswordForm
 					isOpen={isOpen.passwordForm}
-					handleOpen={handlePassOpen}
 					handleClose={handleClose}
 				/>
 			</div>
