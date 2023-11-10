@@ -49,7 +49,7 @@ export default function UsernameForm({ isOpen, handleClose }: Props) {
 				method: "PATCH",
 				body: JSON.stringify(submission),
 			},
-			{ allow4xx: true }
+			{ allow4xx: true, readMessage: true }
 		);
 
 		if (res.ok) {
@@ -65,55 +65,56 @@ export default function UsernameForm({ isOpen, handleClose }: Props) {
 	};
 
 	return (
-		isOpen && (
-			<div
-				className={
-					"p-2 flex flex-col gap-4 " +
-					(isOpen &&
-						" m-4 border border-black dark:border-zinc-600 rounded-lg")
-				}
-			>
-				{message && <Message msg={message} />}
-				{error && <ErrorMsg msg={error} />}
+		<>
+			{message && <Message msg={message} />}
+			{error && <ErrorMsg msg={error} />}
+			{isOpen && (
+				<div
+					className={
+						"p-2 flex flex-col gap-4 " +
+						(isOpen &&
+							" m-4 border border-black dark:border-zinc-600 rounded-lg")
+					}
+				>
+					<div className="flex flex-col gap-4">
+						<h2 className="font-semibold">Change Username</h2>
+						<form
+							className="flex flex-col gap-6"
+							onSubmit={handleSubmit}
+						>
+							<input
+								{...{
+									className:
+										"rounded px-2 py-1 bg-transparent border dark:border-zinc-600 border-slate-400",
+									name: "newUsername",
+									value: usernameForm,
+									onChange: handleChange,
+									placeholder: "New Username",
+									required: true,
+									size: 40,
+									maxLength: 64,
+								}}
+							/>
 
-				<div className="flex flex-col gap-4">
-					<h2 className="font-semibold">Change Username</h2>
-					<form
-						className="flex flex-col gap-6"
-						onSubmit={handleSubmit}
-					>
-						<input
-							{...{
-								className:
-									"rounded px-2 py-1 bg-transparent border dark:border-zinc-600 border-slate-400",
-								name: "newUsername",
-								value: usernameForm,
-								onChange: handleChange,
-								placeholder: "New Username",
-								required: true,
-								size: 40,
-								maxLength: 64,
-							}}
-						/>
-
-						<div className="flex flex-row gap-2">
-							<button
-								className="font-semibold px-3 py-1 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
-								type="submit"
-							>
-								Submit
-							</button>
-							<button
-								className="font-semibold px-3 py-1 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
-								type="button"
-								onClick={handleCancel}
-							>
-								Cancel
-							</button>
-						</div>
-					</form>
+							<div className="flex flex-row gap-2">
+								<button
+									className="font-semibold px-3 py-1 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
+									type="submit"
+								>
+									Submit
+								</button>
+								<button
+									className="font-semibold px-3 py-1 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
+									type="button"
+									onClick={handleCancel}
+								>
+									Cancel
+								</button>
+							</div>
+						</form>
+					</div>
 				</div>
-			</div>
-		)
+			)}
+		</>
 	);
 }

@@ -3,6 +3,7 @@ import { useAuth } from "../auth/useAuth";
 
 interface ExtraOptions {
 	allow4xx?: boolean;
+	readMessage?: boolean;
 }
 
 export function useProtectedFetch() {
@@ -11,6 +12,16 @@ export function useProtectedFetch() {
 	const [message, setMessage] = useState<string | null>(null);
 	const [ok, setOk] = useState<boolean | null>(null);
 	const { user, refreshAccessToken, signOut } = useAuth();
+
+	const readMsg = useCallback(
+		async (response: Response, isError?: boolean) => {
+			const { message: msg }: { message: string } = await response.json();
+			if (msg) {
+				isError ? setError(msg) : setMessage(msg);
+			}
+		},
+		[]
+	);
 
 	const protectedFetch = useCallback(
 		async (
@@ -71,9 +82,10 @@ export function useProtectedFetch() {
 
 							if (retryRes.ok) {
 								const clone = retryRes.clone();
-								const { message: resMsg }: { message: string } =
-									await retryRes.json();
-								if (resMsg) setMessage(resMsg);
+								// const { message: resMsg }: { message: string } =
+								// 	await retryRes.json();
+								// if (resMsg) setMessage(resMsg);
+								extraOptions?.readMessage && readMsg(retryRes);
 
 								setOk(true);
 								setLoading(false);
@@ -82,9 +94,11 @@ export function useProtectedFetch() {
 						}
 					} else if (extraOptions?.allow4xx && isErrorResponse) {
 						const clone = res.clone();
-						const { message: resMsg }: { message: string } =
-							await res.json();
-						setError(resMsg);
+						// const { message: resMsg }: { message: string } =
+						// 	await res.json();
+						// setError(resMsg);
+						extraOptions.readMessage && readMsg(res, true);
+
 						setOk(true);
 						setLoading(false);
 						return clone;
@@ -97,9 +111,10 @@ export function useProtectedFetch() {
 				}
 
 				const clone = res.clone();
-				const { message: resMsg }: { message: string } =
-					await res.json();
-				setMessage(resMsg);
+				// const { message: resMsg }: { message: string } =
+				// 	await res.json();
+				// setMessage(resMsg);
+				extraOptions?.readMessage && readMsg(res);
 
 				setOk(true);
 				setLoading(false);
@@ -114,7 +129,7 @@ export function useProtectedFetch() {
 				});
 			}
 		},
-		[user, refreshAccessToken, signOut]
+		[user, readMsg, signOut, refreshAccessToken]
 	);
 
 	return {

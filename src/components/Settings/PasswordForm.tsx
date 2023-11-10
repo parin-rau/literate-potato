@@ -51,7 +51,7 @@ export default function PasswordForm({ isOpen, handleClose }: Props) {
 				method: "PATCH",
 				body: JSON.stringify(submission),
 			},
-			{ allow4xx: true }
+			{ allow4xx: true, readMessage: true }
 		);
 		if (res.ok) {
 			const { accessToken }: { accessToken: string } = await res.json();
@@ -66,70 +66,72 @@ export default function PasswordForm({ isOpen, handleClose }: Props) {
 	};
 
 	return (
-		isOpen && (
-			<div
-				className={
-					"p-2 flex flex-col gap-4 " +
-					(isOpen &&
-						" m-4 border border-black dark:border-zinc-600 rounded-lg")
-				}
-			>
-				{message && <Message msg={message} />}
-				{error && <ErrorMsg msg={error} />}
-				<div className="flex flex-col p-2 gap-4 ">
-					<h2 className="font-semibold">Change Password</h2>
-					<form
-						className="flex flex-col gap-6 dark:border-zinc-600 border-slate-400"
-						onSubmit={handleSubmit}
-					>
-						<PasswordInput
-							{...{
-								name: "currentPassword",
-								value: passwordForm.currentPassword,
-								handleChange,
-								placeholder: "Current Password",
-								passwordChangeForm: true,
-							}}
-						/>
+		<>
+			{message && <Message msg={message} />}
+			{error && <ErrorMsg msg={error} />}
+			{isOpen && (
+				<div
+					className={
+						"p-2 flex flex-col gap-4 " +
+						(isOpen &&
+							" m-4 border border-black dark:border-zinc-600 rounded-lg")
+					}
+				>
+					<div className="flex flex-col p-2 gap-4 ">
+						<h2 className="font-semibold">Change Password</h2>
+						<form
+							className="flex flex-col gap-6 dark:border-zinc-600 border-slate-400"
+							onSubmit={handleSubmit}
+						>
+							<PasswordInput
+								{...{
+									name: "currentPassword",
+									value: passwordForm.currentPassword,
+									handleChange,
+									placeholder: "Current Password",
+									passwordChangeForm: true,
+								}}
+							/>
 
-						<div className="flex flex-col gap-2 dark:border-zinc-600 border-slate-400">
-							<PasswordInput
-								{...{
-									name: "newPassword",
-									value: passwordForm.newPassword,
-									handleChange,
-									placeholder: "New Password",
-									passwordChangeForm: true,
-								}}
-							/>
-							<PasswordInput
-								{...{
-									name: "confirmPassword",
-									value: passwordForm.confirmPassword,
-									handleChange,
-									placeholder: "Confirm New Password",
-									passwordChangeForm: true,
-								}}
-							/>
-						</div>
-						<div className="flex flex-row gap-2">
-							<button
-								className="font-semibold px-3 py-1 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
-								type="submit"
-							>
-								Submit
-							</button>
-							<button
-								className="font-semibold px-3 py-1 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
-								type="button"
-								onClick={handleCancel}
-							>
-								Cancel
-							</button>
-						</div>
-					</form>
+							<div className="flex flex-col gap-2 dark:border-zinc-600 border-slate-400">
+								<PasswordInput
+									{...{
+										name: "newPassword",
+										value: passwordForm.newPassword,
+										handleChange,
+										placeholder: "New Password",
+										passwordChangeForm: true,
+									}}
+								/>
+								<PasswordInput
+									{...{
+										name: "confirmPassword",
+										value: passwordForm.confirmPassword,
+										handleChange,
+										placeholder: "Confirm New Password",
+										passwordChangeForm: true,
+									}}
+								/>
+							</div>
+							<div className="flex flex-row gap-2">
+								<button
+									className="font-semibold px-3 py-1 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
+									type="submit"
+								>
+									Submit
+								</button>
+								<button
+									className="font-semibold px-3 py-1 w-fit text-white rounded-md dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
+									type="button"
+									onClick={handleCancel}
+								>
+									Cancel
+								</button>
+							</div>
+						</form>
+					</div>
 				</div>
-			</div>
-		)
+			)}
+		</>
 	);
 }
