@@ -1,8 +1,10 @@
 import "dotenv/config";
 import { connectToDatabase } from "../../../db/mongodb";
-import { Group, User } from "../../../types";
+import { FetchedTicketData, Group, Project, User } from "../../../types";
 
 const groupsColl = process.env.LOCAL_GROUPS ?? "groups";
+const projectsColl = process.env.LOCAL_PROJECTS ?? "projects";
+const ticketsColl = process.env.LOCAL_TICKETS ?? "tickets";
 const usersColl = process.env.LOCAL_USERS ?? "users";
 
 export async function getGroup(id: string) {
@@ -126,8 +128,28 @@ export async function updateGroup(
 	try {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
-		const coll = db.collection(groupsColl);
-		const result = await coll.updateOne(
+		const groups = db.collection<Group>(groupsColl);
+		const projects = db.collection<Project>(projectsColl);
+		const tickets = db.collection<FetchedTicketData>(ticketsColl);
+
+		const isDifferentGroupName = await groups
+			.findOne({ groupId: id })
+			.then((g) => g?.title !== patchData.title);
+
+		if (isDifferentGroupName) {
+			const updateProjects = await projects.updateMany(
+				{ "group.groupId": id },
+				{ $set: { "group.groupTitle": patchData.title } }
+			);
+			const updateTickets = await tickets.updateMany(
+				{ "group.groupId": id },
+				{ $set: { "group.groupTitle": patchData.title } }
+			);
+			res.success =
+				updateProjects.acknowledged && updateTickets.acknowledged;
+		}
+
+		const result = await groups.updateOne(
 			{ groupId: id },
 			{ $set: { ...patchData } }
 		);
