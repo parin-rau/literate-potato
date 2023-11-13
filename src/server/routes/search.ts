@@ -3,4 +3,4 @@ import * as search from "../controllers/searchController";
 
 export const searchRouter = express.Router();
 
-searchRouter.get("/:query", search.getSearchResults);
+searchRouter.get("/:query/:filter?", search.getSearchResults);

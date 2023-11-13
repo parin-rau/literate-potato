@@ -77,7 +77,6 @@ export default function UsernameForm({ isOpen, handleClose }: Props) {
 					}
 				>
 					<div className="flex flex-col gap-4">
-						<h2 className="font-semibold">Change Username</h2>
 						<form
 							className="flex flex-col gap-6"
 							onSubmit={handleSubmit}

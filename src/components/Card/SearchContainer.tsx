@@ -2,13 +2,13 @@ import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
 import { SearchResultProps } from "../../types";
 import SearchResult from "./SearchResult";
 
-type Props = { query: string };
+type Props = { query: string; filter?: string };
 
 export default function SearchContainer(props: Props) {
-	const { query } = props;
+	const { query, filter } = props;
 
 	const { data: results, isLoading } = useInitialFetch<SearchResultProps[]>(
-		`/api/search/${query}`
+		filter ? `/api/search/${query}/${filter}` : `/api/search/${query}`
 	);
 
 	return (

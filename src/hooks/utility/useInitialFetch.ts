@@ -17,6 +17,7 @@ export function useInitialFetch<T, D = void>(
 
 	useEffect(() => {
 		const abortController = new AbortController();
+		const retryAbortController = new AbortController();
 
 		const fetchData = async () => {
 			try {
@@ -47,12 +48,13 @@ export function useInitialFetch<T, D = void>(
 						await refreshAccessToken();
 
 						const retryAccessToken = user.current.token;
-						const retryOptions = {
+						const retryOptions: RequestInit = {
 							...initOptions,
 							headers: {
 								...initOptions.headers,
 								Authorization: `Bearer ${retryAccessToken}`,
 							},
+							signal: retryAbortController.signal,
 						};
 
 						if (user.current) {
@@ -103,6 +105,7 @@ export function useInitialFetch<T, D = void>(
 
 		return () => {
 			abortController.abort();
+			retryAbortController.abort();
 		};
 	}, [
 		customOptions,

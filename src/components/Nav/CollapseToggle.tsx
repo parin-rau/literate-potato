@@ -11,11 +11,9 @@ export default function CollapseToggle({ isOpen, setOpen, text }: Props) {
 	const toggleOpen = () => setOpen((prev) => !prev);
 
 	return (
-		<button type="button" onClick={toggleOpen}>
-			<ToggleButton>
-				<CollapseIcon isCollapsed={!isOpen} />
-				{text}
-			</ToggleButton>
-		</button>
+		<ToggleButton type="button" onClick={toggleOpen}>
+			<CollapseIcon isCollapsed={!isOpen} />
+			{text}
+		</ToggleButton>
 	);
 }

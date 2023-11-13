@@ -30,13 +30,13 @@ export default function ProfileContainer() {
 							<li>
 								<Link
 									className="hover:underline"
-									to={`/search/${profile.userId}/ticket`}
+									to={`/search/${profile.userId}/ticket-by-user-id`}
 								>{`Tasks completed: ${profile.ticketIds.completed.length}`}</Link>
 							</li>
 							<li>
 								<Link
 									className="hover:underline"
-									to={`/search/${profile.userId}/ticket`}
+									to={`/search/${profile.userId}/subtask-by-user-id`}
 								>{`Subtasks completed: ${profile.subtaskIds.completed.length}`}</Link>
 							</li>
 							<li>

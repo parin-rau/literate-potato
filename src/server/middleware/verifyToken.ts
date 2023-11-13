@@ -3,7 +3,7 @@ import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { UserDecode, UserToken } from "../../types";
 
-interface UserRequest extends Request {
+export interface UserRequest extends Request {
 	user: UserToken;
 }
 

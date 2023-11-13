@@ -78,7 +78,6 @@ export default function PasswordForm({ isOpen, handleClose }: Props) {
 					}
 				>
 					<div className="flex flex-col p-2 gap-4 ">
-						<h2 className="font-semibold">Change Password</h2>
 						<form
 							className="flex flex-col gap-6 dark:border-zinc-600 border-slate-400"
 							onSubmit={handleSubmit}

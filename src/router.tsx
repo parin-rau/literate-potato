@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { Navigate, createBrowserRouter } from "react-router-dom";
 import "./index.css";
 
 import ErrorPage from "./pages/error/error-page.tsx";
@@ -92,8 +92,12 @@ export const router = createBrowserRouter([
 					},
 
 					{
-						path: "search/:query",
+						path: "search/:query/:filter?",
 						element: <SearchResultsPage />,
+					},
+					{
+						path: "*",
+						element: <Navigate to={"/"} replace />,
 					},
 				],
 			},
