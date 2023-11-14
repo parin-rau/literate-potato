@@ -24,6 +24,33 @@ export async function getSearchResults(
 		status: 500,
 	};
 
+	const appendMeta = (
+		sourceArray: {
+			[key: string]: string | number | unknown;
+		}[],
+		meta: { [key: string]: string | number }
+	) => {
+		const resultsFormat = (source: { [key: string]: unknown }) => {
+			const formatted = {
+				title: source.title || source.username,
+				id:
+					source.ticketId ||
+					source.projectId ||
+					source.userId ||
+					source.groupId,
+				description: source.description,
+				timestamp: source.timestamp,
+			};
+			return formatted;
+		};
+
+		const appended = sourceArray.map((s) => ({
+			data: resultsFormat(s),
+			meta,
+		}));
+		return appended;
+	};
+
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
@@ -46,21 +73,13 @@ export async function getSearchResults(
 				.find({
 					"group.groupId": { $in: permittedGroups },
 					$or: [
-						{ title: query },
-						{ "project.projectTitle": query },
-						{ "project.projectId": query },
-						{ "creator.username": query },
-						{ "creator.userId": query },
-						{ description: query },
-						{ tags: titleCap(query) },
-						{ due: query },
 						{ "subtasks.subtaskId": query },
 						{ "subtasks.description": query },
 						{ "subtasks.completed": query },
 					],
 				})
 				.toArray()
-				.then((t) => appendMeta(t, { kind: "ticket" }));
+				.then((t) => appendMeta(t, { kind: "subtask" }));
 
 			return foundTickets;
 		};
@@ -77,7 +96,6 @@ export async function getSearchResults(
 				})
 				.toArray()
 				.then((t) => appendMeta(t, { kind: "ticket" }));
-			console.log({ permittedGroups, completedSubtaskIds, foundTickets });
 
 			return foundTickets;
 		};
@@ -167,29 +185,6 @@ export async function getSearchResults(
 				.then((u) => appendMeta(u, { kind: "user" }));
 
 			return foundUsers;
-		};
-
-		const appendMeta = (
-			sourceArray: {
-				[key: string]: string | number | unknown;
-			}[],
-			meta: { [key: string]: string | number }
-		) => {
-			const resultsFormat = (source: { [key: string]: unknown }) => {
-				const formatted = {
-					title: source.title || source.username,
-					id: source.ticketId || source.projectId || source.userId,
-					description: source.description,
-					timestamp: source.timestamp,
-				};
-				return formatted;
-			};
-
-			const appended = sourceArray.map((s) => ({
-				data: resultsFormat(s),
-				meta,
-			}));
-			return appended;
 		};
 
 		if (filter) {

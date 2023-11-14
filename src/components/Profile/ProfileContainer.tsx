@@ -55,7 +55,7 @@ export default function ProfileContainer() {
 						</ul>
 						{isCurrentUser && (
 							<Link
-								className="p-2 w-fit rounded-md bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600"
+								className="p-2 w-fit rounded-md text-white bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600"
 								to={"/settings"}
 							>
 								Edit Account

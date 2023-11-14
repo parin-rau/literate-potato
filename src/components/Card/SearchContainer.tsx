@@ -13,13 +13,17 @@ export default function SearchContainer(props: Props) {
 
 	return (
 		!isLoading && (
-			<div className="container mx-auto flex flex-col bg-slate-100 dark:bg-neutral-900 p-2 rounded-lg gap-1">
-				{`(${results.length}) search result${
-					results.length !== 1 ? "s" : ""
-				} for "${query}"`}
-				{results.map((r, index) => (
-					<SearchResult key={index} {...{ ...r }} />
-				))}
+			<div className="container mx-auto flex flex-col bg-slate-100 dark:bg-neutral-900 p-2 rounded-lg gap-2">
+				<>
+					<p className="pb-2">
+						{`(${results.length}) search result${
+							results.length !== 1 ? "s" : ""
+						} for "${query}" ${filter}`}
+					</p>
+					{results.map((r, index) => (
+						<SearchResult key={index} {...{ ...r }} />
+					))}
+				</>
 			</div>
 		)
 	);

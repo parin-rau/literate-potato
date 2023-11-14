@@ -243,10 +243,8 @@ export async function createTicket(partialNewTicket: TicketData) {
 export async function updateTicket(
 	id: string,
 	data: Record<string, unknown>,
-	meta: { userId?: string; ticketId?: string; subtaskId?: string }
+	meta?: { userId?: string; ticketId?: string; subtaskId?: string }
 ) {
-	const { userId, ticketId, subtaskId } = meta;
-
 	const res: { status: number; success: boolean } = {
 		status: 500,
 		success: false,
@@ -262,7 +260,8 @@ export async function updateTicket(
 			{ $set: { ...data, lastModified: Date.now() } }
 		);
 
-		if (userId) {
+		if (meta) {
+			const { userId, ticketId, subtaskId } = meta;
 			const isCompleted = await users
 				.findOne({ userId })
 				.then(
@@ -282,7 +281,7 @@ export async function updateTicket(
 				if (subtaskId) {
 					const addSubtask = await users.updateOne(
 						{ userId },
-						{ $addToSet: { "subtaskIds.completed": id } }
+						{ $addToSet: { "subtaskIds.completed": subtaskId } }
 					);
 					res.success = addSubtask.acknowledged;
 				}
@@ -297,7 +296,7 @@ export async function updateTicket(
 				if (subtaskId) {
 					const removeSubtask = await users.updateOne(
 						{ userId },
-						{ $pull: { "subtaskIds.completed": id } }
+						{ $pull: { "subtaskIds.completed": subtaskId } }
 					);
 					res.success = removeSubtask.acknowledged;
 				}

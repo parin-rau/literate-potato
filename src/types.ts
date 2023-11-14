@@ -184,7 +184,7 @@ export interface SearchResultProps {
 		description?: string;
 		timestamp?: number;
 	};
-	meta: { kind: "ticket" | "project" | "user" };
+	meta: { kind: "ticket" | "project" | "user" | "group" | "subtask" };
 }
 
 export interface Calendar {
