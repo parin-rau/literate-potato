@@ -177,7 +177,7 @@ export interface UserDecode {
 	exp: number;
 }
 
-export interface SearchResultProps {
+export type SearchResultProps = {
 	data: {
 		title: string;
 		id: string;
@@ -185,7 +185,7 @@ export interface SearchResultProps {
 		timestamp?: number;
 	};
 	meta: { kind: "ticket" | "project" | "user" | "group" | "subtask" };
-}
+};
 
 export interface Calendar {
 	currentTime: Date;

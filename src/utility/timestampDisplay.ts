@@ -1,3 +1,18 @@
+const months = [
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec",
+];
+
 export default function timestampDisplay(createTime: number) {
 	const currentTime = Date.now();
 
@@ -45,4 +60,15 @@ export default function timestampDisplay(createTime: number) {
 	}
 
 	return message;
+}
+
+export function longDateDisplay(timestamp: number) {
+	const date = new Date(timestamp);
+
+	const year = date.getFullYear();
+	const month = date.getMonth();
+	const dateOfMonth = date.getDate();
+
+	const str = `${months[month]} ${dateOfMonth}, ${year}`;
+	return str;
 }

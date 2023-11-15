@@ -1,5 +1,7 @@
-export function titleCap(string: string): string {
-	const lowercaseArr = string.toLocaleLowerCase().split(/[- ]/);
+export function titleCap(input: string | number): string {
+	if (typeof input === "number") return input.toString();
+
+	const lowercaseArr = input.toLocaleLowerCase().split(/[- ]/);
 	const titleCapArr = lowercaseArr.map((word, index) => {
 		const firstLetter = noCap.includes(word)
 			? index === 0
@@ -14,8 +16,10 @@ export function titleCap(string: string): string {
 	return words;
 }
 
-export function firstLetterCap(string: string): string {
-	const lowercaseArr = string.toLocaleLowerCase().split(/[- ]/);
+export function firstLetterCap(input: string | number): string {
+	if (typeof input === "number") return input.toString();
+
+	const lowercaseArr = input.toLocaleLowerCase().split(/[- ]/);
 	const firstUpperArr = lowercaseArr.map((word, index) => {
 		const firstUpperletter =
 			index === 0 ? word.charAt(0).toLocaleUpperCase() : word.charAt(0);
@@ -29,6 +33,12 @@ export function firstLetterCap(string: string): string {
 
 export function hasWhiteSpace(str: string) {
 	return /\s/.test(str);
+}
+
+export function allLowerCase(input: string | number): string {
+	if (typeof input === "number") return input.toString();
+
+	return input.toLocaleLowerCase();
 }
 
 const noCap = [

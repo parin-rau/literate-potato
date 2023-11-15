@@ -175,10 +175,8 @@ export async function getSearchResults(
 		};
 
 		const findUsers = async () => {
-			const permittedGroups = await getPermittedGroups();
 			const foundUsers = await userColl
 				.find({
-					"group.groupId": { $in: permittedGroups },
 					$or: [{ username: query }, { userId: query }],
 				})
 				.toArray()
