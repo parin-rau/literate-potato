@@ -55,6 +55,13 @@ export default function SearchContainer(props: Props) {
 				setResults(sorted);
 			},
 		},
+		{
+			label: "Type, Z -> A",
+			fn: (r: SearchResultProps[]) => {
+				const sorted = sortByKey(r, "meta.kind", -1);
+				setResults(sorted);
+			},
+		},
 	];
 
 	return (
@@ -65,7 +72,7 @@ export default function SearchContainer(props: Props) {
 						<p className="">
 							{`(${results.length}) search result${
 								results.length !== 1 ? "s" : ""
-							} for "${query}" ${filter}`}
+							} for "${query}"`}
 						</p>
 						<SortMenu {...{ results, sortFns }} />
 					</div>

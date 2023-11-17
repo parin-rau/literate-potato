@@ -1,17 +1,21 @@
 import { allLowerCase } from "./charCaseFunctions";
 
-// interface Resource {
-// 	[key: string]: string | number | { [key: string]: string | number };
-// }
-
 type Value = string | number | { [key: string]: string | number };
+type Sortable = Record<string, Value> | string | number;
 
+//type ValObj = Record<string, Value>;
 // type Intermediate = {
 // 	a: Value;
 // 	b: Value;
 // };
 
-export function sortByKey<T extends Record<string, Value>>(
+// class Obj implements ValObj {
+// 	constructor(values: string[]) {
+// 		values.forEach((v) => (this.v = v));
+// 	}
+// }
+
+export function sortByKey<T extends Sortable>(
 	arr: T[],
 	key: string,
 	direction?: 1 | -1
@@ -24,16 +28,43 @@ export function sortByKey<T extends Record<string, Value>>(
 	} else {
 		const keys = key.split(".");
 
-		const sorted = [...arr].sort((a, b) => {
+		const sorted = [...arr].sort((a: Sortable, b: Sortable) => {
 			let i = 0;
 
-			if (typeof a !== "object" || typeof b !== "object") return 0;
+			// const getProp = (object: Obj, prop: string) => {
+			// 	return prop.split(".").reduce((o, i) => o[i], object);
+			// };
 
-			while (i < keys.length) {
-				a = a[keys[i]];
-				b = b[keys[i]];
+			// const getVal = (obj: Obj, prop: string) => {
+			// 	let result: string | number | null = null;
+			// 	JSON.stringify(obj, (key, val) => {
+			// 		if (key === prop) result = val;
+			// 	});
+			// 	return result;
+			// };
+
+			// const notObj = (obj: T,) => {
+			// 	return (
+			// 		(typeof obj === "string" || typeof obj === "number")
+			// 	)
+			// }
+
+			//if (typeof a !== "object" || typeof b !== "object") return 0;
+
+			while (
+				i < keys.length
+				// 	&& (
+				// 	(typeof a !== "string" && typeof a !== "number") ||
+				// 	(typeof b !== "string" && typeof b !== "number")
+				// )
+			) {
+				a = typeof a !== "object" ? a : a[keys[i]];
+				b = typeof b !== "object" ? b : b[keys[i]];
 				i++;
 			}
+
+			// const a = getVal(a, key);
+			// const b = getVal(b, key);
 
 			if (
 				(typeof a !== "string" && typeof a !== "number") ||

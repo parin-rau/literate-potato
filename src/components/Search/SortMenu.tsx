@@ -9,6 +9,7 @@ interface Props {
 
 export default function SearchFilter({ results, sortFns }: Props) {
 	const [isOpen, setOpen] = useState(false);
+	const [currentSort, setCurrentSort] = useState("");
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	const handleOpen = (
@@ -46,7 +47,7 @@ export default function SearchFilter({ results, sortFns }: Props) {
 				type="button"
 				onClick={handleOpen}
 			>
-				Sort
+				{`Sort${currentSort ? ": " + currentSort : ""}`}
 			</button>
 			{isOpen && (
 				<div
@@ -59,6 +60,7 @@ export default function SearchFilter({ results, sortFns }: Props) {
 							type="button"
 							onClick={(e) => {
 								s.fn(results);
+								setCurrentSort(s.label);
 								handleOpen(e);
 							}}
 						>
