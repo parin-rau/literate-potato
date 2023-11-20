@@ -3,6 +3,7 @@ import { SearchResultProps } from "../../types";
 import SortMenu from "./SortMenu";
 import SearchResult from "./SearchResult";
 import { sortByKey } from "../../utility/sortData";
+import FilterMenu from "./FilterMenu";
 
 type Props = { query: string; filter?: string };
 // type Value = string | number | { [key: string]: string | number };
@@ -74,7 +75,10 @@ export default function SearchContainer(props: Props) {
 								results.length !== 1 ? "s" : ""
 							} for "${query}"`}
 						</p>
-						<SortMenu {...{ results, sortFns }} />
+						<div className="flex flex-row gap-6 items-baseline">
+							<FilterMenu {...{ results, setResults }} />
+							<SortMenu {...{ results, sortFns }} />
+						</div>
 					</div>
 					{results.map((r, index) => (
 						<SearchResult key={index} {...{ ...r }} />
