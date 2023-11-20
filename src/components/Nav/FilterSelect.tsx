@@ -7,7 +7,6 @@ import { firstLetterCap } from "../../utility/charCaseFunctions";
 type Props = {
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
-
 	deleteFilterTag: (_id: number) => void;
 	filterMode: string;
 	changeFilterMode: () => void;
@@ -19,7 +18,6 @@ export default function FilterSelect(props: Props) {
 	const {
 		filters,
 		setFilters,
-
 		deleteFilterTag,
 		filterMode,
 		changeFilterMode,
