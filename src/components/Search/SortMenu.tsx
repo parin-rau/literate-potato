@@ -3,13 +3,21 @@ import { SearchResultProps } from "../../types";
 
 interface Props {
 	results: SearchResultProps[];
+	//cache: SearchResultProps[];
 	sortFns: { label: string; fn: (_r: SearchResultProps[]) => void }[];
-	//filterFns: (() => void)[];
+	currentSort: string;
+	setCurrentSort: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function SearchFilter({ results, sortFns }: Props) {
+export default function SearchFilter({
+	results,
+	//cache,
+	sortFns,
+	currentSort,
+	setCurrentSort,
+}: Props) {
 	const [isOpen, setOpen] = useState(false);
-	const [currentSort, setCurrentSort] = useState("");
+	//const [currentSort, setCurrentSort] = useState("");
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	const handleOpen = (
@@ -54,8 +62,9 @@ export default function SearchFilter({ results, sortFns }: Props) {
 					className="absolute right-0 top-8 p-2 rounded-lg z-20 flex flex-col gap-1 whitespace-nowrap dark:bg-zinc-800 bg-slate-200"
 					ref={dropdownRef}
 				>
-					{sortFns.map((s) => (
+					{sortFns.map((s, i) => (
 						<button
+							key={i}
 							className="p-2 rounded-lg dark:hover:bg-zinc-600 hover:bg-slate-400"
 							type="button"
 							onClick={(e) => {

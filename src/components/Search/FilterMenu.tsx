@@ -1,10 +1,13 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { SearchResultProps } from "../../types";
 import { titleCap } from "../../utility/charCaseFunctions";
 
 interface Props {
 	results: SearchResultProps[];
+	cache: SearchResultProps[];
 	setResults: React.Dispatch<React.SetStateAction<SearchResultProps[]>>;
+	setCache: React.Dispatch<React.SetStateAction<SearchResultProps[]>>;
+	setCurrentSort: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const filterResults = (results: SearchResultProps[], filters: string[]) => {
@@ -20,8 +23,14 @@ const filterResults = (results: SearchResultProps[], filters: string[]) => {
 
 const options = ["ticket", "subtask", "project", "group", "user"];
 
-export default function FilterMenu({ results, setResults }: Props) {
-	const cache = useMemo(() => [...results], []);
+export default function FilterMenu({
+	results,
+	cache,
+	setResults,
+	setCache,
+	setCurrentSort,
+}: Props) {
+	//const cache = useMemo(() => results.map((r) => ({ ...r })), []);
 	const [isOpen, setOpen] = useState(false);
 	const [filters, setFilters] = useState<string[]>([]);
 	const filterMenuRef = useRef<HTMLDivElement>(null);
@@ -60,9 +69,18 @@ export default function FilterMenu({ results, setResults }: Props) {
 	) => {
 		if (filters.includes(newFilter)) return handleOpen(e);
 
-		//if (filters.length === 0)
+		if (filters.length === 0) {
+			setCache(results);
+		}
+
 		setFilters((prev) => [...prev, newFilter]);
-		setResults(filterResults(cache, [...filters, newFilter]));
+		setResults(
+			filterResults(cache.length > 0 ? cache : results, [
+				...filters,
+				newFilter,
+			])
+		);
+		setCurrentSort("");
 		handleOpen(e);
 	};
 
@@ -71,13 +89,17 @@ export default function FilterMenu({ results, setResults }: Props) {
 	) => {
 		setResults(cache);
 		setFilters([]);
+		setCurrentSort("");
+		setCache([]);
 		handleOpen(e);
 	};
 
 	const removeOneFilter = (filter: string) => {
 		if (filters.length === 1) {
 			setResults(cache);
+			setCache([]);
 		}
+		setCurrentSort("");
 		setFilters((prev) => prev.filter((f) => f !== filter));
 	};
 
@@ -93,8 +115,9 @@ export default function FilterMenu({ results, setResults }: Props) {
 			{filters.length > 0 && (
 				<div className="flex flex-row gap-2 items-baseline">
 					Applied Filters:{" "}
-					{filters.map((f) => (
+					{filters.map((f, i) => (
 						<button
+							key={i}
 							className="font-semibold px-3 py-1 w-fit text-white rounded-full dark:bg-blue-700 dark:hover:bg-blue-600 bg-blue-600 hover:bg-blue-500"
 							onClick={() => removeOneFilter(f)}
 						>
@@ -115,8 +138,9 @@ export default function FilterMenu({ results, setResults }: Props) {
 					>
 						Clear All Filters
 					</button>
-					{options.map((o) => (
+					{options.map((o, i) => (
 						<button
+							key={i}
 							className="p-2 rounded-lg dark:hover:bg-zinc-600 hover:bg-slate-400"
 							type="button"
 							onClick={(e) => addFilter(e, o)}

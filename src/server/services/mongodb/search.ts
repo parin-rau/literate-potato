@@ -74,7 +74,12 @@ export async function getSearchResults(
 					"group.groupId": { $in: permittedGroups },
 					$or: [
 						{ "subtasks.subtaskId": query },
-						{ "subtasks.description": query },
+						{
+							"subtasks.description": {
+								$regex: query,
+								$options: "i",
+							},
+						},
 						{ "subtasks.completed": query },
 					],
 				})
@@ -107,13 +112,23 @@ export async function getSearchResults(
 					"group.groupId": { $in: permittedGroups },
 					$or: [
 						{ title: query },
-						{ "project.projectTitle": query },
+						{
+							"project.projectTitle": {
+								$regex: query,
+								$options: "i",
+							},
+						},
 						{ "project.projectId": query },
 						{ "creator.username": query },
 						{ "creator.userId": query },
 						{ "assignee.username": query },
 						{ "assignee.userId": query },
-						{ description: query },
+						{
+							description: {
+								$regex: query,
+								$options: "i",
+							},
+						},
 						{ tags: titleCap(query) },
 						{ due: query },
 					],

@@ -4,6 +4,7 @@ import SortMenu from "./SortMenu";
 import SearchResult from "./SearchResult";
 import { sortByKey } from "../../utility/sortData";
 import FilterMenu from "./FilterMenu";
+import { useState } from "react";
 
 type Props = { query: string; filter?: string };
 // type Value = string | number | { [key: string]: string | number };
@@ -11,6 +12,7 @@ type Props = { query: string; filter?: string };
 
 export default function SearchContainer(props: Props) {
 	const { query, filter } = props;
+	const [currentSort, setCurrentSort] = useState("");
 
 	const {
 		data: results,
@@ -19,6 +21,8 @@ export default function SearchContainer(props: Props) {
 	} = useInitialFetch<SearchResultProps[]>(
 		filter ? `/api/search/${query}/${filter}` : `/api/search/${query}`
 	);
+
+	const [cache, setCache] = useState<SearchResultProps[]>([]);
 
 	const sortFns = [
 		{
@@ -76,8 +80,24 @@ export default function SearchContainer(props: Props) {
 							} for "${query}"`}
 						</p>
 						<div className="flex flex-row gap-6 items-baseline">
-							<FilterMenu {...{ results, setResults }} />
-							<SortMenu {...{ results, sortFns }} />
+							<FilterMenu
+								{...{
+									cache,
+									setCache,
+									results,
+									setResults,
+									setCurrentSort,
+								}}
+							/>
+							<SortMenu
+								{...{
+									results,
+									cache,
+									sortFns,
+									currentSort,
+									setCurrentSort,
+								}}
+							/>
 						</div>
 					</div>
 					{results.map((r, index) => (
