@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
 import { SearchResultProps } from "../../types";
-import timestampDisplay, {
-	longDateDisplay,
-} from "../../utility/timestampDisplay";
+import { longDateDisplay } from "../../utility/timestampDisplay";
 import { titleCap } from "../../utility/charCaseFunctions";
 
 export default function SearchResult(props: SearchResultProps) {

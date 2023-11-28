@@ -82,17 +82,16 @@ export default function SearchContainer(props: Props) {
 						<div className="flex flex-row gap-6 items-baseline">
 							<FilterMenu
 								{...{
-									cache,
-									setCache,
 									results,
 									setResults,
+									cache,
+									setCache,
 									setCurrentSort,
 								}}
 							/>
 							<SortMenu
 								{...{
 									results,
-									cache,
 									sortFns,
 									currentSort,
 									setCurrentSort,

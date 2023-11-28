@@ -27,6 +27,8 @@ type ProjectProps = {
 	setProject?: never;
 };
 
+//type T = FetchedTicketData | Project
+
 type Props = {
 	styles?: string;
 	group?: { groupId: string; groupTitle: string };

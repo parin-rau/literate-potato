@@ -3,7 +3,6 @@ import { SearchResultProps } from "../../types";
 
 interface Props {
 	results: SearchResultProps[];
-	//cache: SearchResultProps[];
 	sortFns: { label: string; fn: (_r: SearchResultProps[]) => void }[];
 	currentSort: string;
 	setCurrentSort: React.Dispatch<React.SetStateAction<string>>;
@@ -11,13 +10,11 @@ interface Props {
 
 export default function SearchFilter({
 	results,
-	//cache,
 	sortFns,
 	currentSort,
 	setCurrentSort,
 }: Props) {
 	const [isOpen, setOpen] = useState(false);
-	//const [currentSort, setCurrentSort] = useState("");
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	const handleOpen = (

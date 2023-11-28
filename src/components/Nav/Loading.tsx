@@ -39,7 +39,7 @@ export function LoadingSkeletonCard({ className }: { className?: string }) {
 		>
 			<div className="flex flex-col gap-4 bg-slate-100 dark:bg-neutral-900 animate-pulse">
 				<div className="flex flex-row gap-4 items-center">
-					<div className="p-6 rounded-full bg-slate-300 dark:bg-neutral-700" />
+					<div className="h-10 rounded-full w-2/3 bg-slate-300 dark:bg-neutral-700" />
 					<div className="h-4 rounded-full w-full bg-slate-300 dark:bg-neutral-700" />
 					<div className="h-4 rounded-full w-full bg-slate-300 dark:bg-neutral-700" />
 				</div>
