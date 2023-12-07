@@ -1,15 +1,22 @@
 import { Request, Response } from "express";
 import { TicketData } from "../../types";
 import * as ticketsService from "../services/mongodb/tickets";
+import { UserRequest } from "../middleware/verifyToken";
 
-export async function getTicket(req: Request, res: Response) {
+export async function getTicket(req: Request | UserRequest, res: Response) {
 	const { id } = req.params;
-	const { status, ticket } = await ticketsService.getTicket(id);
+	const { user } = req as UserRequest;
+	const { status, ticket } = await ticketsService.getTicket(id, user);
+
+	//if (!message) return res.status(status).send({data: ticket});
 	res.status(status).send(ticket);
 }
 
-export async function getAllTickets(_req: Request, res: Response) {
-	const { status, tickets } = await ticketsService.getAllTickets();
+export async function getAllTickets(req: Request, res: Response) {
+	const { user } = req as UserRequest;
+	const { status, tickets } = await ticketsService.getAllTickets(user);
+	//if (!message) return res.status(status).send({data: tickets})
+
 	res.status(status).send(tickets);
 }
 
@@ -17,20 +24,27 @@ export async function getAllTicketsForUser(req: Request, res: Response) {
 	const { userId } = req.params;
 	const { status, tickets } =
 		await ticketsService.getAllTicketsForUser(userId);
+
 	res.status(status).send(tickets);
 }
 
 export async function getAllTicketsForProject(req: Request, res: Response) {
 	const { projectId } = req.params;
-	const { status, tickets } =
-		await ticketsService.getAllTicketsForProject(projectId);
+	const { user } = req as UserRequest;
+	const { status, tickets } = await ticketsService.getAllTicketsForProject(
+		projectId,
+		user
+	);
 	res.status(status).send(tickets);
 }
 
 export async function getUncategorizedForGroup(req: Request, res: Response) {
 	const { groupId } = req.params;
-	const { status, tickets } =
-		await ticketsService.getUncategorizedForGroup(groupId);
+	const { user } = req as UserRequest;
+	const { status, tickets } = await ticketsService.getUncategorizedForGroup(
+		groupId,
+		user
+	);
 	res.status(status).send(tickets);
 }
 

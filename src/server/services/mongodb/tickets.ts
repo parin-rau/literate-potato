@@ -8,6 +8,7 @@ import {
 	Project,
 	TicketData,
 	User,
+	UserToken,
 } from "../../../types";
 import { countPerElement } from "../../../utility/arrayComparisons";
 
@@ -17,7 +18,20 @@ const usersColl = process.env.LOCAL_USERS ?? "users";
 const groupsColl = process.env.LOCAL_GROUPS ?? "groups";
 const commentsColl = process.env.LOCAL_COMMENTS ?? "comments";
 
-export async function getTicket(id: string) {
+// const unauthorizedMsg =
+// 	"Unauthorized access. Join this group to view this resource.";
+
+const getPermittedGroups = async (
+	userId: string,
+	usersCollection: mongoDB.Collection<User>
+) => {
+	const permittedGroups = await usersCollection
+		.findOne({ userId })
+		.then((u) => u?.groupIds);
+	return permittedGroups;
+};
+
+export async function getTicket(id: string, user: UserToken) {
 	const res: { status: number; ticket?: unknown } = {
 		status: 500,
 	};
@@ -25,9 +39,25 @@ export async function getTicket(id: string) {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(ticketsColl);
-		const ticket = await coll.findOne({ ticketId: id });
+		const tickets = db.collection<FetchedTicketData>(ticketsColl);
+		const users = db.collection<User>(usersColl);
+
+		//const permittedGroups = await users
+		//	.findOne({ userId: user.userId })
+		//	.then((u) => u?.groupIds);
+
+		const permittedGroups = await getPermittedGroups(user.userId, users);
+		if (!permittedGroups) return res;
+
+		const ticket = await tickets.findOne({
+			ticketId: id,
+		});
 		await client.close();
+
+		if (ticket && !permittedGroups?.includes(ticket.group.groupId)) {
+			res.status = 250;
+			return res;
+		}
 
 		res.status = 200;
 		res.ticket = ticket;
@@ -38,7 +68,7 @@ export async function getTicket(id: string) {
 	}
 }
 
-export async function getAllTickets() {
+export async function getAllTickets(user: UserToken) {
 	const res: { status: number; tickets?: unknown } = {
 		status: 500,
 	};
@@ -46,9 +76,21 @@ export async function getAllTickets() {
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(ticketsColl);
-		const tickets = await coll.find().limit(50).toArray();
+		const coll = db.collection<FetchedTicketData>(ticketsColl);
+		const users = db.collection<User>(usersColl);
+
+		const permittedGroups = await getPermittedGroups(user.userId, users);
+
+		const tickets = await coll.find().toArray();
 		await client.close();
+
+		if (
+			tickets &&
+			!tickets.every((t) => permittedGroups?.includes(t.group.groupId))
+		) {
+			res.status = 250;
+			return res;
+		}
 
 		res.status = 200;
 		res.tickets = tickets;
@@ -70,17 +112,24 @@ export async function getAllTicketsForUser(userId: string) {
 		const tickets = db.collection<FetchedTicketData>(ticketsColl);
 		const users = db.collection<User>(usersColl);
 
-		const foundGroups = await users
-			.findOne({ userId })
-			.then((u) => u?.groupIds);
+		const permittedGroups = await getPermittedGroups(userId, users);
 
-		if (!foundGroups) return res;
+		// const foundGroups = await users
+		// 	.findOne({ userId })
+		// 	.then((u) => u?.groupIds);
+
+		// if (!foundGroups) return res;
 
 		const foundTickets = await tickets
-			.find({ "group.groupId": { $in: foundGroups } })
+			.find({ "group.groupId": { $in: permittedGroups } })
 			.sort({ timestamp: 1 })
 			.toArray();
 		await client.close();
+
+		if (!permittedGroups) {
+			res.status = 250;
+			return res;
+		}
 
 		res.status = 200;
 		res.tickets = foundTickets;
@@ -91,7 +140,10 @@ export async function getAllTicketsForUser(userId: string) {
 	}
 }
 
-export async function getAllTicketsForProject(projectId: string) {
+export async function getAllTicketsForProject(
+	projectId: string,
+	user: UserToken
+) {
 	const res: { status: number; tickets?: unknown } = {
 		status: 500,
 	};
@@ -100,12 +152,25 @@ export async function getAllTicketsForProject(projectId: string) {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
 		const tickets = db.collection<FetchedTicketData>(ticketsColl);
+		const users = db.collection<User>(usersColl);
+
+		const permittedGroups = await getPermittedGroups(user.userId, users);
 
 		if (projectId === "uncategorized") {
 			const foundTickets = await tickets
 				.find({ "project.projectId": "" })
 				.toArray();
 			await client.close();
+
+			if (
+				foundTickets &&
+				!foundTickets.every(
+					(t) => permittedGroups?.includes(t.group.groupId)
+				)
+			) {
+				res.status = 250;
+				return res;
+			}
 
 			res.status = 200;
 			res.tickets = foundTickets;
@@ -115,6 +180,16 @@ export async function getAllTicketsForProject(projectId: string) {
 				.find({ "project.projectId": projectId })
 				.toArray();
 			await client.close();
+
+			if (
+				foundTickets &&
+				!foundTickets.every(
+					(t) => permittedGroups?.includes(t.group.groupId)
+				)
+			) {
+				res.status = 250;
+				return res;
+			}
 
 			res.status = 200;
 			res.tickets = foundTickets;
@@ -126,7 +201,10 @@ export async function getAllTicketsForProject(projectId: string) {
 	}
 }
 
-export async function getUncategorizedForGroup(groupId: string) {
+export async function getUncategorizedForGroup(
+	groupId: string,
+	user: UserToken
+) {
 	const res: { status: number; tickets?: unknown } = {
 		status: 500,
 	};
@@ -135,10 +213,19 @@ export async function getUncategorizedForGroup(groupId: string) {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
 		const ticketColl = db.collection<FetchedTicketData>(ticketsColl);
+		const users = db.collection<User>(usersColl);
+
+		const permittedGroups = await getPermittedGroups(user.userId, users);
+
 		const tickets = await ticketColl
 			.find({ "project.projectId": "", "group.groupId": groupId })
 			.toArray();
 		await client.close();
+
+		if (!permittedGroups) {
+			res.status = 250;
+			return res;
+		}
 
 		res.status = 200;
 		res.tickets = tickets;
@@ -160,9 +247,16 @@ export async function getUncategorizedForUser(userId: string) {
 		const users = db.collection<User>(usersColl);
 		const ticketColl = db.collection<FetchedTicketData>(ticketsColl);
 
+		const permittedGroups = await getPermittedGroups(userId, users);
+
 		const groupIds = await users
 			.findOne({ userId })
 			.then((u) => u?.groupIds.map((g) => g));
+
+		if (!permittedGroups) {
+			res.status = 250;
+			return res;
+		}
 
 		const tickets = await ticketColl
 			.find({

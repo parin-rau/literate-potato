@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/useAuth";
 import { useNavigate } from "react-router-dom";
+import { statusCodeLookup } from "../../utility/statusCodeMsg";
 
 export function useInitialFetch<T, D = void>(
 	endpoint: RequestInfo | URL,
@@ -8,11 +9,14 @@ export function useInitialFetch<T, D = void>(
 	setterHelper?: (_arg: D) => T,
 	defaultData?: T
 ) {
+	type JsonData = D extends void ? T : D;
+
 	const { user, refreshAccessToken, signOut } = useAuth();
 	const navigate = useNavigate();
 	const [isLoading, setLoading] = useState<boolean>(true);
 	const [data, setData] = useState<T | null>(null);
 	const [error, setError] = useState<string | unknown | null>(null);
+	const [message, setMessage] = useState<string | null>(null);
 	const [ok, setOk] = useState<boolean | null>(null);
 
 	useEffect(() => {
@@ -64,11 +68,18 @@ export function useInitialFetch<T, D = void>(
 							);
 
 							if (retryRes.ok) {
-								const jsonData = await retryRes.json();
+								const jsonData: JsonData =
+									await retryRes.json();
 								setterHelper
-									? setData(setterHelper(jsonData))
-									: setData(jsonData);
+									? setData(setterHelper(jsonData as D))
+									: setData(jsonData as T);
 								setOk(true);
+
+								if (
+									Object.hasOwn(statusCodeLookup, res.status)
+								) {
+									setMessage(statusCodeLookup[res.status]);
+								}
 								return setLoading(false);
 							}
 						}
@@ -78,11 +89,16 @@ export function useInitialFetch<T, D = void>(
 					return await signOut();
 				}
 
-				const jsonData = await res.json();
+				const jsonData: JsonData = await res.json();
 				setterHelper
-					? setData(setterHelper(jsonData))
-					: setData(jsonData);
+					? setData(setterHelper(jsonData as D))
+					: setData(jsonData as T);
 				setOk(true);
+
+				if (Object.hasOwn(statusCodeLookup, res.status)) {
+					setMessage(statusCodeLookup[res.status]);
+				}
+
 				return setLoading(false);
 			} catch (e) {
 				setError(e);
@@ -118,11 +134,12 @@ export function useInitialFetch<T, D = void>(
 		defaultData,
 	]);
 
-	return { data, setData, isLoading, ok, error } as {
+	return { data, setData, isLoading, ok, error, message } as {
 		data: T;
 		setData: React.Dispatch<React.SetStateAction<T>>;
 		isLoading: boolean;
 		ok: boolean;
 		error: unknown;
+		message: string | null;
 	};
 }
