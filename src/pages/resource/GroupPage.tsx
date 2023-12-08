@@ -3,6 +3,9 @@ import ProjectHomePage from "../home/ProjectHomePage";
 import { useSingleGroup } from "../../hooks/card/useGroup";
 import GroupCard from "../../components/Group/GroupCard";
 
+const unauthMsg =
+	"Must be a member of this group to view associated projects and tasks.";
+
 export default function GroupPage() {
 	const { id } = useParams();
 
@@ -16,10 +19,11 @@ export default function GroupPage() {
 				hideTitle
 				title={group.title ?? "Group"}
 				group={{ groupId: group.groupId, groupTitle: group.title }}
+				err={{ message: unauthMsg, hideButton: true }}
 			>
 				<GroupCard
-					data={group}
 					{...{
+						data: group,
 						...state,
 						setGroup,
 						...restCardSetters,

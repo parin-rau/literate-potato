@@ -16,6 +16,7 @@ export default function ProjectHomePage(props: {
 	hideTitle?: boolean;
 	group?: { groupId: string; groupTitle: string };
 	children?: React.ReactNode;
+	err?: { message?: string; hideButton?: boolean };
 }) {
 	usePageTitle(props.title);
 	const { user } = useAuth();
@@ -65,6 +66,8 @@ export default function ProjectHomePage(props: {
 						<LoadingSkeletonCard />
 						<LoadingSkeletonCard />
 					</div>
+				) : props.err ? (
+					<UnjoinedNotice {...{ ...props.err }} />
 				) : (
 					<UnjoinedNotice resource="project" />
 				)}

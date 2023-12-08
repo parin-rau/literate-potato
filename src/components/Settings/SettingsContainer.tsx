@@ -61,6 +61,9 @@ export default function SettingsContainer() {
 				<Link to={"/project/f15e7cef-81d5-48e3-ad21-bdff18710aef"}>
 					Test unauthorized project
 				</Link>
+				<Link to={"/group/4428c1d0-6ec3-4782-949f-4244e7445cf4"}>
+					Test unauthorized group
+				</Link>
 			</div>
 		</div>
 	);

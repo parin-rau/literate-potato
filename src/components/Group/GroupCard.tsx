@@ -17,16 +17,17 @@ type Props = {
 	denyRequest: (_gId: string, _uId: string) => void;
 	deleteGroup: (_id: string) => void;
 	editGroup: (_id: string) => void;
+	requestGroup?: (_gId: string, _uId: string) => void;
 } & (
 	| {
 			setGroup?: never;
 			setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
-			requestGroup: (_gId: string, _uId: string) => void;
+			//requestGroup: (_gId: string, _uId: string) => void;
 	  }
 	| {
 			setGroup: React.Dispatch<React.SetStateAction<Group>>;
 			setGroups?: never;
-			requestGroup?: never;
+			//requestGroup?: never;
 	  }
 );
 
