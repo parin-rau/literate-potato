@@ -1,26 +1,35 @@
 import { Request, Response } from "express";
 import * as projectsService from "../services/mongodb/projects";
+import { UserRequest } from "../middleware/verifyToken";
 
-export async function getProject(req: Request, res: Response) {
+export async function getProject(req: Request | UserRequest, res: Response) {
 	const { id } = req.params;
-	const { status, success, project } = await projectsService.getProject(id);
+	const { user } = req as UserRequest;
+	const { status, project } = await projectsService.getProject(id, user);
 
-	if (!success || !project) {
-		res.sendStatus(status);
-	} else {
-		res.status(status).send(project);
-	}
+	res.status(status).send(project);
+
+	// if (!success || !project) {
+	// 	res.sendStatus(status);
+	// } else {
+	// 	res.status(status).send(project);
+	// }
 }
 
-export async function getAllProjects(_req: Request, res: Response) {
-	const { status, success, projects } =
-		await projectsService.getAllProjects();
+export async function getAllProjects(
+	req: Request | UserRequest,
+	res: Response
+) {
+	const { user } = req as UserRequest;
+	const { status, projects } = await projectsService.getAllProjects(user);
 
-	if (!success || !projects) {
-		return res.sendStatus(status);
-	} else {
-		return res.status(status).send(projects);
-	}
+	res.status(status).send(projects);
+
+	// if (!success || !projects) {
+	// 	return res.sendStatus(status);
+	// } else {
+	// 	return res.status(status).send(projects);
+	// }
 }
 
 export async function getProjectsByUser(req: Request, res: Response) {
@@ -30,16 +39,24 @@ export async function getProjectsByUser(req: Request, res: Response) {
 	return res.status(status).send(projects);
 }
 
-export async function getProjectsByGroup(req: Request, res: Response) {
+export async function getProjectsByGroup(
+	req: Request | UserRequest,
+	res: Response
+) {
 	const { groupId } = req.params;
-	const { status, success, projects } =
-		await projectsService.getProjectsByGroup(groupId);
+	const { user } = req as UserRequest;
+	const { status, projects } = await projectsService.getProjectsByGroup(
+		groupId,
+		user
+	);
 
-	if (!success || !projects) {
-		return res.sendStatus(status);
-	} else {
-		return res.status(status).send(projects);
-	}
+	res.status(status).send(projects);
+
+	// if (!success || !projects) {
+	// 	return res.sendStatus(status);
+	// } else {
+	// 	return res.status(status).send(projects);
+	// }
 }
 
 export async function createProject(req: Request, res: Response) {

@@ -155,12 +155,6 @@ export function useCalendar() {
 	);
 
 	const initViewDates = useMemo(() => {
-		// const nextMonth = dateRollover(d.getFullYear(), d.getMonth() + 1)
-		// const dates = {
-		// 	current: getDatesOfMonth(d.getFullYear(), d.getMonth()),
-		// 	next: getDatesOfMonth(d.getFullYear(), d.getMonth() + 1),
-		// 	prev: getDatesOfMonth(d.getFullYear(), d.getMonth() - 1),
-		// };
 		const dates = getNewDatesOfMonths(d.getFullYear(), d.getMonth());
 		const viewDates = monthDisplayFormat(dates);
 		const strViewDates = viewDates.map((dt) => dateToStr(dt));

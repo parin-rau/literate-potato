@@ -18,9 +18,6 @@ const usersColl = process.env.LOCAL_USERS ?? "users";
 const groupsColl = process.env.LOCAL_GROUPS ?? "groups";
 const commentsColl = process.env.LOCAL_COMMENTS ?? "comments";
 
-// const unauthorizedMsg =
-// 	"Unauthorized access. Join this group to view this resource.";
-
 const getPermittedGroups = async (
 	userId: string,
 	usersCollection: mongoDB.Collection<User>
@@ -34,6 +31,7 @@ const getPermittedGroups = async (
 export async function getTicket(id: string, user: UserToken) {
 	const res: { status: number; ticket?: unknown } = {
 		status: 500,
+		ticket: {},
 	};
 
 	try {
@@ -41,10 +39,6 @@ export async function getTicket(id: string, user: UserToken) {
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const tickets = db.collection<FetchedTicketData>(ticketsColl);
 		const users = db.collection<User>(usersColl);
-
-		//const permittedGroups = await users
-		//	.findOne({ userId: user.userId })
-		//	.then((u) => u?.groupIds);
 
 		const permittedGroups = await getPermittedGroups(user.userId, users);
 		if (!permittedGroups) return res;
@@ -69,8 +63,9 @@ export async function getTicket(id: string, user: UserToken) {
 }
 
 export async function getAllTickets(user: UserToken) {
-	const res: { status: number; tickets?: unknown } = {
+	const res: { status: number; tickets: unknown[] } = {
 		status: 500,
+		tickets: [],
 	};
 
 	try {
@@ -102,8 +97,9 @@ export async function getAllTickets(user: UserToken) {
 }
 
 export async function getAllTicketsForUser(userId: string) {
-	const res: { status: number; tickets?: unknown } = {
+	const res: { status: number; tickets: unknown[] } = {
 		status: 500,
+		tickets: [],
 	};
 
 	try {
@@ -205,8 +201,9 @@ export async function getUncategorizedForGroup(
 	groupId: string,
 	user: UserToken
 ) {
-	const res: { status: number; tickets?: unknown } = {
+	const res: { status: number; tickets: unknown[] } = {
 		status: 500,
+		tickets: [],
 	};
 
 	try {
@@ -237,8 +234,9 @@ export async function getUncategorizedForGroup(
 }
 
 export async function getUncategorizedForUser(userId: string) {
-	const res: { status: number; tickets?: unknown } = {
+	const res: { status: number; tickets: unknown[] } = {
 		status: 500,
+		tickets: [],
 	};
 
 	try {
