@@ -145,7 +145,11 @@ export async function getTicketsForUser(
 						t.subtasks.length,
 				}))
 				.filter((t) => t.completion < 1)
-				.sort((a, b) => b.completion - a.completion)
+				.sort((a, b) =>
+					options.sort.direction === -1
+						? b.completion - a.completion
+						: a.completion - b.completion
+				)
 				.slice(0, 8)
 				.map((t) => t.ticket);
 

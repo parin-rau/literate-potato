@@ -2,18 +2,16 @@ import { Request, Response } from "express";
 import * as projectsService from "../services/mongodb/projects";
 import { UserRequest } from "../middleware/verifyToken";
 
+type Options =
+	| { limit: number; sort: { field: string; direction: 1 | -1 } }
+	| undefined;
+
 export async function getProject(req: Request | UserRequest, res: Response) {
 	const { id } = req.params;
 	const { user } = req as UserRequest;
 	const { status, project } = await projectsService.getProject(id, user);
 
 	res.status(status).send(project);
-
-	// if (!success || !project) {
-	// 	res.sendStatus(status);
-	// } else {
-	// 	res.status(status).send(project);
-	// }
 }
 
 export async function getAllProjects(
@@ -24,18 +22,20 @@ export async function getAllProjects(
 	const { status, projects } = await projectsService.getAllProjects(user);
 
 	res.status(status).send(projects);
-
-	// if (!success || !projects) {
-	// 	return res.sendStatus(status);
-	// } else {
-	// 	return res.status(status).send(projects);
-	// }
 }
 
 export async function getProjectsByUser(req: Request, res: Response) {
-	const { userId } = req.params;
-	const { status, projects } =
-		await projectsService.getProjectsByUser(userId);
+	const { userId, view } = req.params;
+
+	let options: Options = undefined;
+	if (view === "summary") {
+		options = { limit: 8, sort: { field: "completion", direction: -1 } };
+	}
+
+	const { status, projects } = await projectsService.getProjectsByUser(
+		userId,
+		options
+	);
 	return res.status(status).send(projects);
 }
 
@@ -51,12 +51,6 @@ export async function getProjectsByGroup(
 	);
 
 	res.status(status).send(projects);
-
-	// if (!success || !projects) {
-	// 	return res.sendStatus(status);
-	// } else {
-	// 	return res.status(status).send(projects);
-	// }
 }
 
 export async function createProject(req: Request, res: Response) {

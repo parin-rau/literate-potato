@@ -34,6 +34,7 @@ type Props = {
 	group?: { groupId: string; groupTitle: string };
 	isSummary?: boolean;
 	hideEditor?: boolean;
+	hideUncategorized?: boolean;
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 } & (TicketProps | ProjectProps);
 
@@ -53,6 +54,7 @@ export default function CardContainer<
 		group,
 		isSummary,
 		hideEditor,
+		hideUncategorized,
 	} = props;
 
 	const { user } = useAuth();
@@ -81,8 +83,6 @@ export default function CardContainer<
 			? `/api/project/user/${user.current!.userId}/summary`
 			: `/api/project/user/${user.current!.userId}`;
 
-	useEffect(() => console.log({ endpoint }), [endpoint]);
-
 	const {
 		data: cards,
 		setData: setCards,
@@ -94,7 +94,15 @@ export default function CardContainer<
 	useEffect(() => {
 		if (dataKind === "ticket" && setCardsLoading && !isLoading)
 			setCardsLoading(false);
-	}, [dataKind, isLoading, setCardsLoading]);
+
+		if (
+			dataKind === "project" &&
+			setCardsLoading &&
+			!isLoading &&
+			hideUncategorized
+		)
+			setCardsLoading(false);
+	}, [dataKind, hideUncategorized, isLoading, setCardsLoading]);
 
 	useEffect(() => {
 		function filterCards() {
@@ -180,19 +188,19 @@ export default function CardContainer<
 		}
 	}
 
-	function getSortLabel(cardDataArr: typeof cards) {
-		if (sortMeta) {
-			const labels = cardDataArr.map((cardData) => {
-				const targetProperty = cardData[sortMeta.property as keyof T];
-				const sortLabel =
-					sortMeta.categories.find(
-						(category) => category === targetProperty
-					) || "Uncategorized";
-				return sortLabel;
-			});
-			return labels;
-		}
-	}
+	// function getSortLabel(cardDataArr: typeof cards) {
+	// 	if (sortMeta) {
+	// 		const labels = cardDataArr.map((cardData) => {
+	// 			const targetProperty = cardData[sortMeta.property as keyof T];
+	// 			const sortLabel =
+	// 				sortMeta.categories.find(
+	// 					(category) => category === targetProperty
+	// 				) || "Uncategorized";
+	// 			return sortLabel;
+	// 		});
+	// 		return labels;
+	// 	}
+	// }
 
 	function deleteFilterTag(id: number) {
 		setFilters((prev) => prev.filter((_tag, index) => index !== id));
@@ -261,7 +269,7 @@ export default function CardContainer<
 			</div>
 			{!hideContainer && (
 				<>
-					<span>{sortMeta && getSortLabel(cards)}</span>
+					{/* <span>{sortMeta && getSortLabel(cards)}</span> */}
 					<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto ">
 						<CardSelector
 							{...{
@@ -273,6 +281,7 @@ export default function CardContainer<
 								setFilters,
 								setProject,
 								setCardsLoading,
+								hideUncategorized,
 							}}
 						/>
 					</div>

@@ -86,7 +86,10 @@ export async function getAllProjects(user: UserToken) {
 	}
 }
 
-export async function getProjectsByUser(userId: string) {
+export async function getProjectsByUser(
+	userId: string,
+	options?: { limit: number; sort: { field: string; direction: 1 | -1 } }
+) {
 	const res: { status: number; success: boolean; projects: unknown[] } = {
 		status: 500,
 		success: false,
@@ -107,6 +110,27 @@ export async function getProjectsByUser(userId: string) {
 			.find({ "group.groupId": { $in: foundGroups } })
 			.toArray();
 		await client.close();
+
+		if (options?.sort.field === "completion") {
+			const closestToCompletion = foundProjects
+				.map((p) => ({
+					project: p,
+					completion:
+						p.tasksCompletedIds.length / p.subtasksTotalIds.length,
+				}))
+				.filter((p) => p.completion < 1)
+				.sort((a, b) =>
+					options.sort.direction === -1
+						? b.completion - a.completion
+						: a.completion - b.completion
+				)
+				.slice(0, 8)
+				.map((p) => p.project);
+
+			res.status = 200;
+			res.success = true;
+			res.projects = closestToCompletion;
+		}
 
 		res.status = 200;
 		res.success = true;

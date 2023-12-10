@@ -12,6 +12,7 @@ type TicketProps = {
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
 	setProject?: never;
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+	hideUncategorized?: boolean;
 };
 
 type ProjectProps = {
@@ -23,6 +24,7 @@ type ProjectProps = {
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+	hideUncategorized?: boolean;
 };
 
 type Props = TicketProps | ProjectProps;
@@ -36,6 +38,7 @@ export default function CardSelector(props: Props) {
 		setFilters,
 		setProject,
 		setCardsLoading,
+		hideUncategorized,
 	} = props;
 
 	switch (dataKind) {
@@ -63,9 +66,11 @@ export default function CardSelector(props: Props) {
 						/>
 					))}
 
-					<UncategorizedProjectsCard
-						setCardsLoading={setCardsLoading}
-					/>
+					{!hideUncategorized && (
+						<UncategorizedProjectsCard
+							setCardsLoading={setCardsLoading}
+						/>
+					)}
 				</>
 			);
 		default:
