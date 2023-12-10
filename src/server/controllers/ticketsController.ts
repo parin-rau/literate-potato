@@ -3,6 +3,11 @@ import { TicketData } from "../../types";
 import * as ticketsService from "../services/mongodb/tickets";
 import { UserRequest } from "../middleware/verifyToken";
 
+type Options = {
+	limit: number;
+	sort: { field: string; direction: 1 | -1 };
+} | null;
+
 export async function getTicket(req: Request | UserRequest, res: Response) {
 	const { id } = req.params;
 	const { user } = req as UserRequest;
@@ -20,10 +25,18 @@ export async function getAllTickets(req: Request, res: Response) {
 	res.status(status).send(tickets);
 }
 
-export async function getAllTicketsForUser(req: Request, res: Response) {
-	const { userId } = req.params;
-	const { status, tickets } =
-		await ticketsService.getAllTicketsForUser(userId);
+export async function getTicketsForUser(req: Request, res: Response) {
+	const { userId, view } = req.params;
+
+	let options: Options = null;
+	if (view === "summary") {
+		options = { limit: 8, sort: { field: "completion", direction: -1 } };
+		console.log({ view, options });
+	}
+
+	const { status, tickets } = options
+		? await ticketsService.getTicketsForUser(userId, options)
+		: await ticketsService.getTicketsForUser(userId);
 
 	res.status(status).send(tickets);
 }

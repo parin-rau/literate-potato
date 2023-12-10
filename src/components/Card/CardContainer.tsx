@@ -32,6 +32,8 @@ type ProjectProps = {
 type Props = {
 	styles?: string;
 	group?: { groupId: string; groupTitle: string };
+	isSummary?: boolean;
+	hideEditor?: boolean;
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 } & (TicketProps | ProjectProps);
 
@@ -49,6 +51,8 @@ export default function CardContainer<
 		setProject,
 		setCardsLoading,
 		group,
+		isSummary,
+		hideEditor,
 	} = props;
 
 	const { user } = useAuth();
@@ -68,10 +72,16 @@ export default function CardContainer<
 		dataKind === "ticket"
 			? projectId
 				? `/api/ticket/project/${projectId}`
+				: isSummary
+				? `/api/ticket/user/${user.current!.userId}/summary`
 				: `/api/ticket/user/${user.current!.userId}`
 			: group?.groupId
 			? `/api/project/group/${group.groupId}`
+			: isSummary
+			? `/api/project/user/${user.current!.userId}/summary`
 			: `/api/project/user/${user.current!.userId}`;
+
+	useEffect(() => console.log({ endpoint }), [endpoint]);
 
 	const {
 		data: cards,
@@ -210,17 +220,19 @@ export default function CardContainer<
 				styles
 			}
 		>
-			<TicketEditor
-				{...{
-					dataKind,
-					setCards,
-					project,
-					group,
-					resetFilters,
-					setProject,
-					setCardCache,
-				}}
-			/>
+			{!hideEditor && (
+				<TicketEditor
+					{...{
+						dataKind,
+						setCards,
+						project,
+						group,
+						resetFilters,
+						setProject,
+						setCardCache,
+					}}
+				/>
+			)}
 
 			<div className="flex flex-row justify-between items-end">
 				<div className="flex flex-row gap-2 items-center">

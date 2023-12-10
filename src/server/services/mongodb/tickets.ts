@@ -96,7 +96,10 @@ export async function getAllTickets(user: UserToken) {
 	}
 }
 
-export async function getAllTicketsForUser(userId: string) {
+export async function getTicketsForUser(
+	userId: string,
+	options?: { limit: number; sort: { field: string; direction: 1 | -1 } }
+) {
 	const res: { status: number; tickets: unknown[] } = {
 		status: 500,
 		tickets: [],
@@ -116,14 +119,38 @@ export async function getAllTicketsForUser(userId: string) {
 
 		// if (!foundGroups) return res;
 
-		const foundTickets = await tickets
-			.find({ "group.groupId": { $in: permittedGroups } })
-			.sort({ timestamp: 1 })
-			.toArray();
+		const foundTickets = options
+			? await tickets
+					.find({ "group.groupId": { $in: permittedGroups } })
+					//.sort({ [options.sort.field]: options.sort.direction })
+					//.limit(options.limit)
+					.toArray()
+			: await tickets
+					.find({ "group.groupId": { $in: permittedGroups } })
+					.sort({ timestamp: 1 })
+					.toArray();
 		await client.close();
 
 		if (!permittedGroups) {
 			res.status = 250;
+			return res;
+		}
+
+		if (options?.sort.field === "completion") {
+			const closestToCompletion = foundTickets
+				.map((t) => ({
+					ticket: t,
+					completion:
+						t.subtasks.filter((s) => s.completed).length /
+						t.subtasks.length,
+				}))
+				.filter((t) => t.completion < 1)
+				.sort((a, b) => b.completion - a.completion)
+				.slice(0, 8)
+				.map((t) => t.ticket);
+
+			res.status = 200;
+			res.tickets = closestToCompletion;
 			return res;
 		}
 

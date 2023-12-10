@@ -38,6 +38,13 @@ export default function ProjectHomePage(props: {
 			setFalse();
 	}, [foundUser, joinedGroups, userLoading]);
 
+	// const setNoJoinedGroups = () => {
+	// 	if (!userLoading && foundUser.groupIds.length === 0 && joinedGroups) {
+	// 		setJoinedGroups(false);
+	// 		setCardsLoading(false);
+	// 	}
+	// };
+
 	return (
 		<div className="flex flex-col gap-4 pt-20 px-2">
 			<div className="sm:container sm:mx-auto flex flex-col gap-6">
