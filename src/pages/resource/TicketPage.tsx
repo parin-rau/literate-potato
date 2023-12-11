@@ -26,7 +26,10 @@ export default function TicketPage() {
 			<div className="container mx-auto flex flex-col bg-transparent px-2 py-2 rounded-lg space-y-1">
 				{!isLoading &&
 					(message ? (
-						<UnjoinedNotice message={message} />
+						<UnjoinedNotice
+							message={message}
+							hideButton={message ? true : false}
+						/>
 					) : (
 						<TicketCard cardData={card[0]} setCards={setCard} />
 					))}

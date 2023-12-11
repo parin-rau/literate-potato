@@ -35,6 +35,11 @@ export async function getProject(id: string, user: UserToken) {
 		const project = await projects.findOne({ projectId: id });
 		await client.close();
 
+		if (!project) {
+			res.status = 251;
+			return res;
+		}
+
 		if (project && !permittedGroups?.includes(project.group.groupId)) {
 			res.status = 250;
 			return res;
@@ -124,7 +129,7 @@ export async function getProjectsByUser(
 						? b.completion - a.completion
 						: a.completion - b.completion
 				)
-				.slice(0, 8)
+				.slice(0, options.limit)
 				.map((p) => p.project);
 
 			res.status = 200;

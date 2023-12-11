@@ -48,6 +48,11 @@ export async function getTicket(id: string, user: UserToken) {
 		});
 		await client.close();
 
+		if (!ticket) {
+			res.status = 251;
+			return res;
+		}
+
 		if (ticket && !permittedGroups?.includes(ticket.group.groupId)) {
 			res.status = 250;
 			return res;
@@ -150,7 +155,7 @@ export async function getTicketsForUser(
 						? b.completion - a.completion
 						: a.completion - b.completion
 				)
-				.slice(0, 8)
+				.slice(0, options.limit)
 				.map((t) => t.ticket);
 
 			res.status = 200;

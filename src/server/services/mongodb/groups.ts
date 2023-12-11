@@ -8,9 +8,10 @@ const ticketsColl = process.env.LOCAL_TICKETS ?? "tickets";
 const usersColl = process.env.LOCAL_USERS ?? "users";
 
 export async function getGroup(id: string) {
-	const res: { status: number; success: boolean; group?: unknown } = {
+	const res: { status: number; success: boolean; group: unknown } = {
 		status: 500,
 		success: false,
+		group: {},
 	};
 
 	try {
@@ -19,6 +20,11 @@ export async function getGroup(id: string) {
 		const coll = db.collection(groupsColl);
 		const group = await coll.findOne({ groupId: id });
 		await client.close();
+
+		if (!group) {
+			res.status = 251;
+			return res;
+		}
 
 		res.success = true;
 		res.status = 200;

@@ -3,5 +3,6 @@ type T = {
 };
 
 export const statusCodeLookup: T = {
-	250: "Unauthorized access. You must be a member of this group to view this resource.",
+	250: "Unauthorized access. Must be a member of this group to view this resource.",
+	251: "Resource does not exist.",
 };

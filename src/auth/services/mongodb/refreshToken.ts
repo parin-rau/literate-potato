@@ -23,7 +23,7 @@ export async function generateToken(
 		success: false,
 	};
 
-	if (!cookies.refreshToken) {
+	if (!cookies || !cookies.refreshToken) {
 		res.status = 401;
 		res.message = "No refresh token sent with request";
 		return res;

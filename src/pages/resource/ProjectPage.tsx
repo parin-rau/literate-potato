@@ -74,7 +74,10 @@ export default function ProjectPage() {
 								/>
 							</>
 						) : (
-							<UnjoinedNotice message={message} />
+							<UnjoinedNotice
+								message={message}
+								hideButton={message ? true : false}
+							/>
 						))}
 				</div>
 			</div>

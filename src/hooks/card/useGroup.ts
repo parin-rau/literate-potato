@@ -194,6 +194,7 @@ export function useSingleGroup(propGroupId: string) {
 		data: group,
 		setData: setGroup,
 		isLoading,
+		message,
 	} = useInitialFetch<Group>(url);
 
 	const editGroup = useCallback(() => {
@@ -262,6 +263,7 @@ export function useSingleGroup(propGroupId: string) {
 
 	return {
 		group,
+		message,
 		state: {
 			isLoading,
 			isEditing,
