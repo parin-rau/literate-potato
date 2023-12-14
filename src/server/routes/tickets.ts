@@ -17,7 +17,10 @@ ticketsRouter.get(
 );
 
 ticketsRouter.post("/", tickets.createTicket);
-ticketsRouter.post("/calendar", tickets.getTicketCountsForCalendar);
+ticketsRouter.post(
+	"/calendar/:filterKind?/:filterId?",
+	tickets.getTicketCountsForCalendar
+);
 
 ticketsRouter.patch("/:id", tickets.updateTicket);
 ticketsRouter.patch(

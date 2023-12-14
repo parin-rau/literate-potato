@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useEffect } from "react";
+import { useCallback, useMemo, useEffect, useState } from "react";
 import CardContainer from "../../components/Card/CardContainer";
 import ProjectCard from "../../components/Card/ProjectCard";
 import { FetchedTicketData, Project, uncategorizedProject } from "../../types";
@@ -6,10 +6,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
 import { usePageTitle } from "../../hooks/utility/usePageTitle";
 import UnjoinedNotice from "../../components/Card/UnjoinedNotice";
+import CalendarContainer from "../../components/Calendar/CalendarContainer";
 
 export default function ProjectPage() {
 	const projectId = useParams().id || "";
 	const navigate = useNavigate();
+	const [ticketsLoading, setTicketsLoading] = useState(true);
 
 	useEffect(() => {
 		const checkUndefinedId = () => {
@@ -71,7 +73,16 @@ export default function ProjectPage() {
 									projectId={projectId}
 									setProject={setProject}
 									group={project[0].group}
+									setCardsLoading={setTicketsLoading}
 								/>
+
+								{!ticketsLoading && (
+									<CalendarContainer
+										headerText={`Project: ${project[0].title}`}
+										filterKind="project"
+										filterId={projectId}
+									/>
+								)}
 							</>
 						) : (
 							<UnjoinedNotice

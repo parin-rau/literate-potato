@@ -118,17 +118,9 @@ export async function getTicketsForUser(
 
 		const permittedGroups = await getPermittedGroups(userId, users);
 
-		// const foundGroups = await users
-		// 	.findOne({ userId })
-		// 	.then((u) => u?.groupIds);
-
-		// if (!foundGroups) return res;
-
 		const foundTickets = options
 			? await tickets
 					.find({ "group.groupId": { $in: permittedGroups } })
-					//.sort({ [options.sort.field]: options.sort.direction })
-					//.limit(options.limit)
 					.toArray()
 			: await tickets
 					.find({ "group.groupId": { $in: permittedGroups } })
@@ -146,10 +138,13 @@ export async function getTicketsForUser(
 				.map((t) => ({
 					ticket: t,
 					completion:
-						t.subtasks.filter((s) => s.completed).length /
-						t.subtasks.length,
+						t.subtasks.length === 0 ||
+						t.subtasks.every((s) => s.completed)
+							? 1
+							: t.subtasks.filter((s) => s.completed).length /
+							  t.subtasks.length,
 				}))
-				.filter((t) => t.completion < 1)
+				.filter((t) => t.completion < 1 && t.completion > 0)
 				.sort((a, b) =>
 					options.sort.direction === -1
 						? b.completion - a.completion
@@ -308,18 +303,56 @@ export async function getUncategorizedForUser(userId: string) {
 	}
 }
 
-export async function getTicketCountsForCalendar(dateRange: string[]) {
+export async function getTicketCountsForCalendar(
+	user: UserToken,
+	dateRange: string[],
+	filterKind?: string,
+	filterId?: string
+) {
 	const res: { status: number; countedDates: Record<string, number> } = {
 		status: 500,
 		countedDates: {},
 	};
 
+	const query = (
+		dateRange: string[],
+		permittedGroups?: string[],
+		filterKind?: string,
+		filterId?: string
+	) => {
+		const baseQuery = permittedGroups
+			? {
+					due: { $in: dateRange },
+					"group.groupId": { $in: permittedGroups },
+			  }
+			: { due: { $in: dateRange } };
+
+		switch (true) {
+			case !filterKind || !filterId:
+				return baseQuery;
+
+			case filterKind === "group" || filterKind === "project":
+				return {
+					...baseQuery,
+					[`${filterKind}.${filterKind}Id`]: filterId,
+				};
+
+			default:
+				return baseQuery;
+		}
+	};
+
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const ticketColl: mongoDB.Collection = db.collection(ticketsColl);
+		const users = db.collection<User>(usersColl);
+		const ticketColl = db.collection<FetchedTicketData>(ticketsColl);
+
+		const permittedGroups = await getPermittedGroups(user.userId, users);
+
 		const foundTickets = await ticketColl
-			.find({ due: { $in: dateRange } })
+			//.find({ due: { $in: dateRange } })
+			.find(query(dateRange, permittedGroups, filterKind, filterId))
 			.toArray();
 
 		await client.close();
@@ -336,7 +369,10 @@ export async function getTicketCountsForCalendar(dateRange: string[]) {
 	}
 }
 
-export async function createTicket(partialNewTicket: TicketData) {
+export async function createTicket(
+	partialNewTicket: TicketData,
+	user: UserToken
+) {
 	const res: { status: number; success: boolean; ticketNumber?: number } = {
 		status: 500,
 		success: false,
@@ -347,6 +383,18 @@ export async function createTicket(partialNewTicket: TicketData) {
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const tickets = db.collection<FetchedTicketData>(ticketsColl);
 		const groups = db.collection<Group>(groupsColl);
+		const users = db.collection<User>(usersColl);
+
+		const permittedGroups = await getPermittedGroups(user.userId, users);
+
+		if (
+			!partialNewTicket ||
+			!permittedGroups?.includes(partialNewTicket.group.groupId)
+		) {
+			await client.close();
+			res.status = 403;
+			return res;
+		}
 
 		const ticketNumber = (await tickets.countDocuments({})) + 1;
 		const newTicket = { ...partialNewTicket, ticketNumber: ticketNumber };
@@ -371,6 +419,7 @@ export async function createTicket(partialNewTicket: TicketData) {
 export async function updateTicket(
 	id: string,
 	data: Record<string, unknown>,
+	user: UserToken,
 	meta?: { userId?: string; ticketId?: string; subtaskId?: string }
 ) {
 	const res: { status: number; success: boolean } = {
@@ -383,6 +432,19 @@ export async function updateTicket(
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
 		const tickets = db.collection<FetchedTicketData>(ticketsColl);
 		const users = db.collection<User>(usersColl);
+
+		const permittedGroups = await getPermittedGroups(user.userId, users);
+		const targetTicket = await tickets.findOne({ ticketId: id });
+
+		if (
+			!targetTicket ||
+			!permittedGroups?.includes(targetTicket.group.groupId)
+		) {
+			await client.close();
+			res.status = 403;
+			return res;
+		}
+
 		const updateTicket = await tickets.updateOne(
 			{ ticketId: id },
 			{ $set: { ...data, lastModified: Date.now() } }
@@ -444,7 +506,8 @@ export async function updateTicket(
 
 export async function updateTicketEditProject(
 	projectId: string,
-	data: Record<string, unknown>
+	data: Record<string, unknown>,
+	user: UserToken
 ) {
 	const res: { status: number; success: boolean } = {
 		status: 500,
@@ -454,8 +517,23 @@ export async function updateTicketEditProject(
 	try {
 		const client: mongoDB.MongoClient = await connectToDatabase();
 		const db: mongoDB.Db = client.db(process.env.VITE_LOCAL_DB);
-		const coll: mongoDB.Collection = db.collection(ticketsColl);
-		const result = await coll.updateMany(
+		const tickets = db.collection<FetchedTicketData>(ticketsColl);
+		const projects = db.collection<Project>(projectsColl);
+		const users = db.collection<User>(usersColl);
+
+		const permittedGroups = await getPermittedGroups(user.userId, users);
+		const targetProject = await projects.findOne({ projectId });
+
+		if (
+			!targetProject ||
+			!permittedGroups?.includes(targetProject.group.groupId)
+		) {
+			await client.close();
+			res.status = 403;
+			return res;
+		}
+
+		const result = await tickets.updateMany(
 			{ "project.projectId": projectId },
 			{ $set: { ...data, lastModified: Date.now() } }
 		);
@@ -470,7 +548,7 @@ export async function updateTicketEditProject(
 	}
 }
 
-export async function deleteTicket(id: string) {
+export async function deleteTicket(id: string, user: UserToken) {
 	const res: { status: number; success: boolean } = {
 		status: 500,
 		success: false,
@@ -483,6 +561,19 @@ export async function deleteTicket(id: string) {
 		const groups = db.collection<Group>(groupsColl);
 		const projects = db.collection<Project>(projectsColl);
 		const comments = db.collection<Comment>(commentsColl);
+		const users = db.collection<User>(usersColl);
+
+		const permittedGroups = await getPermittedGroups(user.userId, users);
+		const targetTicket = await tickets.findOne({ ticketId: id });
+
+		if (
+			!targetTicket ||
+			!permittedGroups?.includes(targetTicket?.group.groupId)
+		) {
+			await client.close();
+			res.status = 403;
+			return res;
+		}
 
 		const result1 = await tickets.deleteOne({ ticketId: id });
 		const result2 = await groups.updateOne(

@@ -6,10 +6,16 @@ import CollapseIcon from "../Svg/CollapseIcon";
 
 type Props = {
 	headerText: string;
+	filterKind?: string;
+	filterId?: string;
 };
 
-export default function CalendarContainer({ headerText }: Props) {
-	const { handlers, state } = useCalendar();
+export default function CalendarContainer({
+	headerText,
+	filterKind,
+	filterId,
+}: Props) {
+	const { handlers, state, url } = useCalendar(filterKind, filterId);
 
 	const { calendar, isHidden } = state;
 	const {
@@ -29,6 +35,7 @@ export default function CalendarContainer({ headerText }: Props) {
 			{!isHidden && (
 				<>
 					<hr className="border-slate-300 dark:border-neutral-700 mx-4" />
+					<h2>URL: {url}</h2>
 					<CalendarHeader
 						{...{
 							handleMonthChange,

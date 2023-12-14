@@ -65,7 +65,13 @@ export default function ProjectHomePage(props: {
 						{cardsLoading ? (
 							<LoadingSkeletonCalendar />
 						) : (
-							<CalendarContainer headerText="All Projects" />
+							<CalendarContainer
+								headerText="All Projects"
+								filterKind={
+									props.group?.groupId ? "group" : undefined
+								}
+								filterId={props.group?.groupId}
+							/>
 						)}
 					</div>
 				) : cardsLoading ? (

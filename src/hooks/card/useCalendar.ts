@@ -21,13 +21,16 @@ const monthLookup = [
 
 const d = new Date();
 
-export function useCalendar() {
+export function useCalendar(filterKind?: string, filterId?: string) {
 	const navigate = useNavigate();
 	const { protectedFetch } = useProtectedFetch();
 	const [calendar, setCalendar] = useState<Calendar>(emptyCalendar);
 	const [isHidden, setHidden] = useState(false);
 
-	// LOCAL HELPERS
+	const url =
+		filterKind && filterId
+			? `/api/ticket/calendar/${filterKind}/${filterId}`
+			: `/api/ticket/calendar`;
 
 	const getDatesOfMonth = useCallback((year: number, month: number) => {
 		const date = new Date(year, month, 1);
@@ -167,7 +170,7 @@ export function useCalendar() {
 		async function getInitCalendar() {
 			const { dates, viewDates, strViewDates } = initViewDates;
 
-			const res = await protectedFetch(`/api/ticket/calendar/`, {
+			const res = await protectedFetch(url, {
 				method: "POST",
 				body: JSON.stringify(strViewDates),
 				signal: abortController.signal,
@@ -204,12 +207,12 @@ export function useCalendar() {
 		getInitCalendar();
 
 		return () => abortController.abort();
-	}, [displayDatesFormat, initViewDates, protectedFetch]);
+	}, [displayDatesFormat, initViewDates, protectedFetch, url]);
 
 	const initCalendar = useCallback(async () => {
 		const { dates, viewDates, strViewDates } = initViewDates;
 
-		const res = await protectedFetch(`/api/ticket/calendar/`, {
+		const res = await protectedFetch(url, {
 			method: "POST",
 			body: JSON.stringify(strViewDates),
 		});
@@ -239,7 +242,7 @@ export function useCalendar() {
 			...partialInit,
 			displayDates,
 		};
-	}, [displayDatesFormat, initViewDates, protectedFetch]);
+	}, [displayDatesFormat, initViewDates, protectedFetch, url]);
 
 	// EXPOSED FUNCTIONS
 
@@ -268,7 +271,7 @@ export function useCalendar() {
 			const viewDates = monthDisplayFormat(newDates);
 			const strViewDates = viewDates.map((dt) => dateToStr(dt));
 
-			const res = await protectedFetch(`/api/ticket/calendar/`, {
+			const res = await protectedFetch(url, {
 				method: "POST",
 				body: JSON.stringify(strViewDates),
 			});
@@ -300,6 +303,7 @@ export function useCalendar() {
 			monthDisplayFormat,
 			protectedFetch,
 			displayDatesFormat,
+			url,
 		]
 	);
 
@@ -321,6 +325,7 @@ export function useCalendar() {
 	}, []);
 
 	return {
+		url,
 		handlers: {
 			handleMonthChange,
 			handleCalendarReset,

@@ -461,7 +461,7 @@ export function useCardEditor(props: Props) {
 				`/api/ticket/${previousData.ticketId}`,
 				{
 					method: "PATCH",
-					body: JSON.stringify(patchData),
+					body: JSON.stringify({ data: patchData }),
 				}
 			);
 			if (res1.ok) {
@@ -866,18 +866,18 @@ export function useCardEditor(props: Props) {
 			switch (true) {
 				case dataKind === "ticket" && !previousData:
 					await createTicket();
-					return console.log("creating ticket");
+					return; //console.log("creating ticket");
 				case dataKind === "ticket":
 					await editTicket();
-					return console.log("editing ticket");
+					return; //console.log("editing ticket");
 				case dataKind === "project" && !previousData:
 					await createProject();
-					return console.log("creating project");
+					return; //console.log("creating project");
 				case dataKind === "project":
 					await editProject();
-					return console.log("editing project");
+					return; //console.log("editing project");
 				default:
-					return console.error("Unable to submit editor data");
+					return; //console.error("Unable to submit editor data");
 			}
 		},
 		[

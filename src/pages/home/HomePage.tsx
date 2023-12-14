@@ -32,7 +32,7 @@ export default function HomePage(props: Props) {
 				<CardContainer
 					{...{
 						dataKind: "ticket",
-						containerTitle: "Almost Completed Tasks",
+						containerTitle: "In Progress Tasks",
 						setCardsLoading: setTicketsLoading,
 						isSummary: true,
 						hideEditor: true,
@@ -44,7 +44,7 @@ export default function HomePage(props: Props) {
 					<CardContainer
 						{...{
 							dataKind: "project",
-							containerTitle: "Almost Completed Projects",
+							containerTitle: "In Progress Projects",
 							setCardsLoading: setProjectsLoading,
 							isSummary: true,
 							hideEditor: true,

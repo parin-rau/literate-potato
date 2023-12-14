@@ -121,9 +121,12 @@ export async function getProjectsByUser(
 				.map((p) => ({
 					project: p,
 					completion:
-						p.tasksCompletedIds.length / p.subtasksTotalIds.length,
+						p.tasksTotalIds.length === p.tasksCompletedIds.length
+							? 1
+							: p.tasksCompletedIds.length /
+							  p.subtasksTotalIds.length,
 				}))
-				.filter((p) => p.completion < 1)
+				.filter((p) => p.completion < 1 && p.completion > 0)
 				.sort((a, b) =>
 					options.sort.direction === -1
 						? b.completion - a.completion
@@ -135,6 +138,7 @@ export async function getProjectsByUser(
 			res.status = 200;
 			res.success = true;
 			res.projects = closestToCompletion;
+			return res;
 		}
 
 		res.status = 200;
