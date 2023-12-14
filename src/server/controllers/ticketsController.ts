@@ -31,7 +31,7 @@ export async function getTicketsForUser(
 	req: Request | UserRequest,
 	res: Response
 ) {
-	const { view } = req.params;
+	const { userId: targetId, view } = req.params;
 	const { user } = req as UserRequest;
 
 	let options: Options = undefined;
@@ -40,8 +40,8 @@ export async function getTicketsForUser(
 	}
 
 	const { status, tickets } = options
-		? await ticketsService.getTicketsForUser(user.userId, options)
-		: await ticketsService.getTicketsForUser(user.userId);
+		? await ticketsService.getTicketsForUser(targetId, user, options)
+		: await ticketsService.getTicketsForUser(targetId, user);
 
 	// options
 	// 	? await ticketsService.getTicketsForUser(userId, options)
@@ -81,9 +81,10 @@ export async function getUncategorizedForUser(
 	res: Response
 ) {
 	const { user } = req as UserRequest;
-	//const { userId } = req.params;
+	const { userId: targetId } = req.params;
 	const { status, tickets } = await ticketsService.getUncategorizedForUser(
-		user.userId
+		targetId,
+		user
 	);
 	res.status(status).send(tickets);
 }

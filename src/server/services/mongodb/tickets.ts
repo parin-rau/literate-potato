@@ -28,6 +28,10 @@ const getPermittedGroups = async (
 	return permittedGroups;
 };
 
+const isAdmin = (user: UserToken) => {
+	return user.roles.includes(0);
+};
+
 export async function getTicket(id: string, user: UserToken) {
 	const res: { status: number; ticket?: unknown } = {
 		status: 500,
@@ -53,7 +57,11 @@ export async function getTicket(id: string, user: UserToken) {
 			return res;
 		}
 
-		if (ticket && !permittedGroups?.includes(ticket.group.groupId)) {
+		if (
+			!isAdmin(user) &&
+			ticket &&
+			!permittedGroups?.includes(ticket.group.groupId)
+		) {
 			res.status = 250;
 			return res;
 		}
@@ -85,6 +93,7 @@ export async function getAllTickets(user: UserToken) {
 		await client.close();
 
 		if (
+			!isAdmin(user) &&
 			tickets &&
 			!tickets.every((t) => permittedGroups?.includes(t.group.groupId))
 		) {
@@ -102,7 +111,8 @@ export async function getAllTickets(user: UserToken) {
 }
 
 export async function getTicketsForUser(
-	userId: string,
+	targetId: string,
+	user: UserToken,
 	options?: { limit: number; sort: { field: string; direction: 1 | -1 } }
 ) {
 	const res: { status: number; tickets: unknown[] } = {
@@ -116,22 +126,24 @@ export async function getTicketsForUser(
 		const tickets = db.collection<FetchedTicketData>(ticketsColl);
 		const users = db.collection<User>(usersColl);
 
-		const permittedGroups = await getPermittedGroups(userId, users);
+		const targetGroups = await getPermittedGroups(targetId, users);
+		//const permittedGroups = await getPermittedGroups(user.userId, users);
 
-		const foundTickets = options
-			? await tickets
-					.find({ "group.groupId": { $in: permittedGroups } })
-					.toArray()
-			: await tickets
-					.find({ "group.groupId": { $in: permittedGroups } })
-					.sort({ timestamp: 1 })
-					.toArray();
-		await client.close();
-
-		if (!permittedGroups) {
+		if (!targetGroups || (!isAdmin(user) && targetId !== user.userId)) {
+			await client.close();
 			res.status = 250;
 			return res;
 		}
+
+		const foundTickets = options
+			? await tickets
+					.find({ "group.groupId": { $in: targetGroups } })
+					.toArray()
+			: await tickets
+					.find({ "group.groupId": { $in: targetGroups } })
+					.sort({ timestamp: 1 })
+					.toArray();
+		await client.close();
 
 		if (options?.sort.field === "completion") {
 			const closestToCompletion = foundTickets
@@ -190,6 +202,7 @@ export async function getAllTicketsForProject(
 			await client.close();
 
 			if (
+				!isAdmin(user) &&
 				foundTickets &&
 				!foundTickets.every(
 					(t) => permittedGroups?.includes(t.group.groupId)
@@ -209,6 +222,7 @@ export async function getAllTicketsForProject(
 			await client.close();
 
 			if (
+				!isAdmin(user) &&
 				foundTickets &&
 				!foundTickets.every(
 					(t) => permittedGroups?.includes(t.group.groupId)
@@ -264,7 +278,10 @@ export async function getUncategorizedForGroup(
 	}
 }
 
-export async function getUncategorizedForUser(userId: string) {
+export async function getUncategorizedForUser(
+	targetId: string,
+	user: UserToken
+) {
 	const res: { status: number; tickets: unknown[] } = {
 		status: 500,
 		tickets: [],
@@ -276,22 +293,34 @@ export async function getUncategorizedForUser(userId: string) {
 		const users = db.collection<User>(usersColl);
 		const ticketColl = db.collection<FetchedTicketData>(ticketsColl);
 
-		const permittedGroups = await getPermittedGroups(userId, users);
+		const targetGroups = await getPermittedGroups(targetId, users);
+		const permittedGroups = await getPermittedGroups(user.userId, users);
 
-		const groupIds = await users
-			.findOne({ userId })
-			.then((u) => u?.groupIds.map((g) => g));
+		// const groupIds = await users
+		// 	.findOne({ userId })
+		// 	.then((u) => u?.groupIds.map((g) => g))
 
 		if (!permittedGroups) {
 			res.status = 250;
 			return res;
 		}
 
+		const query = isAdmin(user)
+			? {
+					"project.projectId": "",
+					"group.groupId": { $in: targetGroups },
+			  }
+			: {
+					"project.projectId": "",
+					"group.groupId": { $in: permittedGroups },
+			  };
+
 		const tickets = await ticketColl
-			.find({
-				"project.projectId": "",
-				"group.groupId": { $in: groupIds },
-			})
+			// .find({
+			// 	"project.projectId": "",
+			// 	"group.groupId": { $in: permittedGroups },
+			// })
+			.find(query)
 			.toArray();
 
 		res.status = 200;
@@ -389,7 +418,8 @@ export async function createTicket(
 
 		if (
 			!partialNewTicket ||
-			!permittedGroups?.includes(partialNewTicket.group.groupId)
+			(!isAdmin(user) &&
+				!permittedGroups?.includes(partialNewTicket.group.groupId))
 		) {
 			await client.close();
 			res.status = 403;
@@ -438,7 +468,8 @@ export async function updateTicket(
 
 		if (
 			!targetTicket ||
-			!permittedGroups?.includes(targetTicket.group.groupId)
+			(!isAdmin(user) &&
+				!permittedGroups?.includes(targetTicket.group.groupId))
 		) {
 			await client.close();
 			res.status = 403;
@@ -526,7 +557,8 @@ export async function updateTicketEditProject(
 
 		if (
 			!targetProject ||
-			!permittedGroups?.includes(targetProject.group.groupId)
+			(!isAdmin(user) &&
+				!permittedGroups?.includes(targetProject.group.groupId))
 		) {
 			await client.close();
 			res.status = 403;
@@ -568,7 +600,8 @@ export async function deleteTicket(id: string, user: UserToken) {
 
 		if (
 			!targetTicket ||
-			!permittedGroups?.includes(targetTicket?.group.groupId)
+			(!isAdmin(user) &&
+				!permittedGroups?.includes(targetTicket?.group.groupId))
 		) {
 			await client.close();
 			res.status = 403;
