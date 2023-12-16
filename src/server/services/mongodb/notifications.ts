@@ -1,7 +1,7 @@
 import "dotenv/config";
 import * as mongoDB from "mongodb";
 import { connectToDatabase } from "../../../db/mongodb";
-import { UserToken, Notice } from "../../../types";
+import { UserToken, Notice, NoticeEntry } from "../../../types";
 import { v4 as uuidv4 } from "uuid";
 
 //const usersColl = process.env.LOCAL_USERS ?? "users";
@@ -59,14 +59,17 @@ export async function getNotificationsByUser(
 	}
 }
 
-export async function createNotification(
-	notice: { userId: string; messageCode: number; resourceId: string },
-	db: mongoDB.Db
-) {
+export async function createNotification(notice: NoticeEntry, db?: mongoDB.Db) {
 	const res: { status: number; success: boolean } = {
 		status: 500,
 		success: false,
 	};
+
+	const setStandardProps = () => ({
+		notificationId: uuidv4(),
+		isSeen: false,
+		timestamp: Date.now(),
+	});
 
 	try {
 		if (!db) {
@@ -76,8 +79,10 @@ export async function createNotification(
 			const notifications = db.collection<Notice>(notificationsColl);
 			const result = await notifications.insertOne({
 				...notice,
-				notificationId: uuidv4(),
-				isSeen: false,
+				...setStandardProps(),
+				// notificationId: uuidv4(),
+				// isSeen: false,
+				// timestamp: Date.now()
 			});
 
 			await client.close();
@@ -90,8 +95,10 @@ export async function createNotification(
 			const notifications = db.collection<Notice>(notificationsColl);
 			const result = await notifications.insertOne({
 				...notice,
-				notificationId: uuidv4(),
-				isSeen: false,
+				...setStandardProps(),
+				// notificationId: uuidv4(),
+				// isSeen: false,
+				// timestamp: Date.now()
 			});
 
 			// Leaving connection open
@@ -144,11 +151,17 @@ export async function patchNotification(
 	}
 }
 
-export async function deleteNotification(notificationId: string) {
+export async function deleteNotification(
+	notificationId: string,
+	user: UserToken
+) {
 	const res: { status: number; success: boolean } = {
 		status: 500,
 		success: false,
 	};
+
+	if (!user || !user.roles.includes(0)) return res;
+
 	try {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);

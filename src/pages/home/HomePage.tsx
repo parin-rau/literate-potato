@@ -38,9 +38,7 @@ export default function HomePage(props: Props) {
 						hideEditor: true,
 					}}
 				/>
-				{ticketsLoading ? (
-					<LoadingSkeletonCardGrid />
-				) : (
+				{!ticketsLoading && projectsLoading ? (
 					<CardContainer
 						{...{
 							dataKind: "project",
@@ -51,7 +49,8 @@ export default function HomePage(props: Props) {
 							hideUncategorized: true,
 						}}
 					/>
-					// <ProjectHomePage {...{ title: "Projects" }} />
+				) : (
+					<LoadingSkeletonCardGrid />
 				)}
 				{!ticketsLoading && !projectsLoading ? (
 					<CalendarContainer headerText="All tasks" />

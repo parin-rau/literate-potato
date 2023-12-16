@@ -228,4 +228,10 @@ export interface Notice {
 	userId: string;
 	resourceId: string;
 	isSeen: boolean;
+	timestamp: number;
 }
+
+export type NoticeEntry = Omit<
+	Notice,
+	"notificationId" | "isSeen" | "timestamp"
+>;

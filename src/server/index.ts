@@ -8,6 +8,7 @@ import { ticketsRouter } from "./routes/tickets";
 import { commentsRouter } from "./routes/comments";
 import { groupsRouter } from "./routes/groups";
 import { usersRouter } from "./routes/users";
+import { notificationsRouter } from "./routes/notifications";
 
 const PORT = 3002;
 
@@ -23,5 +24,6 @@ app.use("/api/project", projectsRouter);
 app.use("/api/ticket", ticketsRouter);
 app.use("/api/comment", commentsRouter);
 app.use("/api/search", searchRouter);
+app.use("/api/notifications", notificationsRouter);
 
 app.listen(PORT, () => console.log("App server listening on PORT", PORT));

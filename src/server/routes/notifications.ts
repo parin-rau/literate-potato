@@ -1,11 +1,15 @@
 import express from "express";
 import * as notifications from "../controllers/notificationsController";
 
-export const notifactionsRouter = express.Router();
+export const notificationsRouter = express.Router();
 
-notifactionsRouter.get(
+notificationsRouter.get(
 	"/:userId/:filter?",
 	notifications.getNotificationsByUser
 );
 
-notifactionsRouter.patch("/:id", notifications.patchNotification);
+notificationsRouter.post("/id", notifications.createNotification);
+
+notificationsRouter.patch("/:id", notifications.patchNotification);
+
+notificationsRouter.delete("/id", notifications.deleteNotification);
