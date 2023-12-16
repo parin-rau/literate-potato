@@ -226,7 +226,8 @@ export interface Notice {
 	messageCode: number;
 	notificationId: string;
 	userId: string;
-	resourceId: string;
+	resource: { id: string; kind: string; title: string };
+	secondaryResource?: { id: string; kind: string; title: string };
 	isSeen: boolean;
 	timestamp: number;
 }

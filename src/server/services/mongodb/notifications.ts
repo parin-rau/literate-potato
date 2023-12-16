@@ -152,7 +152,7 @@ export async function patchNotification(
 }
 
 export async function deleteNotification(
-	notificationId: string,
+	notificationId: string | string[],
 	user: UserToken
 ) {
 	const res: { status: number; success: boolean } = {
@@ -166,14 +166,20 @@ export async function deleteNotification(
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
 		const notifications = db.collection<Notice>(notificationsColl);
-		const result = await notifications.deleteOne({
-			notificationId,
-		});
+		const result = await notifications.deleteOne(
+			Array.isArray(notificationId)
+				? { notificationId: { $in: notificationId } }
+				: {
+						notificationId,
+				  }
+		);
 
 		await client.close();
 
 		res.status = 204;
-		res.success = result.deletedCount > 0;
+		res.success = Array.isArray(notificationId)
+			? result.deletedCount > 0
+			: result.deletedCount === 1;
 		return res;
 	} catch (e) {
 		console.error(e);
