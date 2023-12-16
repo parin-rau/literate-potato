@@ -221,3 +221,11 @@ export interface Group {
 	ticketIds: string[];
 	timestamp: number;
 }
+
+export interface Notice {
+	messageCode: number;
+	notificationId: string;
+	userId: string;
+	resourceId: string;
+	isSeen: boolean;
+}
