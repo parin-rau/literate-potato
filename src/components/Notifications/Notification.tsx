@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { Notice } from "../types";
+import { Notice } from "../../types";
 
-export const notificationsLookup = (
+export const Notification = (
 	messageCode: number,
 	resource: Notice["resource"],
 	secondaryTitle?: string
