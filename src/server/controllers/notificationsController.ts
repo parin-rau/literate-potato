@@ -19,10 +19,17 @@ export async function getNotificationsByUser(
 	res.status(status).send(data);
 }
 
-export async function createNotification(req: Request, res: Response) {
+export async function createNotification(
+	req: Request | UserRequest,
+	res: Response
+) {
 	const notice: NoticeEntry = await req.body;
+	const { user } = req as UserRequest;
 
-	const { status } = await notificationsService.createNotification(notice);
+	const { status } = await notificationsService.createNotification(
+		notice,
+		user
+	);
 
 	res.sendStatus(status);
 }

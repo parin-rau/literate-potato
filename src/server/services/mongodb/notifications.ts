@@ -7,6 +7,18 @@ import { v4 as uuidv4 } from "uuid";
 //const usersColl = process.env.LOCAL_USERS ?? "users";
 const notificationsColl = process.env.LOCAL_NOTIFICATIONS ?? "notifications";
 
+export const setStandardNoticeProps = () => ({
+	notificationId: uuidv4(),
+	isSeen: false,
+	timestamp: Date.now(),
+});
+
+const getDatabase = async () => {
+	const client = await connectToDatabase();
+	const db = client.db(process.env.VITE_LOCAL_DB);
+	return { client, db };
+};
+
 export async function getNotificationsByUser(
 	targetId: string,
 	user: UserToken,
@@ -59,54 +71,48 @@ export async function getNotificationsByUser(
 	}
 }
 
-export async function createNotification(notice: NoticeEntry, db?: mongoDB.Db) {
+export async function createNotification(
+	noticeEntry: NoticeEntry,
+	currentUser: UserToken,
+	getUsersToNotify: (
+		_db: mongoDB.Db,
+		_resourceId: string,
+		_omitUserIds: string[]
+	) => Promise<string[]>,
+	activeConnection?: { client: mongoDB.MongoClient; db: mongoDB.Db }
+) {
 	const res: { status: number; success: boolean } = {
 		status: 500,
 		success: false,
 	};
 
-	const setStandardProps = () => ({
-		notificationId: uuidv4(),
-		isSeen: false,
-		timestamp: Date.now(),
-	});
-
 	try {
-		if (!db) {
-			// Service called from notifications controller
-			const client = await connectToDatabase();
-			const db = client.db(process.env.VITE_LOCAL_DB);
-			const notifications = db.collection<Notice>(notificationsColl);
-			const result = await notifications.insertOne({
-				...notice,
-				...setStandardProps(),
-				// notificationId: uuidv4(),
-				// isSeen: false,
-				// timestamp: Date.now()
-			});
+		// Service called from another service (i.e. active connection) vs. called from notifications controller
+		const { client, db } = activeConnection ?? (await getDatabase());
+		const notifications = db.collection<Notice>(notificationsColl);
 
-			await client.close();
+		const usersToNotify: string[] =
+			(await getUsersToNotify(db, noticeEntry.resource.id, [
+				currentUser.userId,
+			])) ?? [];
+		const newNotices: Notice[] = usersToNotify.map((userId) => ({
+			userId,
+			...noticeEntry,
+			...setStandardNoticeProps(),
+		}));
 
-			res.status = 204;
-			res.success = !!result.insertedId;
-			return res;
-		} else {
-			// Call inside other service
-			const notifications = db.collection<Notice>(notificationsColl);
-			const result = await notifications.insertOne({
-				...notice,
-				...setStandardProps(),
-				// notificationId: uuidv4(),
-				// isSeen: false,
-				// timestamp: Date.now()
-			});
+		console.log({ usersToNotify, newNotices });
 
-			// Leaving connection open
+		const result =
+			newNotices.length > 0
+				? await notifications.insertMany(newNotices)
+				: { acknowledged: true };
 
-			res.status = 204;
-			res.success = !!result.insertedId;
-			return res;
-		}
+		!activeConnection && (await client.close());
+
+		res.status = 204;
+		res.success = result.acknowledged; //!!result.insertedId
+		return res;
 	} catch (e) {
 		console.error(e);
 		return res;
@@ -151,6 +157,7 @@ export async function patchNotification(
 	}
 }
 
+// Admin use only
 export async function deleteNotification(
 	notificationId: string | string[],
 	user: UserToken
@@ -169,9 +176,7 @@ export async function deleteNotification(
 		const result = await notifications.deleteOne(
 			Array.isArray(notificationId)
 				? { notificationId: { $in: notificationId } }
-				: {
-						notificationId,
-				  }
+				: { notificationId }
 		);
 
 		await client.close();

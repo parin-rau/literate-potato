@@ -4,21 +4,10 @@ import {
 	LoadingSkeletonCardGrid,
 } from "../../components/Nav/Loading";
 import { usePageTitle } from "../../hooks/utility/usePageTitle";
-// import ProjectHomePage from "./ProjectHomePage";
-// import TicketHomePage from "./TicketHomePage";
 import CalendarContainer from "../../components/Calendar/CalendarContainer";
 import CardContainer from "../../components/Card/CardContainer";
 
 type Props = { title: string };
-
-// function LoadingPlaceholder() {
-// 	return (
-// 		<div className="flex flex-col gap-4">
-// 			<LoadingSkeletonCardGrid />
-// 			<LoadingSkeletonCalendar />
-// 		</div>
-// 	);
-// }
 
 export default function HomePage(props: Props) {
 	usePageTitle(props.title);
@@ -38,7 +27,7 @@ export default function HomePage(props: Props) {
 						hideEditor: true,
 					}}
 				/>
-				{!ticketsLoading && projectsLoading ? (
+				{!ticketsLoading ? (
 					<CardContainer
 						{...{
 							dataKind: "project",
@@ -60,10 +49,4 @@ export default function HomePage(props: Props) {
 			</div>
 		</div>
 	);
-
-	// <div className="grid h-screen place-items-center">
-	// 	<p>Home Page</p>
-	// 	<LoadingSkeletonCardGrid />
-	// 	<LoadingSkeletonCalendar />
-	// </div>
 }

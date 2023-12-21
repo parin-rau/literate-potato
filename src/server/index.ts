@@ -24,6 +24,6 @@ app.use("/api/project", projectsRouter);
 app.use("/api/ticket", ticketsRouter);
 app.use("/api/comment", commentsRouter);
 app.use("/api/search", searchRouter);
-app.use("/api/notifications", notificationsRouter);
+app.use("/api/notification", notificationsRouter);
 
 app.listen(PORT, () => console.log("App server listening on PORT", PORT));

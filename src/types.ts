@@ -226,13 +226,13 @@ export interface Notice {
 	messageCode: number;
 	notificationId: string;
 	userId: string;
-	resource: { id: string; kind: string; title: string };
-	secondaryResource?: { id: string; kind: string; title: string };
+	resource: { id: string; kind: string; title?: string }; //{ id: string; kind: string; title: string };
+	secondaryResource?: { id: string; kind: string; title?: string }; //{ id: string; kind: string; title: string };
 	isSeen: boolean;
 	timestamp: number;
 }
 
 export type NoticeEntry = Omit<
 	Notice,
-	"notificationId" | "isSeen" | "timestamp"
+	"notificationId" | "isSeen" | "timestamp" | "userId"
 >;
