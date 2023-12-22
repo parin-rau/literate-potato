@@ -16,12 +16,6 @@ export default function NotificationsContainer() {
 	return isLoading ? (
 		<LoadingSkeletonCardGrid />
 	) : (
-		notifications.map((n) => (
-			<Notification
-				messageCode={n.messageCode}
-				resource={n.resource}
-				secondaryResource={n.secondaryResource}
-			/>
-		))
+		notifications.map((n) => <Notification {...{ ...n }} />)
 	);
 }

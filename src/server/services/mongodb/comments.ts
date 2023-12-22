@@ -9,15 +9,6 @@ type IdObj = { id: string; idKind: "COMMENT" | "TICKET" };
 const ticketsColl = process.env.LOCAL_TICKETS ?? "tickets";
 const commentsColl = process.env.LOCAL_COMMENTS ?? "comments";
 const usersColl = process.env.LOCAL_USERS ?? "users";
-//const notificationsColl = process.env.LOCAL_NOTIFICATIONS ?? "notifications"
-
-// const getPermittedGroups = async (currentUserId: string, db: mongoDB.Db) => {
-// 	const users = db.collection<User>(usersColl);
-// 	const permittedGroupsForUser = await users
-// 		.findOne({ userId: currentUserId })
-// 		.then((u) => u?.groupIds);
-// 	return permittedGroupsForUser;
-// };
 
 const checkPermissions = async (
 	db: mongoDB.Db,
@@ -62,15 +53,29 @@ const getUsersByTicketId = async (
 	const tickets = db.collection<FetchedTicketData>(ticketsColl);
 	const comments = db.collection<Comment>(commentsColl);
 
-	const commentIdsToFind = await tickets
+	const targetTicketParams = await tickets
 		.findOne({ ticketId })
-		.then((t) => t?.comments);
+		.then((t) => ({
+			commentIds: t?.comments,
+			authorId: t?.creator.userId,
+			assigneeId: t?.assignee.userId,
+		}));
 	const usersToNotifyWithDuplicates = (
-		await comments.find({ commentId: { $in: commentIdsToFind } }).toArray()
-	)
-		.map((c) => c.userId)
-		.filter((u) => !omitUserIds.includes(u));
-	const usersToNotify = [...new Set(usersToNotifyWithDuplicates)];
+		await comments
+			.find({ commentId: { $in: targetTicketParams.commentIds } })
+			.toArray()
+	).map((c) => c.userId);
+
+	!!targetTicketParams.authorId &&
+		usersToNotifyWithDuplicates.push(targetTicketParams.authorId);
+	!!targetTicketParams.assigneeId &&
+		usersToNotifyWithDuplicates.push(targetTicketParams.assigneeId);
+
+	const filteredUsersWithDuplicates = usersToNotifyWithDuplicates.filter(
+		(u) => !omitUserIds.includes(u)
+	);
+
+	const usersToNotify = [...new Set(filteredUsersWithDuplicates)];
 
 	return usersToNotify;
 };
@@ -141,40 +146,17 @@ export async function createComment(c: Comment, user: UserToken) {
 			{ $addToSet: { comments: c.commentId } }
 		);
 
-		// const commentIdsToFind = await tickets
-		// 	.findOne({ ticketId: c.ticketId })
-		// 	.then((t) => t?.comments);
-		// const usersToNotify = (
-		// 	await comments
-		// 		.find({ commentId: { $in: commentIdsToFind } })
-		// 		.toArray()
-		// ).map((c) => c.userId);
-		// const notices: Notice[] = usersToNotify.map((userId) => ({
-		// 	messageCode: 11,
-		// 	resource: { kind: "COMMENT", id: c.commentId },
-		// 	secondaryResource: {
-		// 		kind: "USER",
-		// 		id: user.userId,
-		// 	},
-		// 	userId,
-		// 	...setStandardNoticeProps(),
-		// }));
-		// const noticeCreate = await createNotification(notices, db);
-
-		// const noticeInput: NoticeEntry = {
-		// 	currentUserId: user.userId,
-		// 	messageCode: 11,
-		// 	getUsersToNotify: getUsersByTicketId,
-		// };
-
-		// const noticeCreate = await generateNotifications({db, noticeInput, omitUserIds: [user.userId]});
-
 		const noticeCreate =
 			!!result1.insertedId && !!result2.modifiedCount
 				? await createNotification(
 						{
 							messageCode: 11,
 							resource: { kind: "TICKET", id: c.ticketId },
+							secondaryResource: {
+								kind: "USER",
+								id: user.userId,
+								title: user.username,
+							},
 						},
 						user,
 						getUsersByTicketId
@@ -292,8 +274,33 @@ export async function reactComment(
 			updateAction(reaction)
 		);
 
+		const targetComment = await comments
+			.findOne({ commentId })
+			.then((c) => ({ userId: c?.userId, ticketId: c?.ticketId }));
+
+		if (!targetComment.ticketId || !targetComment.userId) {
+			await client.close();
+			return res;
+		}
+
+		const notifyUser = await createNotification(
+			{
+				messageCode: 12,
+				resource: { kind: "TICKET", id: targetComment.ticketId },
+				secondaryResource: {
+					kind: "USER",
+					id: user.userId,
+					title: user.username,
+				},
+			},
+			user,
+			async () => [
+				await comments.findOne({ commentId }).then((c) => c!.userId),
+			]
+		);
+
 		res.status = 200;
-		res.success = result.acknowledged;
+		res.success = result.acknowledged && notifyUser.success;
 		return res;
 	} catch (e) {
 		console.error(e);

@@ -101,8 +101,6 @@ export async function createNotification(
 			...setStandardNoticeProps(),
 		}));
 
-		console.log({ usersToNotify, newNotices });
-
 		const result =
 			newNotices.length > 0
 				? await notifications.insertMany(newNotices)

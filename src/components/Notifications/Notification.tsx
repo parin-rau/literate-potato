@@ -2,13 +2,6 @@ import { Link } from "react-router-dom";
 import { Notice } from "../../types";
 import timestampDisplay from "../../utility/timestampDisplay";
 
-// type Props = {
-// 	messageCode: number;
-// 	resource: Notice["resource"];
-// 	secondaryResource?: Notice["secondaryResource"];
-// 	//secondaryTitle?: string;
-// };
-
 type CardProps = {
 	url: string;
 	text: string;
@@ -38,39 +31,6 @@ export default function Notification(
 		notice;
 
 	const codes: Record<number, React.ReactNode> = {
-		// 10: (
-		// 	<Link
-		// 		className={cardStyling}
-		// 		to={`/ticket/${resource.id}`}
-		// 	>{`You were assigned a new task "${resource.title}"`}</Link>
-		// ),
-		// 11: (
-		// 	<Link className={cardStyling} to={`/ticket/${resource.id}`}>
-		// 		{secondaryResource
-		// 			? `${secondaryResource.title} commented on ${resource.title}`
-		// 			: `New comments on task "${resource.title}"`}
-		// 	</Link>
-		// ),
-		// 12: (
-		// 	<Link className={cardStyling} to={`/ticket/${resource.id}`}>
-		// 		{secondaryResource
-		// 			? `${secondaryResource.title} reacted to your comment on ${resource.title}`
-		// 			: `Someone reacted to your comment on ${resource.title}`}
-		// 	</Link>
-		// ),
-		// 50: (
-		// 	<Link
-		// 		className={cardStyling}
-		// 		to={`/group/${resource.id}`}
-		// 	>{`User requesting to join your group "${resource.title}"`}</Link>
-		// ),
-		// 51: (
-		// 	<Link
-		// 		className={cardStyling}
-		// 		to={`/group/${resource.id}`}
-		// 	>{`Request accepted to join "${resource.title}"`}</Link>
-		// ),
-
 		10: (
 			<NotificationCard
 				url={`/ticket/${resource.id}`}
@@ -85,7 +45,7 @@ export default function Notification(
 				text={
 					secondaryResource
 						? `${secondaryResource.title} commented on ${resource.title}`
-						: `New comments on task "${resource.title}"`
+						: `New comment on task "${resource.title}"`
 				}
 				timestamp={timestamp}
 				isSeen={isSeen}
