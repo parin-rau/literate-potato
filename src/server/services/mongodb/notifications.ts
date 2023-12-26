@@ -4,7 +4,6 @@ import { connectToDatabase } from "../../../db/mongodb";
 import { UserToken, Notice, NoticeEntry } from "../../../types";
 import { v4 as uuidv4 } from "uuid";
 
-//const usersColl = process.env.LOCAL_USERS ?? "users";
 const notificationsColl = process.env.LOCAL_NOTIFICATIONS ?? "notifications";
 
 export const setStandardNoticeProps = () => ({
@@ -41,11 +40,9 @@ export async function getNotificationsByUser(
 					userId: targetId,
 					isSeen: false,
 				});
-				//return { userId: targetId, isSeen: false };
 			}
 			default: {
 				return await coll.find({ userId: targetId }).toArray();
-				//return { userId: targetId };
 			}
 		}
 	};
@@ -53,11 +50,7 @@ export async function getNotificationsByUser(
 	try {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
-		//const users = db.collection<User>(usersColl);
 		const notifications = db.collection<Notice>(notificationsColl);
-
-		//const foundNotifications = await notifications.find(query()).toArray();
-
 		const result = await queryNotificationsDb(notifications, filter);
 
 		await client.close();
@@ -74,11 +67,13 @@ export async function getNotificationsByUser(
 export async function createNotification(
 	noticeEntry: NoticeEntry,
 	currentUser: UserToken,
-	getUsersToNotify: (
-		_db: mongoDB.Db,
-		_resourceId: string,
-		_omitUserIds: string[]
-	) => Promise<string[]>,
+	getUsersToNotify:
+		| ((
+				_db: mongoDB.Db,
+				_resourceId: string,
+				_omitUserIds: string[]
+		  ) => Promise<string[]>)
+		| string[],
 	activeConnection?: { client: mongoDB.MongoClient; db: mongoDB.Db }
 ) {
 	const res: { status: number; success: boolean } = {
@@ -92,9 +87,11 @@ export async function createNotification(
 		const notifications = db.collection<Notice>(notificationsColl);
 
 		const usersToNotify: string[] =
-			(await getUsersToNotify(db, noticeEntry.resource.id, [
-				currentUser.userId,
-			])) ?? [];
+			typeof getUsersToNotify !== "function"
+				? getUsersToNotify
+				: await getUsersToNotify(db, noticeEntry.resource.id, [
+						currentUser.userId,
+				  ]);
 		const newNotices: Notice[] = usersToNotify.map((userId) => ({
 			userId,
 			...noticeEntry,
@@ -130,7 +127,6 @@ export async function patchNotification(
 	try {
 		const client = await connectToDatabase();
 		const db = client.db(process.env.VITE_LOCAL_DB);
-		//const users = db.collection<User>(usersColl);
 		const notifications = db.collection<Notice>(notificationsColl);
 
 		const isValidTarget = await notifications

@@ -11,6 +11,7 @@ import {
 	UserToken,
 } from "../../../types";
 import { countPerElement } from "../../../utility/arrayComparisons";
+import { createNotification } from "./notifications";
 
 const ticketsColl = process.env.LOCAL_TICKETS ?? "tickets";
 const projectsColl = process.env.LOCAL_PROJECTS ?? "projects";
@@ -434,9 +435,34 @@ export async function createTicket(
 			{ groupId: newTicket.group.groupId },
 			{ $addToSet: { ticketIds: newTicket.ticketId } }
 		);
+
+		const notifyAssignee = newTicket.assignee
+			? await createNotification(
+					{
+						messageCode: 10,
+						resource: {
+							kind: "TICKET",
+							id: newTicket.ticketId,
+							title: newTicket.title,
+						},
+						secondaryResource: {
+							kind: "USER",
+							id: user.userId,
+							title: user.username,
+						},
+					},
+					user,
+					[newTicket.assignee.userId]
+			  )
+			: undefined;
+
 		await client.close();
 
-		res.success = result1.acknowledged && result2.acknowledged;
+		res.success = notifyAssignee
+			? result1.acknowledged &&
+			  result2.acknowledged &&
+			  notifyAssignee.success
+			: result1.acknowledged && result2.acknowledged;
 		res.status = 200;
 		res.ticketNumber = ticketNumber;
 		return res;
