@@ -23,23 +23,23 @@ const checkPermissions = async (
 		.findOne({ userId: currentUserId })
 		.then((u) => u?.groupIds);
 
-	const isPermittedTicket = async () =>
+	const isPermittedTicket = async (ticketId: string) =>
 		!!(await tickets.findOne({
-			ticketId: id,
+			ticketId,
 			"group.groupId": { $in: permittedGroupsForUser },
 		}));
 
-	const isPermittedComment = async () =>
-		!!(await comments.findOne({
-			commentId: id,
-			"group.groupId": { $in: permittedGroupsForUser },
-		}));
+	const isPermittedComment = async () => {
+		const comment = await comments.findOne({ commentId: id });
+
+		return !!comment && isPermittedTicket(comment.ticketId);
+	};
 
 	switch (idKind) {
 		case "COMMENT":
 			return await isPermittedComment();
 		case "TICKET":
-			return await isPermittedTicket();
+			return await isPermittedTicket(id);
 		default:
 			return false;
 	}
@@ -140,6 +140,8 @@ export async function createComment(c: Comment, user: UserToken) {
 		const tickets = db.collection<FetchedTicketData>(ticketsColl);
 		const comments = db.collection<Comment>(commentsColl);
 
+		const parentTicket = await tickets.findOne({ ticketId: c.ticketId });
+
 		const result1 = await comments.insertOne(c);
 		const result2 = await tickets.updateOne(
 			{ ticketId: c.ticketId },
@@ -151,7 +153,11 @@ export async function createComment(c: Comment, user: UserToken) {
 				? await createNotification(
 						{
 							messageCode: 11,
-							resource: { kind: "TICKET", id: c.ticketId },
+							resource: {
+								kind: "TICKET",
+								id: c.ticketId,
+								title: parentTicket?.title,
+							},
 							secondaryResource: {
 								kind: "USER",
 								id: user.userId,
@@ -267,6 +273,7 @@ export async function reactComment(
 			return res;
 		}
 
+		const tickets = db.collection<FetchedTicketData>(ticketsColl);
 		const comments = db.collection<Comment>(commentsColl);
 
 		const result = await comments.updateOne(
@@ -280,13 +287,22 @@ export async function reactComment(
 
 		if (!targetComment.ticketId || !targetComment.userId) {
 			await client.close();
+			res.status = 404;
 			return res;
 		}
+
+		const parentTicket = await tickets.findOne({
+			ticketId: targetComment.ticketId,
+		});
 
 		const notifyUser = await createNotification(
 			{
 				messageCode: 12,
-				resource: { kind: "TICKET", id: targetComment.ticketId },
+				resource: {
+					kind: "TICKET",
+					id: targetComment.ticketId,
+					title: parentTicket?.title,
+				},
 				secondaryResource: {
 					kind: "USER",
 					id: user.userId,
@@ -295,7 +311,9 @@ export async function reactComment(
 			},
 			user,
 			async () => [
-				await comments.findOne({ commentId }).then((c) => c!.userId),
+				await comments
+					.findOne({ commentId })
+					.then((c) => (c!.userId !== user.userId ? c!.userId : "")),
 			]
 		);
 

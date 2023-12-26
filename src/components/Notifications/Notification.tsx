@@ -44,7 +44,7 @@ export default function Notification(
 				url={`/ticket/${resource.id}`}
 				text={
 					secondaryResource
-						? `${secondaryResource.title} commented on ${resource.title}`
+						? `${secondaryResource.title} commented on "${resource.title}"`
 						: `New comment on task "${resource.title}"`
 				}
 				timestamp={timestamp}
@@ -56,8 +56,8 @@ export default function Notification(
 				url={`/ticket/${resource.id}`}
 				text={
 					secondaryResource
-						? `${secondaryResource.title} reacted to your comment on ${resource.title}`
-						: `Someone reacted to your comment on ${resource.title}`
+						? `${secondaryResource.title} reacted to your comment on "${resource.title}"`
+						: `Someone reacted to your comment on "${resource.title}"`
 				}
 				timestamp={timestamp}
 				isSeen={isSeen}
