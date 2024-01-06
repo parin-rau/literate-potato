@@ -1,6 +1,14 @@
 import "dotenv/config";
 import { connectToDatabase } from "../../../db/mongodb";
-import { FetchedTicketData, Group, Project, User } from "../../../types";
+import {
+	FetchedTicketData,
+	Group,
+	NoticeEntry,
+	Project,
+	User,
+	UserToken,
+} from "../../../types";
+import { createNotification } from "./notifications";
 
 const groupsColl = process.env.LOCAL_GROUPS ?? "groups";
 const projectsColl = process.env.LOCAL_PROJECTS ?? "projects";
@@ -173,7 +181,8 @@ export async function updateGroup(
 export async function joinGroup(
 	groupId: string,
 	userId: string,
-	action: "join" | "leave" | "request" | "deny"
+	action: "join" | "leave" | "request" | "deny",
+	currentUser: UserToken
 ) {
 	const res: { status: number; success: boolean; message?: string } = {
 		status: 500,
@@ -185,6 +194,10 @@ export async function joinGroup(
 		const db = client.db(process.env.VITE_LOCAL_DB);
 		const groups = db.collection<Group>(groupsColl);
 		const users = db.collection<User>(usersColl);
+
+		const groupTitle =
+			(await groups.findOne({ groupId }).then((g) => g?.title)) ??
+			"undefined";
 
 		switch (action) {
 			case "join": {
@@ -202,10 +215,29 @@ export async function joinGroup(
 						$pull: { requestGroupIds: groupId },
 					}
 				);
+
+				const requestNotificationForNewMember: NoticeEntry = {
+					messageCode: 51,
+					resource: {
+						kind: "GROUP",
+						id: groupId,
+						title: groupTitle,
+					},
+				};
+				const notify = await createNotification(
+					requestNotificationForNewMember,
+					currentUser,
+					[userId],
+					{ client, db }
+				);
+
 				await client.close();
 
 				return {
-					success: result1.acknowledged && result2.acknowledged,
+					success:
+						result1.acknowledged &&
+						result2.acknowledged &&
+						notify.success,
 					matchedGroups: result1.matchedCount,
 					matchedUsers: result2.matchedCount,
 				};
@@ -249,10 +281,28 @@ export async function joinGroup(
 					{ userId },
 					{ $addToSet: { requestGroupIds: groupId } }
 				);
+
+				const requestNotificationForManager: NoticeEntry = {
+					messageCode: 50,
+					resource: {
+						kind: "GROUP",
+						id: groupId,
+						title: groupTitle,
+					},
+				};
+				const notify = await createNotification(
+					requestNotificationForManager,
+					currentUser,
+					[userId],
+					{ client, db }
+				);
 				await client.close();
 
 				return {
-					success: result1.acknowledged && result2.acknowledged,
+					success:
+						result1.acknowledged &&
+						result2.acknowledged &&
+						notify.success,
 					matchedGroups: result1.matchedCount,
 					matchedUsers: result2.matchedCount,
 				};
@@ -297,7 +347,7 @@ export async function joinGroup(
 	}
 }
 
-export async function deleteGroup(id: string) {
+export async function deleteGroup(id: string, currentUser: UserToken) {
 	const res: { status: number; success: boolean } = {
 		status: 500,
 		success: false,
@@ -308,6 +358,18 @@ export async function deleteGroup(id: string) {
 		const db = client.db(process.env.VITE_LOCAL_DB);
 		const groups = db.collection<Group>(groupsColl);
 		const users = db.collection<User>(usersColl);
+
+		const isManager = await groups
+			.findOne({ groupId: id })
+			.then((g) => g?.manager.userId === currentUser.userId);
+		const isAdmin = currentUser.roles.includes(0);
+
+		if (!isAdmin && !isManager) {
+			await client.close();
+			res.status = 403;
+			return res;
+		}
+
 		const result1 = await groups.deleteOne({ groupId: id });
 		const result2 = await users.updateMany(
 			{ groupIds: id },

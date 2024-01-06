@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as groupsService from "../services/mongodb/groups";
+import { UserRequest } from "../middleware/verifyToken";
 
 export async function getGroup(req: Request, res: Response) {
 	const { id } = req.params;
@@ -31,8 +32,9 @@ export async function updateGroup(req: Request, res: Response) {
 	res.sendStatus(status);
 }
 
-export async function joinGroup(req: Request, res: Response) {
+export async function joinGroup(req: Request | UserRequest, res: Response) {
 	const { groupId, userId, action } = req.params;
+	const { user } = req as UserRequest;
 
 	if (
 		action !== "join" &&
@@ -46,13 +48,15 @@ export async function joinGroup(req: Request, res: Response) {
 	const { status, message } = await groupsService.joinGroup(
 		groupId,
 		userId,
-		action
+		action,
+		user
 	);
 	res.status(status).json(message);
 }
 
-export async function deleteGroup(req: Request, res: Response) {
+export async function deleteGroup(req: Request | UserRequest, res: Response) {
 	const { id } = req.params;
-	const { status } = await groupsService.deleteGroup(id);
+	const { user } = req as UserRequest;
+	const { status } = await groupsService.deleteGroup(id, user);
 	res.sendStatus(status);
 }
