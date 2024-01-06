@@ -290,10 +290,15 @@ export async function joinGroup(
 						title: groupTitle,
 					},
 				};
+
+				const groupManagerId = await groups
+					.findOne({ groupId })
+					.then((g) => g!.manager.userId);
+
 				const notify = await createNotification(
 					requestNotificationForManager,
 					currentUser,
-					[userId],
+					[groupManagerId],
 					{ client, db }
 				);
 				await client.close();
