@@ -23,12 +23,16 @@ export async function createNotification(
 	req: Request | UserRequest,
 	res: Response
 ) {
-	const notice: NoticeEntry = await req.body;
+	const {
+		notice,
+		usersToNotify,
+	}: { notice: NoticeEntry; usersToNotify: string[] } = await req.body;
 	const { user } = req as UserRequest;
 
 	const { status } = await notificationsService.createNotification(
 		notice,
-		user
+		user,
+		usersToNotify
 	);
 
 	res.sendStatus(status);
@@ -40,7 +44,7 @@ export async function patchNotification(
 ) {
 	const { id } = req.params;
 	const { user } = req as UserRequest;
-	const { patch } = await req.body;
+	const patch = await req.body;
 
 	const { status } = await notificationsService.patchNotification(
 		id,

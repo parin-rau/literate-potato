@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Notice } from "../../types";
 import timestampDisplay from "../../utility/timestampDisplay";
+import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
 
 type CardProps = {
 	url: string;
@@ -10,25 +12,33 @@ type CardProps = {
 };
 
 const cardStyling =
-	"flex flex-col gap-2 p-4 rounded-md border-2 dark:border-zinc-600 bg-white dark:bg-zinc-900 hover:bg-slate-200 dark:hover:bg-zinc-900 dark:hover:border-zinc-400 border-black";
+	"flex flex-col gap-2 p-4 rounded-md border-2 border-black dark:border-zinc-600 bg-white dark:bg-zinc-900 hover:bg-slate-200 dark:hover:bg-zinc-800 dark:hover:border-zinc-400 ";
+const seenCardStyling =
+	"flex flex-col gap-2 p-4 rounded-md border-2 border-slate-300 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-900 hover:bg-slate-200 dark:hover:bg-zinc-800 dark:hover:border-zinc-400 ";
 
 function NotificationCard({ url, text, timestamp, isSeen }: CardProps) {
 	return (
-		<Link to={url} className={cardStyling}>
+		<Link to={url} className={isSeen ? seenCardStyling : cardStyling}>
 			<h5>{timestampDisplay(timestamp)}</h5>
-			{isSeen ? <i>{text}</i> : <p>{text}</p>}
+			{isSeen ? (
+				<i className="text-slate-600 dark:text-zinc-300">{text}</i>
+			) : (
+				<p>{text}</p>
+			)}
 		</Link>
 	);
 }
 
-export default function Notification(
-	// messageCode: number,
-	// resource: Notice["resource"],
-	// secondaryTitle?: string
-	notice: Notice
-) {
-	const { messageCode, resource, secondaryResource, timestamp, isSeen } =
-		notice;
+export default function Notification(notice: Notice) {
+	const {
+		messageCode,
+		resource,
+		secondaryResource,
+		timestamp,
+		isSeen,
+		notificationId,
+	} = notice;
+	const { protectedFetch } = useProtectedFetch();
 
 	const codes: Record<number, React.ReactNode> = {
 		10: (
@@ -86,6 +96,19 @@ export default function Notification(
 			className={cardStyling}
 		>{`Invalid message code: ${messageCode}`}</div>
 	);
+
+	useEffect(() => {
+		const seenNotification = async (notificationId: string) => {
+			await protectedFetch(`/api/notification/${notificationId}`, {
+				method: "PATCH",
+				body: JSON.stringify({ isSeen: true }),
+			});
+
+			// no state change so viewing a notification the first time won't apply seen styling to card
+		};
+
+		if (!isSeen) seenNotification(notificationId);
+	}, [isSeen, notificationId, protectedFetch]);
 
 	return codes[messageCode] ?? invalidCode;
 }

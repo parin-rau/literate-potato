@@ -138,7 +138,10 @@ export async function patchNotification(
 			return res;
 		}
 
-		const result = await notifications.updateOne({ notificationId }, patch);
+		const result = await notifications.updateOne(
+			{ notificationId },
+			{ $set: { ...patch, lastModified: Date.now() } }
+		);
 
 		await client.close();
 

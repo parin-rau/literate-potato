@@ -16,6 +16,12 @@ export default function NotificationsContainer() {
 	return isLoading ? (
 		<LoadingSkeletonCardGrid />
 	) : (
-		notifications.map((n) => <Notification {...{ ...n }} />)
+		<div className="flex flex-col gap-2">
+			{notifications
+				.sort((a, b) => b.timestamp - a.timestamp)
+				.map((n) => (
+					<Notification {...{ ...n, key: n.notificationId }} />
+				))}
+		</div>
 	);
 }
