@@ -23,9 +23,9 @@ export async function getNotificationsByUser(
 	user: UserToken,
 	filter?: string
 ) {
-	const res: { status: number; data: number | Notice[] } = {
+	const res: { status: number; data: { count: number } | Notice[] } = {
 		status: 500,
-		data: filter === "count" ? 0 : [],
+		data: filter === "count" ? { count: 0 } : [],
 	};
 
 	if (user.userId !== targetId) return res;
@@ -36,10 +36,11 @@ export async function getNotificationsByUser(
 	) => {
 		switch (filter) {
 			case "count": {
-				return await coll.countDocuments({
+				const count = await coll.countDocuments({
 					userId: targetId,
 					isSeen: false,
 				});
+				return { count };
 			}
 			default: {
 				return await coll.find({ userId: targetId }).toArray();

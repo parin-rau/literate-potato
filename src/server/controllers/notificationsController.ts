@@ -10,6 +10,8 @@ export async function getNotificationsByUser(
 	const { userId, filter } = req.params;
 	const { user } = req as UserRequest;
 
+	console.log({ userId, filter });
+
 	const { status, data } = await notificationsService.getNotificationsByUser(
 		userId,
 		user,

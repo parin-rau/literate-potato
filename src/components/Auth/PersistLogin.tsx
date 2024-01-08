@@ -8,7 +8,7 @@ export default function PersistLogin({
 	children: React.ReactNode;
 }) {
 	const { user, refreshAccessToken } = useAuth();
-	const [isLoading, setLoading] = useState(false);
+	const [isLoading, setLoading] = useState(true);
 
 	useEffect(() => {
 		setLoading(true);

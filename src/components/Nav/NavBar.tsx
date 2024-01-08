@@ -6,28 +6,49 @@ import ToggleButton from "./ToggleButton";
 import DarkModeIcon from "../Svg/DarkModeIcon";
 import InboxIcon from "../Svg/InboxIcon";
 import { useNavigate } from "react-router-dom";
+import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
+import { useAuth } from "../../hooks/auth/useAuth";
 
-export default function NavBar() {
+type Props = {
+	setNavbarLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export default function NavBar({ setNavbarLoading }: Props) {
 	const navigate = useNavigate();
 	const [theme, setTheme] = useState<string>(localStorage.theme);
 	const [isOpenSidebar, setOpenSidebar] = useState(false);
+	const [notificationCount, setNotificationCount] = useState(0);
+	const { protectedFetch } = useProtectedFetch();
+	const { user } = useAuth();
 
 	function handleThemeToggle() {
-		theme === "dark" ? setTheme("light") : setTheme("dark");
+		//theme === "dark" ? setTheme("light") : setTheme("dark");
+		if (theme === "dark") {
+			document.documentElement.classList.remove("dark");
+			localStorage.theme = "light";
+			setTheme("light");
+		} else {
+			document.documentElement.classList.add("dark");
+			localStorage.theme = "dark";
+			setTheme("dark");
+		}
 	}
 
 	useEffect(() => {
-		function changeTheme() {
-			if (theme === "dark") {
-				document.documentElement.classList.add("dark");
-				localStorage.theme = "dark";
-			} else {
-				document.documentElement.classList.remove("dark");
-				localStorage.theme = "light";
+		const getNotificationCount = async () => {
+			const res = await protectedFetch(
+				`/api/notification/${user.current?.userId}/count`
+			);
+
+			if (res.ok) {
+				const { count } = await res.json();
+				setNotificationCount(count);
+				setNavbarLoading(false);
 			}
-		}
-		changeTheme();
-	}, [theme]);
+		};
+
+		if (user.current?.userId) getNotificationCount();
+	}, [protectedFetch, setNavbarLoading, user]);
 
 	function handleSidebarToggle(isOpen?: boolean) {
 		if (isOpen === true || isOpen === false) {
@@ -38,6 +59,7 @@ export default function NavBar() {
 	}
 
 	function handleInboxClick() {
+		setNotificationCount(0);
 		navigate("/notification");
 	}
 
@@ -54,7 +76,7 @@ export default function NavBar() {
 					<SearchBar linkTo="/search" />
 
 					<ToggleButton onClick={handleInboxClick}>
-						<InboxIcon notificationCount={3} />
+						<InboxIcon notificationCount={notificationCount} />
 					</ToggleButton>
 
 					<ToggleButton onClick={handleThemeToggle}>
