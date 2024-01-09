@@ -5,7 +5,6 @@ import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "./CardSelector";
 import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
-//import { useGetter } from "../../hooks/utility/useGetter";
 import { LoadingSpinner } from "../Nav/Loading";
 import ToggleButton from "../Nav/ToggleButton";
 import CollapseIcon from "../Svg/CollapseIcon";
@@ -14,8 +13,8 @@ import { useAuth } from "../../hooks/auth/useAuth";
 type TicketProps = {
 	containerTitle: string;
 	dataKind: "ticket";
-	projectId?: string;
-	projectTitle?: string;
+	projectId: string;
+	projectTitle: string;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
@@ -27,7 +26,9 @@ type ProjectProps = {
 	setProject?: never;
 };
 
-//type T = FetchedTicketData | Project
+type T = FetchedTicketData | Project;
+type CProps = TicketProps | ProjectProps;
+type P = { projectId: string; projectTitle: string } | undefined;
 
 type Props = {
 	styles?: string;
@@ -36,13 +37,16 @@ type Props = {
 	hideEditor?: boolean;
 	hideUncategorized?: boolean;
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
-} & (TicketProps | ProjectProps);
+} & CProps;
 
-export default function CardContainer<
-	T extends FetchedTicketData | Project,
-	// | (FetchedTicketData & { dataKind: "ticket" })
-	// | (Project & { dataKind: "project" })
->(props: Props) {
+export default function CardContainer(
+	// <
+	// 	T extends FetchedTicketData | Project,
+	// 	// | (FetchedTicketData & { dataKind: "ticket" })
+	// 	// | (Project & { dataKind: "project" })
+	// >
+	props: Props
+) {
 	const {
 		containerTitle,
 		dataKind,
@@ -58,9 +62,9 @@ export default function CardContainer<
 	} = props;
 
 	const { user } = useAuth();
-	const [sortMeta, setSortMeta] = useState<
-		{ property: string; categories: string[] } | undefined
-	>();
+	// const [sortMeta, setSortMeta] = useState<
+	// 	{ property: string; categories: string[] } | undefined
+	// >();
 	const [filters, setFilters] = useState<string[]>([]);
 	const [cardCache, setCardCache] = useState<T[]>([]);
 	const [isFirstFilter, setFirstFilter] = useState(true);
@@ -68,7 +72,8 @@ export default function CardContainer<
 	const [hideContainer, setHideContainer] = useState(false);
 
 	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
-	const project = { projectId, projectTitle };
+	const project: P =
+		projectId && projectTitle ? { projectId, projectTitle } : undefined;
 
 	const endpoint =
 		dataKind === "ticket"
@@ -89,8 +94,6 @@ export default function CardContainer<
 		isLoading,
 	} = useInitialFetch<T[]>(endpoint);
 
-	//const getStableCards = useGetter({ cards, cardCache });
-
 	useEffect(() => {
 		if (dataKind === "ticket" && setCardsLoading && !isLoading)
 			setCardsLoading(false);
@@ -104,79 +107,7 @@ export default function CardContainer<
 			setCardsLoading(false);
 	}, [dataKind, hideUncategorized, isLoading, setCardsLoading]);
 
-	// useEffect(() => {
-	// 	function filterCards() {
-	// 		const { cards: stableCards, cardCache: stableCardCache } =
-	// 			getStableCards();
-
-	// 		function getFilterMatches(cardArr: T[]) {
-	// 			switch (filterMode) {
-	// 				case "OR": {
-	// 					const filteredCards: T[] = [];
-	// 					filters.forEach((mask) => {
-	// 						const matches = cardArr.filter((card) => {
-	// 							if ("tags" in card) {
-	// 								return (
-	// 									card.tags.includes(mask) &&
-	// 									!filteredCards.includes(card)
-	// 								);
-	// 							}
-	// 						});
-	// 						filteredCards.push(...matches);
-	// 					});
-	// 					return filteredCards;
-	// 				}
-	// 				case "AND": {
-	// 					const filteredCards: T[] = cardArr.filter((card) => {
-	// 						if ("tags" in card)
-	// 							return filters.every((mask) =>
-	// 								card.tags.includes(mask)
-	// 							);
-	// 					});
-	// 					return filteredCards;
-	// 				}
-	// 				default:
-	// 					return stableCards;
-	// 			}
-	// 		}
-
-	// 		switch (true) {
-	// 			case filters.length === 1 && isFirstFilter: {
-	// 				const filtered = getFilterMatches(stableCards);
-	// 				setCardCache(stableCards);
-	// 				setFirstFilter(false);
-	// 				setCards(filtered);
-	// 				break;
-	// 			}
-	// 			case filters.length === 0 && !isFirstFilter: {
-	// 				setCards(stableCardCache);
-	// 				setFirstFilter(true);
-	// 				setCardCache([]);
-	// 				break;
-	// 			}
-	// 			case filters.length > 0 && !isFirstFilter: {
-	// 				const filtered = getFilterMatches(stableCardCache);
-	// 				setCards(filtered);
-	// 				break;
-	// 			}
-	// 			default:
-	// 				break;
-	// 		}
-	// 	}
-	// 	filterCards();
-	// }, [
-	// 	filters,
-	// 	filterMode,
-	// 	setCardCache,
-	// 	setCards,
-	// 	isFirstFilter,
-	// 	getStableCards,
-	// ]);
-
 	function filterCards(filters: string[], mode: "AND" | "OR" = filterMode) {
-		// const { cards: stableCards, cardCache: stableCardCache } =
-		// 	getStableCards();
-
 		function getFilterMatches(cardArr: T[]) {
 			switch (mode) {
 				case "OR": {
@@ -237,13 +168,13 @@ export default function CardContainer<
 		direction: "asc" | "desc"
 	) {
 		if (dataKind === "ticket") {
-			const { sortedData, sortCategories } = sortData(
+			const { sortedData } = sortData(
 				cards as FetchedTicketData[],
 				sortKind,
 				direction
 			)!;
 			setCards(sortedData as T[]);
-			setSortMeta(sortCategories);
+			//setSortMeta(sortCategories);
 		}
 	}
 
@@ -293,13 +224,33 @@ export default function CardContainer<
 			{!hideEditor && (
 				<TicketEditor
 					{...{
-						dataKind,
-						setCards,
-						project,
+						dataKind: dataKind as T extends FetchedTicketData
+							? "ticket"
+							: "project",
+						setCards: setCards as T extends FetchedTicketData
+							? React.Dispatch<
+									React.SetStateAction<FetchedTicketData[]>
+							  >
+							: React.Dispatch<React.SetStateAction<Project[]>>,
+						project: project as T extends Project
+							? Required<P>
+							: undefined,
 						group,
 						resetFilters,
-						setProject,
-						setCardCache,
+						setProject: setProject as T extends Project
+							? React.Dispatch<React.SetStateAction<Project[]>>
+							: undefined,
+						setCardCache:
+							setCardCache as T extends FetchedTicketData
+								? React.Dispatch<
+										React.SetStateAction<
+											FetchedTicketData[]
+										>
+								  >
+								: React.Dispatch<
+										React.SetStateAction<Project[]>
+								  >,
+						createOnly: true,
 					}}
 				/>
 			)}
@@ -336,12 +287,39 @@ export default function CardContainer<
 					<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto ">
 						<CardSelector
 							{...{
-								dataKind,
-								cards,
-								setCards,
-								setCardCache,
+								dataKind:
+									dataKind as T extends FetchedTicketData
+										? "ticket"
+										: "project",
+								cards: cards as T extends FetchedTicketData
+									? FetchedTicketData[]
+									: Project[],
+								setCards:
+									setCards as T extends FetchedTicketData
+										? React.Dispatch<
+												React.SetStateAction<
+													FetchedTicketData[]
+												>
+										  >
+										: React.Dispatch<
+												React.SetStateAction<Project[]>
+										  >,
+								//cards,
+								//setCards,
+								setCardCache:
+									setCardCache as T extends FetchedTicketData
+										? React.Dispatch<
+												React.SetStateAction<
+													FetchedTicketData[]
+												>
+										  >
+										: React.Dispatch<
+												React.SetStateAction<Project[]>
+										  >,
 								filters,
-								setFilters,
+								setFilters: setFilters as React.Dispatch<
+									React.SetStateAction<string[]>
+								>,
 								setProject,
 								setCardsLoading,
 								hideUncategorized,

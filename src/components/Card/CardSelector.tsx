@@ -23,7 +23,7 @@ type ProjectProps = {
 	setCardCache: React.Dispatch<React.SetStateAction<Project[]>>;
 	filters: string[];
 	setFilters: React.Dispatch<React.SetStateAction<string[]>>;
-	filterCards?: never;
+	filterCards(_t: string[]): void;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 	hideUncategorized?: boolean;

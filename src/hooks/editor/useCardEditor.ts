@@ -17,7 +17,7 @@ import { useAuth } from "../auth/useAuth";
 //import { useProjectEditor } from "./useProjectEditor";
 
 type CommonProps = {
-	dataKind: string;
+	//dataKind: string;
 	resetFilters?: () => void;
 	group?: { groupId: string; groupTitle: string };
 };
