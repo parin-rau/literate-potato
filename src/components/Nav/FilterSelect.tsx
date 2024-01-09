@@ -12,6 +12,7 @@ type Props = {
 	changeFilterMode: () => void;
 	resetFilters: () => void;
 	sortMenu?: SortMenu;
+	filterCards?: (_t: string[]) => void;
 };
 
 export default function FilterSelect(props: Props) {
@@ -23,6 +24,7 @@ export default function FilterSelect(props: Props) {
 		changeFilterMode,
 		resetFilters,
 		sortMenu,
+		filterCards,
 	} = props;
 
 	return (
@@ -30,7 +32,11 @@ export default function FilterSelect(props: Props) {
 			<SearchBar setFilters={setFilters} placeholder="Filter by Tags" />
 			{filters.length > 0 && (
 				<>
-					<TagsDisplay tags={filters} deleteTag={deleteFilterTag} />
+					<TagsDisplay
+						tags={filters}
+						deleteTag={deleteFilterTag}
+						filterCards={filterCards}
+					/>
 					<div className="grid grid-cols-2 justify-items-center divide-x divide-neutral-700">
 						<button
 							className="px-2 py-1 hover:bg-slate-300 hover:rounded-full dark:hover:bg-zinc-700"

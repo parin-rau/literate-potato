@@ -5,7 +5,7 @@ import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "./CardSelector";
 import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
-import { useGetter } from "../../hooks/utility/useGetter";
+//import { useGetter } from "../../hooks/utility/useGetter";
 import { LoadingSpinner } from "../Nav/Loading";
 import ToggleButton from "../Nav/ToggleButton";
 import CollapseIcon from "../Svg/CollapseIcon";
@@ -89,7 +89,7 @@ export default function CardContainer<
 		isLoading,
 	} = useInitialFetch<T[]>(endpoint);
 
-	const getStableCards = useGetter({ cards, cardCache });
+	//const getStableCards = useGetter({ cards, cardCache });
 
 	useEffect(() => {
 		if (dataKind === "ticket" && setCardsLoading && !isLoading)
@@ -104,74 +104,133 @@ export default function CardContainer<
 			setCardsLoading(false);
 	}, [dataKind, hideUncategorized, isLoading, setCardsLoading]);
 
-	useEffect(() => {
-		function filterCards() {
-			const { cards: stableCards, cardCache: stableCardCache } =
-				getStableCards();
+	// useEffect(() => {
+	// 	function filterCards() {
+	// 		const { cards: stableCards, cardCache: stableCardCache } =
+	// 			getStableCards();
 
-			function getFilterMatches(cardArr: T[]) {
-				switch (filterMode) {
-					case "OR": {
-						const filteredCards: T[] = [];
-						filters.forEach((mask) => {
-							const matches = cardArr.filter((card) => {
-								if ("tags" in card) {
-									return (
-										card.tags.includes(mask) &&
-										!filteredCards.includes(card)
-									);
-								}
-							});
-							filteredCards.push(...matches);
-						});
-						return filteredCards;
-					}
-					case "AND": {
-						const filteredCards: T[] = cardArr.filter((card) => {
-							if ("tags" in card)
-								return filters.every((mask) =>
-									card.tags.includes(mask)
+	// 		function getFilterMatches(cardArr: T[]) {
+	// 			switch (filterMode) {
+	// 				case "OR": {
+	// 					const filteredCards: T[] = [];
+	// 					filters.forEach((mask) => {
+	// 						const matches = cardArr.filter((card) => {
+	// 							if ("tags" in card) {
+	// 								return (
+	// 									card.tags.includes(mask) &&
+	// 									!filteredCards.includes(card)
+	// 								);
+	// 							}
+	// 						});
+	// 						filteredCards.push(...matches);
+	// 					});
+	// 					return filteredCards;
+	// 				}
+	// 				case "AND": {
+	// 					const filteredCards: T[] = cardArr.filter((card) => {
+	// 						if ("tags" in card)
+	// 							return filters.every((mask) =>
+	// 								card.tags.includes(mask)
+	// 							);
+	// 					});
+	// 					return filteredCards;
+	// 				}
+	// 				default:
+	// 					return stableCards;
+	// 			}
+	// 		}
+
+	// 		switch (true) {
+	// 			case filters.length === 1 && isFirstFilter: {
+	// 				const filtered = getFilterMatches(stableCards);
+	// 				setCardCache(stableCards);
+	// 				setFirstFilter(false);
+	// 				setCards(filtered);
+	// 				break;
+	// 			}
+	// 			case filters.length === 0 && !isFirstFilter: {
+	// 				setCards(stableCardCache);
+	// 				setFirstFilter(true);
+	// 				setCardCache([]);
+	// 				break;
+	// 			}
+	// 			case filters.length > 0 && !isFirstFilter: {
+	// 				const filtered = getFilterMatches(stableCardCache);
+	// 				setCards(filtered);
+	// 				break;
+	// 			}
+	// 			default:
+	// 				break;
+	// 		}
+	// 	}
+	// 	filterCards();
+	// }, [
+	// 	filters,
+	// 	filterMode,
+	// 	setCardCache,
+	// 	setCards,
+	// 	isFirstFilter,
+	// 	getStableCards,
+	// ]);
+
+	function filterCards(filters: string[], mode: "AND" | "OR" = filterMode) {
+		// const { cards: stableCards, cardCache: stableCardCache } =
+		// 	getStableCards();
+
+		function getFilterMatches(cardArr: T[]) {
+			switch (mode) {
+				case "OR": {
+					const filteredCards: T[] = [];
+					filters.forEach((mask) => {
+						const matches = cardArr.filter((card) => {
+							if ("tags" in card) {
+								return (
+									card.tags.includes(mask) &&
+									!filteredCards.includes(card)
 								);
+							}
 						});
-						return filteredCards;
-					}
-					default:
-						return stableCards;
+						filteredCards.push(...matches);
+					});
+					return filteredCards;
 				}
-			}
-
-			switch (true) {
-				case filters.length === 1 && isFirstFilter: {
-					const filtered = getFilterMatches(stableCards);
-					setCardCache(stableCards);
-					setFirstFilter(false);
-					setCards(filtered);
-					break;
-				}
-				case filters.length === 0 && !isFirstFilter: {
-					setCards(stableCardCache);
-					setFirstFilter(true);
-					setCardCache([]);
-					break;
-				}
-				case filters.length > 0 && !isFirstFilter: {
-					const filtered = getFilterMatches(stableCardCache);
-					setCards(filtered);
-					break;
+				case "AND": {
+					const filteredCards: T[] = cardArr.filter((card) => {
+						if ("tags" in card)
+							return filters.every((mask) =>
+								card.tags.includes(mask)
+							);
+					});
+					return filteredCards;
 				}
 				default:
-					break;
+					return cards;
 			}
 		}
-		filterCards();
-	}, [
-		filters,
-		filterMode,
-		setCardCache,
-		setCards,
-		isFirstFilter,
-		getStableCards,
-	]);
+
+		switch (true) {
+			case filters.length === 1 && isFirstFilter: {
+				const filtered = getFilterMatches(cards);
+				setCardCache(cards);
+				setFirstFilter(false);
+				setCards(filtered);
+				break;
+			}
+			case filters.length === 0 && !isFirstFilter: {
+				setCards(cardCache);
+				setFirstFilter(true);
+				setCardCache([]);
+				break;
+			}
+			case filters.length > 0 && !isFirstFilter: {
+				const filtered = getFilterMatches(cardCache);
+				setCards(filtered);
+				break;
+			}
+			default:
+				break;
+		}
+	}
 
 	function handleSort(
 		sortKind: "priority" | "taskStatus" | "timestamp",
@@ -209,10 +268,13 @@ export default function CardContainer<
 	function changeFilterMode() {
 		const nextMode = filterMode === "OR" ? "AND" : "OR";
 		setFilterMode(nextMode);
+		filterCards(filters, nextMode);
 	}
 
 	function resetFilters() {
 		setFilters([]);
+		filterCards([]);
+		setFilterMode("AND");
 	}
 
 	function handleHideToggle() {
@@ -263,6 +325,7 @@ export default function CardContainer<
 							changeFilterMode,
 							resetFilters,
 							sortMenu,
+							filterCards,
 						}}
 					/>
 				</div>
@@ -282,6 +345,7 @@ export default function CardContainer<
 								setProject,
 								setCardsLoading,
 								hideUncategorized,
+								filterCards,
 							}}
 						/>
 					</div>

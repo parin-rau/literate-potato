@@ -3,16 +3,28 @@ type Props = {
 	deleteTag?: (_id: number) => void;
 	filters?: string[];
 	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
+	filterCards?: (_t: string[]) => void;
 };
 
 export default function TagsDisplay(props: Props) {
-	const { tags, deleteTag, filters, setFilters } = props;
+	const { tags, deleteTag, filters, setFilters, filterCards } = props;
 
 	function handleClick(id: number, tag?: string) {
-		if (setFilters && tag && !filters!.includes(tag)) {
-			setFilters((prev) => [...prev, tag]);
+		if (
+			setFilters &&
+			tag &&
+			filters &&
+			!filters.includes(tag) &&
+			filterCards
+		) {
+			const newFilters = [...filters, tag];
+			//setFilters((prev) => [...prev, tag]);
+			setFilters(newFilters);
+			filterCards(newFilters);
 		} else if (deleteTag) {
+			const newFilters = tags.filter((t) => tags.indexOf(t) !== id);
 			deleteTag(id);
+			filterCards && filterCards(newFilters);
 		}
 	}
 

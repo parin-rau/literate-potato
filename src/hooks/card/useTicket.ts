@@ -13,6 +13,7 @@ export type Props = {
 	setFilters?: React.Dispatch<React.SetStateAction<string[]>>;
 	setCardCache?: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
+	filterCards?: (_t: string[]) => void;
 };
 
 export function useTicket(props: Props) {

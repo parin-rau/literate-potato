@@ -34,7 +34,14 @@ export default function TicketCard(props: Props) {
 		externalResourceText,
 	} = props.cardData;
 
-	const { setCards, filters, setFilters, setCardCache, setProject } = props;
+	const {
+		setCards,
+		filters,
+		setFilters,
+		filterCards,
+		setCardCache,
+		setProject,
+	} = props;
 
 	const {
 		deleteCard,
@@ -150,6 +157,7 @@ export default function TicketCard(props: Props) {
 											tags,
 											filters,
 											setFilters,
+											filterCards,
 										}}
 									/>
 								</div>
