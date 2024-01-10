@@ -1,17 +1,21 @@
 import { useRef, useState, useEffect } from "react";
 // import DirectionalArrow from "../Display/DirectionalArrow";
 import Modal from "./Modal";
+import { FetchedTicketData, Project, SortableObj } from "../../types";
 
 type Props =
 	| {
 			options: {
 				label: string;
 				//arrowDirection?: "up" | "down";
-				fn: () => void;
+				fn: (
+					_arr: SortableObj[] | FetchedTicketData[] | Project[]
+				) => void;
 			}[];
 			cardId?: never;
 			menuTitle?: string;
 			menuTitleFont?: string;
+			cards?: FetchedTicketData[] | Project[];
 	  }
 	| {
 			options: {
@@ -22,10 +26,11 @@ type Props =
 			cardId: string;
 			menuTitle?: string;
 			menuTitleFont?: string;
+			cards?: never;
 	  };
 
 export default function MenuDropdown(props: Props) {
-	const { options, cardId, menuTitle, menuTitleFont } = props;
+	const { options, cardId, menuTitle, menuTitleFont, cards } = props;
 	const [isMenu, setMenu] = useState(false);
 	const [isModal, setModal] = useState(false);
 	const [modalCallback, setModalCallback] = useState<(_id: string) => void>();
@@ -115,7 +120,11 @@ export default function MenuDropdown(props: Props) {
 							className="hover:cursor-pointer hover:bg-slate-300 dark:hover:bg-zinc-700 px-3 rounded-full flex flex-row space-x-2 py-1 justify-stretch w-max"
 							key={index}
 							onClick={(e) =>
-								handleOptionClick(e, option.label, option.fn)
+								handleOptionClick(
+									e,
+									option.label,
+									option.fn(cards)
+								)
 							}
 						>
 							<span>{option.label}</span>

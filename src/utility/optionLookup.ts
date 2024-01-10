@@ -1,4 +1,10 @@
-import { FetchedTicketData, Project, SortMenu, SortableObj } from "../types";
+import {
+	FetchedTicketData,
+	Project,
+	SortOptions,
+	SortMenu,
+	SortableObj,
+} from "../types";
 import {
 	sortByKey,
 	sortByTicketCompletion,
@@ -211,156 +217,139 @@ export const menuLookup = {
 };
 
 type Setter = React.Dispatch<React.SetStateAction<SortableObj[]>>;
-// type SortItems =
-// 	| {
-// 			items: SortableObj[];
-// 			dataKind?: never;
-// 			setItems: Setter;
-// 	  }
-// 	| (
-// 			| {
-// 					items: FetchedTicketData[];
-// 					dataKind: "ticket";
-// 					setItems: Setter;
-// 			  }
-// 			| { items: Project[]; dataKind: "project"; setItems: Setter }
-// 	  );
 
-export const sortItemsOptions = //({ items, dataKind, setItems }: SortItems) => {
-	(
-		//dataKind: "ticket" | "project",
-		items: SortableObj[],
-		setItems: Setter
-		//arr: FetchedTicketData[] | Project[], setItems: Setter
-	): SortMenu => {
-		// const fnTemplate = ({
-		// 	key,
-		// 	dataKind,
-		// 	direction = 1,
-		// }: {
-		// 	key?: string;
-		// 	dataKind?: "ticket" | "project",
-		// 	direction?: 1 | -1;
-		// }) => {
-		// 	if (key) {
-		// 		return () => {
-		// 			const sorted = sortByKey(items, key, direction);
-		// 			setItems(sorted);
-		// 		};
-		// 	} else if (dataKind) {
-		// 		return () => {
-		// 			const sorted = sortByCompletion({
-		// 				dataKind,
-		// 				direction,
-		// 				arr: items as unknown as dataKind extends "ticket" ? FetchedTicketData[] : Project[],
-		// 			});
-		// 			setItems(sorted as unknown as SortableObj[]);
-		// 		};
-		// 	} else return () => {};
-		// };
+export const sortItemsOptions = (setItems: Setter): SortOptions[] => {
+	// const fnTemplate = ({
+	// 	key,
+	// 	dataKind,
+	// 	direction = 1,
+	// }: {
+	// 	key?: string;
+	// 	dataKind?: "ticket" | "project",
+	// 	direction?: 1 | -1;
+	// }) => {
+	// 	if (key) {
+	// 		return () => {
+	// 			const sorted = sortByKey(items, key, direction);
+	// 			setItems(sorted);
+	// 		};
+	// 	} else if (dataKind) {
+	// 		return () => {
+	// 			const sorted = sortByCompletion({
+	// 				dataKind,
+	// 				direction,
+	// 				arr: items as unknown as dataKind extends "ticket" ? FetchedTicketData[] : Project[],
+	// 			});
+	// 			setItems(sorted as unknown as SortableObj[]);
+	// 		};
+	// 	} else return () => {};
+	// };
 
-		// type T = ({dataKind: "ticket"; arr: FetchedTicketData[]} | {dataKind: "project"; arr: Project[]}) & {direction: 1 | -1}
+	// type T = ({dataKind: "ticket"; arr: FetchedTicketData[]} | {dataKind: "project"; arr: Project[]}) & {direction: 1 | -1}
 
-		// const temp = (//{dataKind, arr, direction = 1}
-		// t: T ) => () => {
-		// 	const sorted = sortByCompletion(t);
-		// 	setItems(sorted as unknown as SortableObj[]);
-		// };
+	// const temp = (//{dataKind, arr, direction = 1}
+	// t: T ) => () => {
+	// 	const sorted = sortByCompletion(t);
+	// 	setItems(sorted as unknown as SortableObj[]);
+	// };
 
-		// const fnTemplate2 =
-		// 	<T extends SortableObj>(
-		// 		dataKind: "ticket" | "project",
-		// 		direction: 1 | -1 = 1
-		// 	) =>
-		// 	() => {
-		// 		const sorted = sortByCompletion({
-		// 			dataKind,
-		// 			arr: items,
-		// 			direction,
-		// 		});
-		// 		setItems(sorted as T[]);
-		// 	};
+	// const fnTemplate2 =
+	// 	<T extends SortableObj>(
+	// 		dataKind: "ticket" | "project",
+	// 		direction: 1 | -1 = 1
+	// 	) =>
+	// 	() => {
+	// 		const sorted = sortByCompletion({
+	// 			dataKind,
+	// 			arr: items,
+	// 			direction,
+	// 		});
+	// 		setItems(sorted as T[]);
+	// 	};
 
-		// return [
-		// 	{
-		// 		label: "Title, A -> Z",
-		// 		fn: fnTemplate({ key: "title" }),
-		// 	},
-		// 	{
-		// 		label: "Title, Z -> A",
-		// 		fn: fnTemplate({ key: "title", direction: -1 }),
-		// 	},
-		// 	{
-		// 		label: "Oldest First",
-		// 		fn: fnTemplate({ key: "timestamp" }),
-		// 	},
-		// 	{
-		// 		label: "Newest First",
-		// 		fn: fnTemplate({ key: "timestamp", direction: -1 }),
-		// 	},
-		// 	{
-		// 		label: "Lowest Completion First",
-		// 		fn: temp({dataKind, arr, }),
-		// 	},
-		// ];
+	// return [
+	// 	{
+	// 		label: "Title, A -> Z",
+	// 		fn: fnTemplate({ key: "title" }),
+	// 	},
+	// 	{
+	// 		label: "Title, Z -> A",
+	// 		fn: fnTemplate({ key: "title", direction: -1 }),
+	// 	},
+	// 	{
+	// 		label: "Oldest First",
+	// 		fn: fnTemplate({ key: "timestamp" }),
+	// 	},
+	// 	{
+	// 		label: "Newest First",
+	// 		fn: fnTemplate({ key: "timestamp", direction: -1 }),
+	// 	},
+	// 	{
+	// 		label: "Lowest Completion First",
+	// 		fn: temp({dataKind, arr, }),
+	// 	},
+	// ];
 
-		return [
-			{
-				label: "Title, A -> Z",
-				fn: () => setItems(sortByKey(items, "title")),
+	return [
+		{
+			label: "Title, A -> Z",
+			fn: (items: SortableObj[]) => {
+				const sorted = sortByKey(items, "title");
+				setItems(sorted);
 			},
-			{
-				label: "Title, Z -> A",
-				fn: () => setItems(sortByKey(items, "title", -1)),
+		},
+		{
+			label: "Title, Z -> A",
+			fn: (items: SortableObj[]) => {
+				const sorted = sortByKey(items, "title", -1);
+				setItems(sorted);
 			},
-			{
-				label: "Oldest First",
-				fn: () => setItems(sortByKey(items, "timestamp")),
-			},
-			{
-				label: "Newest First",
-				fn: () => setItems(sortByKey(items, "timestamp", -1)),
-			},
-			// {
-			// 	label: "Lowest Completion First",
-			// 	fn: () => sortByCompletion({ dataKind, items }),
-			// },
-			// {
-			// 	label: "Lowest Completion First",
-			// 	fn: () => sortByCompletion({ dataKind, items, direction: -1 }),
-			// },
-		];
-	};
-
-type SortTicketOptions = {
-	tickets: FetchedTicketData[];
-	setItems: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+		},
+		{
+			label: "Oldest First",
+			fn: (items: SortableObj[]) =>
+				setItems(sortByKey(items, "timestamp")),
+		},
+		{
+			label: "Newest First",
+			fn: (items: SortableObj[]) =>
+				setItems(sortByKey(items, "timestamp", -1)),
+		},
+		// {
+		// 	label: "Lowest Completion First",
+		// 	fn: () => sortByCompletion({ dataKind, items }),
+		// },
+		// {
+		// 	label: "Lowest Completion First",
+		// 	fn: () => sortByCompletion({ dataKind, items, direction: -1 }),
+		// },
+	];
 };
-export const sortTicketOptions = ({ tickets, setItems }: SortTicketOptions) => [
+
+type SS<T> = React.Dispatch<React.SetStateAction<T>>;
+
+export const sortTicketOptions = (setItems: SS<FetchedTicketData[]>) => [
 	{
 		label: "Lowest Completion First",
-		fn: () => setItems(sortByTicketCompletion(tickets)),
+		fn: (tickets: FetchedTicketData[]) =>
+			setItems(sortByTicketCompletion(tickets)),
 	},
 	{
-		label: "Lowest Completion First",
-		fn: () => setItems(sortByTicketCompletion(tickets, -1)),
+		label: "Highest Completion First",
+		fn: (tickets: FetchedTicketData[]) =>
+			setItems(sortByTicketCompletion(tickets, -1)),
 	},
 ];
 
-type SortProjectOptions = {
-	projects: Project[];
-	setItems: React.Dispatch<React.SetStateAction<Project[]>>;
-};
-export const sortProjectOptions = ({
-	projects,
-	setItems,
-}: SortProjectOptions) => [
+export const sortProjectOptions = (setItems: SS<Project[]>) => [
 	{
 		label: "Lowest Completion First",
-		fn: () => setItems(sortByProjectCompletion(projects)),
+		fn: (projects: Project[]) =>
+			setItems(sortByProjectCompletion(projects)),
 	},
 	{
-		label: "Lowest Completion First",
-		fn: () => setItems(sortByProjectCompletion(projects, -1)),
+		label: "Highest Completion First",
+		fn: (projects: Project[]) =>
+			setItems(sortByProjectCompletion(projects, -1)),
 	},
 ];

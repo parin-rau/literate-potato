@@ -1,6 +1,6 @@
 import SearchBar from "./SearchBar";
 import TagsDisplay from "../Display/TagsDisplay";
-import { SortMenu } from "../../types";
+import { FetchedTicketData, Project, SortMenu } from "../../types";
 import MenuDropdown from "./MenuDropdown";
 import { firstLetterCap } from "../../utility/charCaseFunctions";
 
@@ -13,6 +13,8 @@ type Props = {
 	resetFilters: () => void;
 	sortMenu?: SortMenu;
 	filterCards?: (_t: string[]) => void;
+	hideTagsInput?: boolean;
+	cards?: FetchedTicketData[] | Project[];
 };
 
 export default function FilterSelect(props: Props) {
@@ -25,11 +27,18 @@ export default function FilterSelect(props: Props) {
 		resetFilters,
 		sortMenu,
 		filterCards,
+		hideTagsInput,
+		cards,
 	} = props;
 
 	return (
 		<div className="flex flex-col items-end sm:items-center sm:flex-row flex-wrap rounded-md border dark:border-zinc-800 shadow-md px-2 space-x-2 dark:bg-neutral-900">
-			<SearchBar setFilters={setFilters} placeholder="Filter by Tags" />
+			{!hideTagsInput && (
+				<SearchBar
+					setFilters={setFilters}
+					placeholder="Filter by Tags"
+				/>
+			)}
 			{filters.length > 0 && (
 				<>
 					<TagsDisplay
@@ -60,6 +69,7 @@ export default function FilterSelect(props: Props) {
 					menuTitle="Sort"
 					menuTitleFont="text-lg"
 					options={sortMenu}
+					cards={cards}
 				/>
 			)}
 		</div>

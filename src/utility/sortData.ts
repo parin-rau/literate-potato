@@ -52,10 +52,7 @@ type SortByCompletionParams = (
 	  }
 ) & {
 	direction: 1 | -1;
-	//arr: SortableObj[]
 };
-
-//type T = SortByCompletionParams["dataKind"] extends "ticket" ? FetchedTicketData : Project
 
 export function sortByCompletion({
 	dataKind,
@@ -63,12 +60,6 @@ export function sortByCompletion({
 	direction,
 }: SortByCompletionParams) {
 	const isAscending = !direction || direction === 1;
-
-	// const getSorted = <T extends SortByCompletionParams>(fn: (_o: T["d"]) => number) => [...arr].sort((a, b) => {
-	// 	if (fn(a) > fn(b)) return isAscending ? 1 : -1
-	// 	else if (fn(a) < fn(b)) return isAscending ? -1 : 1
-	// 	else return 0
-	// })
 
 	if (dataKind === "ticket") {
 		const completion = (t: FetchedTicketData) =>

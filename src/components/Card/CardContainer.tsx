@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
-import { menuLookup, sortData } from "../../utility/optionLookup";
-import { FetchedTicketData, Project, SortMenu } from "../../types";
+import {
+	menuLookup,
+	sortItemsOptions,
+	sortProjectOptions,
+	sortTicketOptions,
+} from "../../utility/optionLookup";
+import { FetchedTicketData, Project, SortableObj } from "../../types";
 import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "./CardSelector";
@@ -71,7 +76,8 @@ export default function CardContainer(
 	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
 	const [hideContainer, setHideContainer] = useState(false);
 
-	const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
+	//const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
+
 	const project: P =
 		projectId && projectTitle ? { projectId, projectTitle } : undefined;
 
@@ -93,6 +99,23 @@ export default function CardContainer(
 		setData: setCards,
 		isLoading,
 	} = useInitialFetch<T[]>(endpoint);
+
+	const sortMenu = [
+		...sortItemsOptions(
+			setCards as unknown as React.Dispatch<
+				React.SetStateAction<SortableObj[]>
+			>
+		),
+		...(dataKind === "ticket"
+			? sortTicketOptions(
+					setCards as React.Dispatch<
+						React.SetStateAction<FetchedTicketData[]>
+					>
+			  )
+			: sortProjectOptions(
+					setCards as React.Dispatch<React.SetStateAction<Project[]>>
+			  )),
+	];
 
 	useEffect(() => {
 		if (dataKind === "ticket" && setCardsLoading && !isLoading)
@@ -175,6 +198,12 @@ export default function CardContainer(
 			)!;
 			setCards(sortedData as T[]);
 			//setSortMeta(sortCategories);
+		} else if (dataKind === "project") {
+			const { sortedData } = sortData(
+				cards as Project[],
+				sortKind,
+				direction
+			);
 		}
 	}
 
@@ -277,6 +306,8 @@ export default function CardContainer(
 							resetFilters,
 							sortMenu,
 							filterCards,
+							hideTagsInput: dataKind !== "ticket",
+							cards,
 						}}
 					/>
 				</div>
