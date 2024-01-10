@@ -5,8 +5,8 @@ import Modal from "./Modal";
 type Props =
 	| {
 			options: {
-				name: string;
-				arrowDirection?: "up" | "down";
+				label: string;
+				//arrowDirection?: "up" | "down";
 				fn: () => void;
 			}[];
 			cardId?: never;
@@ -15,8 +15,8 @@ type Props =
 	  }
 	| {
 			options: {
-				name: string;
-				arrowDirection?: never;
+				label: string;
+				//arrowDirection?: never;
 				fn: ((_id: string) => void) | (() => void);
 			}[];
 			cardId: string;
@@ -115,10 +115,10 @@ export default function MenuDropdown(props: Props) {
 							className="hover:cursor-pointer hover:bg-slate-300 dark:hover:bg-zinc-700 px-3 rounded-full flex flex-row space-x-2 py-1 justify-stretch w-max"
 							key={index}
 							onClick={(e) =>
-								handleOptionClick(e, option.name, option.fn)
+								handleOptionClick(e, option.label, option.fn)
 							}
 						>
-							<span>{option.name}</span>
+							<span>{option.label}</span>
 							{/* {option.arrowDirection && (
 								<DirectionalArrow
 									arrowDirection={option.arrowDirection}

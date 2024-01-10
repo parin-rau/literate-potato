@@ -17,7 +17,7 @@ import { useAuth } from "../auth/useAuth";
 //import { useProjectEditor } from "./useProjectEditor";
 
 type CommonProps = {
-	//dataKind: string;
+	dataKind: string;
 	resetFilters?: () => void;
 	group?: { groupId: string; groupTitle: string };
 };
@@ -40,14 +40,16 @@ type CreatingProjectProps = CommonProjectProps & {
 	setEditing?: never;
 	setProject?: never;
 	setStatusColors?: never;
+	createOnly: true;
 };
 
 type CreatingTicketProps = CommonTicketProps & {
-	project?: { projectId: string; projectTitle: string };
+	project: { projectId: string; projectTitle: string };
 	previousData?: never;
 	setEditing?: never;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 	setStatusColors?: never;
+	createOnly: true;
 };
 
 type EditingProjectProps = CommonProjectProps & {
@@ -56,6 +58,7 @@ type EditingProjectProps = CommonProjectProps & {
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 	setProject?: never;
 	setStatusColors?: never;
+	createOnly?: never;
 };
 
 type EditingTicketProps = CommonTicketProps & {
@@ -64,6 +67,7 @@ type EditingTicketProps = CommonTicketProps & {
 	setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 	setStatusColors: React.Dispatch<React.SetStateAction<string>>;
+	createOnly?: never;
 };
 
 export type Props = CommonProps &

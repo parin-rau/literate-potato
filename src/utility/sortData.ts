@@ -1,9 +1,7 @@
+import { Sortable, SortableObj, FetchedTicketData, Project } from "../types";
 import { allLowerCase } from "./charCaseFunctions";
 
-type Value = string | number | { [key: string]: string | number };
-type Sortable = Record<string, Value> | string | number;
-
-export function sortByKey<T extends Sortable>(
+export function sortByKey<T extends SortableObj>(
 	arr: T[],
 	key: string,
 	direction?: 1 | -1
@@ -41,4 +39,87 @@ export function sortByKey<T extends Sortable>(
 		});
 		return sorted;
 	}
+}
+
+type SortByCompletionParams = (
+	| {
+			dataKind: "ticket";
+			arr: FetchedTicketData[];
+	  }
+	| {
+			dataKind: "project";
+			arr: Project[];
+	  }
+) & {
+	direction: 1 | -1;
+	//arr: SortableObj[]
+};
+
+//type T = SortByCompletionParams["dataKind"] extends "ticket" ? FetchedTicketData : Project
+
+export function sortByCompletion({
+	dataKind,
+	arr,
+	direction,
+}: SortByCompletionParams) {
+	const isAscending = !direction || direction === 1;
+
+	// const getSorted = <T extends SortByCompletionParams>(fn: (_o: T["d"]) => number) => [...arr].sort((a, b) => {
+	// 	if (fn(a) > fn(b)) return isAscending ? 1 : -1
+	// 	else if (fn(a) < fn(b)) return isAscending ? -1 : 1
+	// 	else return 0
+	// })
+
+	if (dataKind === "ticket") {
+		const completion = (t: FetchedTicketData) =>
+			t.subtasks.filter((s) => s.completed).length / t.subtasks.length;
+		return [...arr].sort((a, b) => {
+			if (completion(a) > completion(b)) return isAscending ? 1 : -1;
+			else if (completion(a) < completion(b)) return isAscending ? -1 : 1;
+			else return 0;
+		});
+	} else if (dataKind === "project") {
+		{
+			const completion = (p: Project) =>
+				p.tasksCompletedIds.length / p.tasksTotalIds.length;
+			return [...arr].sort((a, b) => {
+				if (completion(a) > completion(b)) return isAscending ? 1 : -1;
+				else if (completion(a) < completion(b))
+					return isAscending ? -1 : 1;
+				else return 0;
+			});
+		}
+	} else {
+		return arr;
+	}
+}
+
+export function sortByTicketCompletion(
+	tickets: FetchedTicketData[],
+	direction: 1 | -1 = 1
+) {
+	const isAscending = !direction || direction === 1;
+
+	const completion = (t: FetchedTicketData) =>
+		t.subtasks.filter((s) => s.completed).length / t.subtasks.length;
+	return [...tickets].sort((a, b) => {
+		if (completion(a) > completion(b)) return isAscending ? 1 : -1;
+		else if (completion(a) < completion(b)) return isAscending ? -1 : 1;
+		else return 0;
+	});
+}
+
+export function sortByProjectCompletion(
+	projects: Project[],
+	direction: 1 | -1 = 1
+) {
+	const isAscending = !direction || direction === 1;
+
+	const completion = (p: Project) =>
+		p.tasksCompletedIds.length / p.tasksTotalIds.length;
+	return [...projects].sort((a, b) => {
+		if (completion(a) > completion(b)) return isAscending ? 1 : -1;
+		else if (completion(a) < completion(b)) return isAscending ? -1 : 1;
+		else return 0;
+	});
 }

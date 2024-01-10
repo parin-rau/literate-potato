@@ -304,8 +304,6 @@ export default function CardContainer(
 										: React.Dispatch<
 												React.SetStateAction<Project[]>
 										  >,
-								//cards,
-								//setCards,
 								setCardCache:
 									setCardCache as T extends FetchedTicketData
 										? React.Dispatch<

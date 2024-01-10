@@ -1,94 +1,99 @@
-import { FetchedTicketData, SortMenu } from "../types";
+import { FetchedTicketData, Project, SortMenu, SortableObj } from "../types";
+import {
+	sortByKey,
+	sortByTicketCompletion,
+	sortByProjectCompletion,
+} from "./sortData";
 
 //type SortArr = FetchedTicketData[];
-type OptionsTable = { value: string; sortValue: number }[];
+//type OptionsTable = { value: string; sortValue: number }[];
 // type LookupResult = { sortValue: number; ticketId: string }[];
 
-export function sortData(
-	dataArr: FetchedTicketData[],
-	key: keyof FetchedTicketData,
-	direction: "asc" | "desc"
-) {
-	if (key === "timestamp") {
-		if (direction === "asc") {
-			const sortedData = [...dataArr].sort(
-				(a, b) => a.timestamp - b.timestamp
-			);
-			return { sortedData };
-		} else if (direction === "desc") {
-			const sortedData = [...dataArr].sort(
-				(a, b) => b.timestamp - a.timestamp
-			);
-			return { sortedData };
-		}
-	} else if (key === "priority" || key === "taskStatus") {
-		//Object.prototype.hasOwnProperty.call(optionLookup, key)
-		const lookupProperty = key;
-		const lookup = [...dataArr].map((data) => ({
-			...data,
-			sortValue: parseSortValue(
-				data[lookupProperty],
-				optionLookup[lookupProperty]
-			),
-		}));
-		if (direction === "asc") {
-			const sortedIntermediate = [...lookup].sort(
-				(a, b) => a.sortValue - b.sortValue
-			);
-			const sortedData = sortedIntermediate.map(
-				// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-				({ sortValue, ...data }) => data
-			);
-			const sortCategories = {
-				property: lookupProperty,
-				categories: optionLookup[lookupProperty].map(
-					(item) => item.label
-				),
-			};
+// export function sortData(
+// 	dataArr: FetchedTicketData[],
+// 	key: keyof FetchedTicketData,
+// 	direction: "asc" | "desc"
+// ) {
+// 	if (key === "timestamp") {
+// 		if (direction === "asc") {
+// 			const sortedData = [...dataArr].sort(
+// 				(a, b) => a.timestamp - b.timestamp
+// 			);
+// 			return { sortedData };
+// 		} else if (direction === "desc") {
+// 			const sortedData = [...dataArr].sort(
+// 				(a, b) => b.timestamp - a.timestamp
+// 			);
+// 			return { sortedData };
+// 		}
+// 	} else if (key === "priority" || key === "taskStatus") {
+// 		//Object.prototype.hasOwnProperty.call(optionLookup, key)
+// 		const lookupProperty = key;
+// 		const lookup = [...dataArr].map((data) => ({
+// 			...data,
+// 			sortValue: parseSortValue(
+// 				data[lookupProperty],
+// 				optionLookup[lookupProperty]
+// 			),
+// 		}));
+// 		if (direction === "asc") {
+// 			const sortedIntermediate = [...lookup].sort(
+// 				(a, b) => a.sortValue - b.sortValue
+// 			);
+// 			const sortedData = sortedIntermediate.map(
+// 				// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+// 				({ sortValue, ...data }) => data
+// 			);
+// 			const sortCategories = {
+// 				property: lookupProperty,
+// 				categories: optionLookup[lookupProperty].map(
+// 					(item) => item.label
+// 				),
+// 			};
 
-			return { sortedData, sortCategories };
-		} else if (direction === "desc") {
-			const sortedIntermediate = [...lookup].sort(
-				(a, b) => b.sortValue - a.sortValue
-			);
-			const sortedData = sortedIntermediate.map(
-				// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-				({ sortValue, ...data }) => data
-			);
-			const sortCategories = {
-				property: lookupProperty,
-				categories: optionLookup[lookupProperty].map(
-					(item) => item.label
-				),
-			};
-			return { sortedData, sortCategories };
-		}
+// 			return { sortedData, sortCategories };
+// 		} else if (direction === "desc") {
+// 			const sortedIntermediate = [...lookup].sort(
+// 				(a, b) => b.sortValue - a.sortValue
+// 			);
+// 			const sortedData = sortedIntermediate.map(
+// 				// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+// 				({ sortValue, ...data }) => data
+// 			);
+// 			const sortCategories = {
+// 				property: lookupProperty,
+// 				categories: optionLookup[lookupProperty].map(
+// 					(item) => item.label
+// 				),
+// 			};
+// 			return { sortedData, sortCategories };
+// 		}
 
-		// } else if (key === "taskStatus") {
-		// 	const lookup = dataArr.map((data) => ({
-		// 		...data,
-		// 		sortValue: parseSortValue(
-		// 			data.taskStatus,
-		// 			optionLookup.statusOptions
-		// 		),
-		// 	}));
-		// 	const sortedIntermediate = lookup.sort(
-		// 		(a, b) => a.sortValue - b.sortValue
-		// 	);
-		// 	const sortedData = sortedIntermediate.map(
-		// 		// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-		// 		({ sortValue, ...data }) => data
-		// 	); // sortedIntermediate.forEach(data => delete data.sortValue)
-		// 	return sortedData;
-	}
-}
+// 		// } else if (key === "taskStatus") {
+// 		// 	const lookup = dataArr.map((data) => ({
+// 		// 		...data,
+// 		// 		sortValue: parseSortValue(
+// 		// 			data.taskStatus,
+// 		// 			optionLookup.statusOptions
+// 		// 		),
+// 		// 	}));
+// 		// 	const sortedIntermediate = lookup.sort(
+// 		// 		(a, b) => a.sortValue - b.sortValue
+// 		// 	);
+// 		// 	const sortedData = sortedIntermediate.map(
+// 		// 		// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+// 		// 		({ sortValue, ...data }) => data
+// 		// 	); // sortedIntermediate.forEach(data => delete data.sortValue)
+// 		// 	return sortedData;
+// 	}
+// }
 
-function parseSortValue(stringValue: string, lookup: OptionsTable) {
-	//if (typeof stringValue === "string") {
-	const outValue =
-		lookup.find((obj) => obj.value === stringValue)?.sortValue ?? 0;
-	return outValue;
-}
+// function parseSortValue(stringValue: string, lookup: OptionsTable) {
+// 	//if (typeof stringValue === "string") {
+// 	const outValue =
+// 		lookup.find((obj) => obj.value === stringValue)?.sortValue ?? 0;
+// 	return outValue;
+// }
 
 // function sortOrder(
 // 	array: FetchedTicketData[],
@@ -172,35 +177,190 @@ export const menuLookup = {
 	) {
 		return <SortMenu>[
 			{
-				name: "Low Priority",
+				label: "Low Priority",
 				//arrowDirection: "up",
 				fn: () => handleSort("priority", "asc"),
 			},
 			{
-				name: "High Priority",
+				label: "High Priority",
 				//arrowDirection: "down",
 				fn: () => handleSort("priority", "desc"),
 			},
 			{
-				name: "Lowest Progress",
+				label: "Lowest Progress",
 				//arrowDirection: "up",
 				fn: () => handleSort("taskStatus", "asc"),
 			},
 			{
-				name: "Highest Progress",
+				label: "Highest Progress",
 				//arrowDirection: "down",
 				fn: () => handleSort("taskStatus", "desc"),
 			},
 			{
-				name: "Oldest",
+				label: "Oldest",
 				//arrowDirection: "up",
 				fn: () => handleSort("timestamp", "asc"),
 			},
 			{
-				name: "Recent",
+				label: "Recent",
 				//arrowDirection: "down",
 				fn: () => handleSort("timestamp", "desc"),
 			},
 		];
 	},
 };
+
+type Setter = React.Dispatch<React.SetStateAction<SortableObj[]>>;
+// type SortItems =
+// 	| {
+// 			items: SortableObj[];
+// 			dataKind?: never;
+// 			setItems: Setter;
+// 	  }
+// 	| (
+// 			| {
+// 					items: FetchedTicketData[];
+// 					dataKind: "ticket";
+// 					setItems: Setter;
+// 			  }
+// 			| { items: Project[]; dataKind: "project"; setItems: Setter }
+// 	  );
+
+export const sortItemsOptions = //({ items, dataKind, setItems }: SortItems) => {
+	(
+		//dataKind: "ticket" | "project",
+		items: SortableObj[],
+		setItems: Setter
+		//arr: FetchedTicketData[] | Project[], setItems: Setter
+	): SortMenu => {
+		// const fnTemplate = ({
+		// 	key,
+		// 	dataKind,
+		// 	direction = 1,
+		// }: {
+		// 	key?: string;
+		// 	dataKind?: "ticket" | "project",
+		// 	direction?: 1 | -1;
+		// }) => {
+		// 	if (key) {
+		// 		return () => {
+		// 			const sorted = sortByKey(items, key, direction);
+		// 			setItems(sorted);
+		// 		};
+		// 	} else if (dataKind) {
+		// 		return () => {
+		// 			const sorted = sortByCompletion({
+		// 				dataKind,
+		// 				direction,
+		// 				arr: items as unknown as dataKind extends "ticket" ? FetchedTicketData[] : Project[],
+		// 			});
+		// 			setItems(sorted as unknown as SortableObj[]);
+		// 		};
+		// 	} else return () => {};
+		// };
+
+		// type T = ({dataKind: "ticket"; arr: FetchedTicketData[]} | {dataKind: "project"; arr: Project[]}) & {direction: 1 | -1}
+
+		// const temp = (//{dataKind, arr, direction = 1}
+		// t: T ) => () => {
+		// 	const sorted = sortByCompletion(t);
+		// 	setItems(sorted as unknown as SortableObj[]);
+		// };
+
+		// const fnTemplate2 =
+		// 	<T extends SortableObj>(
+		// 		dataKind: "ticket" | "project",
+		// 		direction: 1 | -1 = 1
+		// 	) =>
+		// 	() => {
+		// 		const sorted = sortByCompletion({
+		// 			dataKind,
+		// 			arr: items,
+		// 			direction,
+		// 		});
+		// 		setItems(sorted as T[]);
+		// 	};
+
+		// return [
+		// 	{
+		// 		label: "Title, A -> Z",
+		// 		fn: fnTemplate({ key: "title" }),
+		// 	},
+		// 	{
+		// 		label: "Title, Z -> A",
+		// 		fn: fnTemplate({ key: "title", direction: -1 }),
+		// 	},
+		// 	{
+		// 		label: "Oldest First",
+		// 		fn: fnTemplate({ key: "timestamp" }),
+		// 	},
+		// 	{
+		// 		label: "Newest First",
+		// 		fn: fnTemplate({ key: "timestamp", direction: -1 }),
+		// 	},
+		// 	{
+		// 		label: "Lowest Completion First",
+		// 		fn: temp({dataKind, arr, }),
+		// 	},
+		// ];
+
+		return [
+			{
+				label: "Title, A -> Z",
+				fn: () => setItems(sortByKey(items, "title")),
+			},
+			{
+				label: "Title, Z -> A",
+				fn: () => setItems(sortByKey(items, "title", -1)),
+			},
+			{
+				label: "Oldest First",
+				fn: () => setItems(sortByKey(items, "timestamp")),
+			},
+			{
+				label: "Newest First",
+				fn: () => setItems(sortByKey(items, "timestamp", -1)),
+			},
+			// {
+			// 	label: "Lowest Completion First",
+			// 	fn: () => sortByCompletion({ dataKind, items }),
+			// },
+			// {
+			// 	label: "Lowest Completion First",
+			// 	fn: () => sortByCompletion({ dataKind, items, direction: -1 }),
+			// },
+		];
+	};
+
+type SortTicketOptions = {
+	tickets: FetchedTicketData[];
+	setItems: React.Dispatch<React.SetStateAction<FetchedTicketData[]>>;
+};
+export const sortTicketOptions = ({ tickets, setItems }: SortTicketOptions) => [
+	{
+		label: "Lowest Completion First",
+		fn: () => setItems(sortByTicketCompletion(tickets)),
+	},
+	{
+		label: "Lowest Completion First",
+		fn: () => setItems(sortByTicketCompletion(tickets, -1)),
+	},
+];
+
+type SortProjectOptions = {
+	projects: Project[];
+	setItems: React.Dispatch<React.SetStateAction<Project[]>>;
+};
+export const sortProjectOptions = ({
+	projects,
+	setItems,
+}: SortProjectOptions) => [
+	{
+		label: "Lowest Completion First",
+		fn: () => setItems(sortByProjectCompletion(projects)),
+	},
+	{
+		label: "Lowest Completion First",
+		fn: () => setItems(sortByProjectCompletion(projects, -1)),
+	},
+];

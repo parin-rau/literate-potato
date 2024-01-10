@@ -58,8 +58,8 @@ export default function TicketCard(props: Props) {
 	} = useTicket(props);
 
 	const moreOptions = [
-		{ name: "Delete", fn: deleteCard, ticketId },
-		{ name: "Edit", fn: editCard, ticketId },
+		{ label: "Delete", fn: deleteCard, ticketId },
+		{ label: "Edit", fn: editCard, ticketId },
 	];
 
 	return (

@@ -1,3 +1,9 @@
+type Value = string | number | { [key: string]: string | number };
+type KeyValues = Record<string, Value>;
+//type OptionalKeyValues = Record<string, Value | Value[]>
+export interface SortableObj extends KeyValues {}
+export type Sortable = KeyValues | string | number;
+
 export interface Project {
 	title: string;
 	description: string;
@@ -123,10 +129,15 @@ export const uncategorizedProject: Project = {
 };
 
 export type SortMenu = {
-	name: string;
-	arrowDirection: "up" | "down";
+	label: string;
+	//arrowDirection?: "up" | "down";
 	fn: () => void;
 }[];
+
+export type SortOptions = {
+	label: string;
+	fn(_items: SortableObj[]): void;
+};
 
 export function isFilterable(
 	arr: FetchedTicketData[] | Project[]

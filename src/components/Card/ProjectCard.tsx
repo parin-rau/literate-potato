@@ -37,8 +37,8 @@ export default function ProjectCard(props: Props) {
 	const { pathname } = useLocation();
 
 	const moreOptions = [
-		{ name: "Delete", fn: deleteCard, projectId },
-		{ name: "Edit", fn: editCard, projectId },
+		{ label: "Delete", fn: deleteCard, projectId },
+		{ label: "Edit", fn: editCard, projectId },
 	];
 
 	const taskPercentCompletedNum = Math.floor(
