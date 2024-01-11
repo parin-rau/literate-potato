@@ -1,16 +1,27 @@
 import { useRef, useState, useEffect } from "react";
-// import DirectionalArrow from "../Display/DirectionalArrow";
 import Modal from "./Modal";
-import { FetchedTicketData, Project, SortableObj } from "../../types";
+import {
+	FetchedTicketData,
+	Project,
+	GenericFn,
+	GenericAsyncFn,
+} from "../../types";
+
+// type OptFn =
+// 	| { id: string; arr?: never }
+// 	| { id?: never; arr: FetchedTicketData[] | Project[] };
+//type OptFn<T> = (_arg: T) => void
+//type FnArgs = FetchedTicketData[] | Project[] | string
 
 type Props =
 	| {
 			options: {
 				label: string;
 				//arrowDirection?: "up" | "down";
-				fn: (
-					_arr: SortableObj[] | FetchedTicketData[] | Project[]
-				) => void;
+				// fn: ((
+				// 	_arr: SortableObj[]
+				// ) => void) | ((_arr: FetchedTicketData[]) => void) | ((_arr: Project[]) => void)
+				fn: GenericFn | GenericAsyncFn<void>;
 			}[];
 			cardId?: never;
 			menuTitle?: string;
@@ -20,8 +31,7 @@ type Props =
 	| {
 			options: {
 				label: string;
-				//arrowDirection?: never;
-				fn: ((_id: string) => void) | (() => void);
+				fn: GenericFn | GenericAsyncFn<void>;
 			}[];
 			cardId: string;
 			menuTitle?: string;
@@ -59,18 +69,24 @@ export default function MenuDropdown(props: Props) {
 		return () => document.removeEventListener("mousedown", closeOpenMenu);
 	}, [isMenu]);
 
+	// const optFn = ({id, arr}: OptFn, optionFn: (_: any) => void) => {
+	// 	if (id) return optionFn(id)
+	// 	else if (arr) return optionFn(arr)
+	// }
+
 	function handleOptionClick(
 		e: React.MouseEvent<HTMLDivElement, MouseEvent>,
 		optionName: string,
-		optionFn: (_id: string) => void
+		optionFn: GenericFn //((_id: string) => void) | ((_arr: SortableObj[] | FetchedTicketData[] | Project[]) => void)
 	) {
 		e.preventDefault();
 		e.stopPropagation();
+
 		if (optionName === "Delete") {
 			setModal(true);
 			setModalCallback(() => () => optionFn(cardId!));
 		} else {
-			optionFn(cardId!);
+			cards ? optionFn(cards) : optionFn(cardId);
 			setMenu(false);
 		}
 	}
@@ -112,7 +128,6 @@ export default function MenuDropdown(props: Props) {
 				<div
 					className={
 						"absolute right-0 bg-slate-200 dark:bg-neutral-800 px-1 py-1 rounded-md border-black border dark:border-none z-50 "
-						//+(cardId ? "z-30" : "z-40")
 					}
 				>
 					{options.map((option, index: number) => (
@@ -120,19 +135,10 @@ export default function MenuDropdown(props: Props) {
 							className="hover:cursor-pointer hover:bg-slate-300 dark:hover:bg-zinc-700 px-3 rounded-full flex flex-row space-x-2 py-1 justify-stretch w-max"
 							key={index}
 							onClick={(e) =>
-								handleOptionClick(
-									e,
-									option.label,
-									option.fn(cards)
-								)
+								handleOptionClick(e, option.label, option.fn)
 							}
 						>
 							<span>{option.label}</span>
-							{/* {option.arrowDirection && (
-								<DirectionalArrow
-									arrowDirection={option.arrowDirection}
-								/>
-							)} */}
 						</div>
 					))}
 				</div>

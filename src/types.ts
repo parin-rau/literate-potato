@@ -3,6 +3,9 @@ type KeyValues = Record<string, Value>;
 //type OptionalKeyValues = Record<string, Value | Value[]>
 export interface SortableObj extends KeyValues {}
 export type Sortable = KeyValues | string | number;
+//export type GenericFn = (..._args: unknown[]) => void;
+export type GenericFn = (..._args: (unknown | unknown[])[]) => void;
+export type GenericAsyncFn<T> = (..._args: unknown[]) => Promise<T>;
 
 export interface Project {
 	title: string;

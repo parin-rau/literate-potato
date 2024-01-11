@@ -1,4 +1,4 @@
-import { FetchedTicketData } from "../../types";
+import { FetchedTicketData, GenericAsyncFn, GenericFn } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import timestampDisplay from "../../utility/timestampDisplay";
 import TagsDisplay from "../Display/TagsDisplay";
@@ -98,7 +98,12 @@ export default function TicketCard(props: Props) {
 								stylesOverride={statusColors}
 							/>
 							<MenuDropdown
-								options={moreOptions}
+								options={
+									moreOptions as {
+										label: string;
+										fn: GenericFn | GenericAsyncFn<void>;
+									}[]
+								}
 								cardId={ticketId}
 							/>
 						</div>

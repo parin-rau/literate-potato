@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import {
-	menuLookup,
+	//menuLookup,
 	sortItemsOptions,
 	sortProjectOptions,
 	sortTicketOptions,
 } from "../../utility/optionLookup";
-import { FetchedTicketData, Project, SortableObj } from "../../types";
+import {
+	FetchedTicketData,
+	GenericFn,
+	Project,
+	SortableObj,
+} from "../../types";
 import FilterSelect from "../Nav/FilterSelect";
 import TicketEditor from "../Editor/TicketEditor";
 import CardSelector from "./CardSelector";
@@ -115,7 +120,7 @@ export default function CardContainer(
 			: sortProjectOptions(
 					setCards as React.Dispatch<React.SetStateAction<Project[]>>
 			  )),
-	];
+	] as { label: string; fn: GenericFn }[];
 
 	useEffect(() => {
 		if (dataKind === "ticket" && setCardsLoading && !isLoading)
@@ -186,26 +191,26 @@ export default function CardContainer(
 		}
 	}
 
-	function handleSort(
-		sortKind: "priority" | "taskStatus" | "timestamp",
-		direction: "asc" | "desc"
-	) {
-		if (dataKind === "ticket") {
-			const { sortedData } = sortData(
-				cards as FetchedTicketData[],
-				sortKind,
-				direction
-			)!;
-			setCards(sortedData as T[]);
-			//setSortMeta(sortCategories);
-		} else if (dataKind === "project") {
-			const { sortedData } = sortData(
-				cards as Project[],
-				sortKind,
-				direction
-			);
-		}
-	}
+	// function handleSort(
+	// 	sortKind: "priority" | "taskStatus" | "timestamp",
+	// 	direction: "asc" | "desc"
+	// ) {
+	// 	if (dataKind === "ticket") {
+	// 		const { sortedData } = sortData(
+	// 			cards as FetchedTicketData[],
+	// 			sortKind,
+	// 			direction
+	// 		)!;
+	// 		setCards(sortedData as T[]);
+	// 		//setSortMeta(sortCategories);
+	// 	} else if (dataKind === "project") {
+	// 		const { sortedData } = sortData(
+	// 			cards as Project[],
+	// 			sortKind,
+	// 			direction
+	// 		);
+	// 	}
+	// }
 
 	// function getSortLabel(cardDataArr: typeof cards) {
 	// 	if (sortMeta) {
@@ -307,7 +312,9 @@ export default function CardContainer(
 							sortMenu,
 							filterCards,
 							hideTagsInput: dataKind !== "ticket",
-							cards,
+							cards: cards as T extends FetchedTicketData
+								? FetchedTicketData[]
+								: Project[],
 						}}
 					/>
 				</div>
