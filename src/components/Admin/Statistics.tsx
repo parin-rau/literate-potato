@@ -2,18 +2,28 @@
 import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
 import { useEffect } from "react";
 
+/*
+
+Wrap entire container in collapsable 
+
+*/
+
 type Props = {
 	setStatsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type Stat = {
+	count: { label: string; count: number }[];
+};
+
+type CProps = {
 	label: string;
 	stat: number;
 };
 
 const url = "/api/admin/stats";
 
-function StatCard({ label, stat }: Stat) {
+function StatCard({ label, stat }: CProps) {
 	return (
 		<div className="flex flex-col gap-2 p-2 rounded-md">
 			<h4>{label}</h4>
@@ -23,19 +33,18 @@ function StatCard({ label, stat }: Stat) {
 }
 
 export default function Statistics({ setStatsLoading }: Props) {
-	const { data, isLoading } = useInitialFetch<Stat[]>(url);
+	const { data, isLoading } = useInitialFetch<Stat>(url);
 
 	useEffect(() => {
-		const doneLoading = () => setStatsLoading(false);
-
-		if (!isLoading) doneLoading();
+		if (!isLoading) setStatsLoading(false);
 	}, [isLoading, setStatsLoading]);
 
 	return (
-		<div className="grid gap-2 p-4 rounded-lg">
-			{data.map((d, i) => (
-				<StatCard {...{ key: i, label: d.label, stat: d.stat }} />
-			))}
+		<div className="grid grid-cols-4 gap-2 p-4 rounded-lg">
+			{!isLoading &&
+				data.count.map((d, i) => (
+					<StatCard {...{ key: i, label: d.label, stat: d.count }} />
+				))}
 		</div>
 	);
 }

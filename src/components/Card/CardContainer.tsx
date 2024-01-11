@@ -47,6 +47,7 @@ type Props = {
 	hideUncategorized?: boolean;
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 	dataUrl?: string;
+	isCollapsed?: boolean;
 } & CProps;
 
 export default function CardContainer(props: Props) {
@@ -63,6 +64,7 @@ export default function CardContainer(props: Props) {
 		hideEditor,
 		hideUncategorized,
 		dataUrl,
+		isCollapsed,
 	} = props;
 
 	const { user } = useAuth();
@@ -70,13 +72,14 @@ export default function CardContainer(props: Props) {
 	const [cardCache, setCardCache] = useState<T[]>([]);
 	const [isFirstFilter, setFirstFilter] = useState(true);
 	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
-	const [hideContainer, setHideContainer] = useState(false);
+	const [hideContainer, setHideContainer] = useState(isCollapsed ?? false);
 
 	const project: P =
 		projectId && projectTitle ? { projectId, projectTitle } : undefined;
 
 	const endpoint =
-		dataUrl ?? dataKind === "ticket"
+		dataUrl ??
+		(dataKind === "ticket"
 			? projectId
 				? `/api/ticket/project/${projectId}`
 				: isSummary
@@ -86,7 +89,7 @@ export default function CardContainer(props: Props) {
 			? `/api/project/group/${group.groupId}`
 			: isSummary
 			? `/api/project/user/${user.current!.userId}/summary`
-			: `/api/project/user/${user.current!.userId}`;
+			: `/api/project/user/${user.current!.userId}`);
 
 	const {
 		data: cards,

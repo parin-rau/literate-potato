@@ -91,14 +91,25 @@ export async function getStats(user: UserToken) {
 			return res;
 		}
 
-		const count = {
-			tickets: await getCount({ db, coll: ticketsColl }),
-			projects: await getCount({ db, coll: projectsColl }),
-			groups: await getCount({ db, coll: groupsColl }),
-			users: await getCount({ db, coll: usersColl }),
-			comments: await getCount({ db, coll: commentsColl }),
-		};
-
+		const count = [
+			{
+				label: "tickets",
+				count: await getCount({ db, coll: ticketsColl }),
+			},
+			{
+				label: "projects",
+				count: await getCount({ db, coll: projectsColl }),
+			},
+			{
+				label: "groups",
+				count: await getCount({ db, coll: groupsColl }),
+			},
+			{ label: "users", count: await getCount({ db, coll: usersColl }) },
+			{
+				label: "comments",
+				count: await getCount({ db, coll: commentsColl }),
+			},
+		];
 		await client.close();
 		const stats = { count };
 

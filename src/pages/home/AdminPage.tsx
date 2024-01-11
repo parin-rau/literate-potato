@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { usePageTitle } from "../../hooks/utility/usePageTitle";
 import CardContainer from "../../components/Card/CardContainer";
-import {
-	//LoadingSkeletonCalendar,
-	LoadingSkeletonCardGrid,
-} from "../../components/Nav/Loading";
-//import CalendarContainer from "../../components/Calendar/CalendarContainer";
+import { LoadingSkeletonCardGrid } from "../../components/Nav/Loading";
 import Statistics from "../../components/Admin/Statistics";
 
 export default function AdminPage() {
-	//return <div className="grid h-screen place-items-center">Admin Page</div>;
 	usePageTitle("Admin Dashboard");
 	const [ticketsLoading, setTicketsLoading] = useState(true);
 	const [projectsLoading, setProjectsLoading] = useState(true);
 	const [statsLoading, setStatsLoading] = useState(true);
+
+	/* 
+	
+	Wrap CardContainers in element to not immediately load data
+
+		<Blocker>
+			{children}
+		</Blocker>
+	
+	*/
 
 	return (
 		<div className="flex flex-col gap-4 pt-20 px-2">
@@ -46,11 +51,6 @@ export default function AdminPage() {
 				) : (
 					<LoadingSkeletonCardGrid />
 				)}
-				{/* {!ticketsLoading && !projectsLoading ? (
-					<CalendarContainer headerText="All tasks" />
-				) : (
-					<LoadingSkeletonCalendar />
-				)} */}
 			</div>
 		</div>
 	);
