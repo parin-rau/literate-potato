@@ -42,11 +42,11 @@ export default function ProjectCard(props: Props) {
 	];
 
 	const taskPercentCompletedNum = Math.floor(
-		(tasksCompletedIds!.length / tasksTotalIds!.length) * 100
+		(tasksCompletedIds.length / tasksTotalIds.length) * 100
 	);
 	const taskProgress = {
-		totalTasks: tasksTotalIds!.length,
-		totalCompleted: tasksCompletedIds!.length,
+		totalTasks: tasksTotalIds.length,
+		totalCompleted: tasksCompletedIds.length,
 		percentCompletedNum: taskPercentCompletedNum,
 		percentCompletedString: `${taskPercentCompletedNum.toString()}%`,
 	};

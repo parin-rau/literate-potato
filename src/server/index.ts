@@ -9,6 +9,7 @@ import { commentsRouter } from "./routes/comments";
 import { groupsRouter } from "./routes/groups";
 import { usersRouter } from "./routes/users";
 import { notificationsRouter } from "./routes/notifications";
+import { adminRouter } from "./routes/admin";
 
 const PORT = 3002;
 
@@ -25,5 +26,6 @@ app.use("/api/ticket", ticketsRouter);
 app.use("/api/comment", commentsRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/notification", notificationsRouter);
+app.use("/api/admin", adminRouter);
 
 app.listen(PORT, () => console.log("App server listening on PORT", PORT));

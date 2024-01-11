@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-	//menuLookup,
 	sortItemsOptions,
 	sortProjectOptions,
 	sortTicketOptions,
@@ -23,8 +22,8 @@ import { useAuth } from "../../hooks/auth/useAuth";
 type TicketProps = {
 	containerTitle: string;
 	dataKind: "ticket";
-	projectId: string;
-	projectTitle: string;
+	projectId?: string;
+	projectTitle?: string;
 	setProject?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
@@ -47,16 +46,10 @@ type Props = {
 	hideEditor?: boolean;
 	hideUncategorized?: boolean;
 	setCardsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+	dataUrl?: string;
 } & CProps;
 
-export default function CardContainer(
-	// <
-	// 	T extends FetchedTicketData | Project,
-	// 	// | (FetchedTicketData & { dataKind: "ticket" })
-	// 	// | (Project & { dataKind: "project" })
-	// >
-	props: Props
-) {
+export default function CardContainer(props: Props) {
 	const {
 		containerTitle,
 		dataKind,
@@ -69,25 +62,21 @@ export default function CardContainer(
 		isSummary,
 		hideEditor,
 		hideUncategorized,
+		dataUrl,
 	} = props;
 
 	const { user } = useAuth();
-	// const [sortMeta, setSortMeta] = useState<
-	// 	{ property: string; categories: string[] } | undefined
-	// >();
 	const [filters, setFilters] = useState<string[]>([]);
 	const [cardCache, setCardCache] = useState<T[]>([]);
 	const [isFirstFilter, setFirstFilter] = useState(true);
 	const [filterMode, setFilterMode] = useState<"OR" | "AND">("AND");
 	const [hideContainer, setHideContainer] = useState(false);
 
-	//const sortMenu: SortMenu = menuLookup.sortMenu(handleSort);
-
 	const project: P =
 		projectId && projectTitle ? { projectId, projectTitle } : undefined;
 
 	const endpoint =
-		dataKind === "ticket"
+		dataUrl ?? dataKind === "ticket"
 			? projectId
 				? `/api/ticket/project/${projectId}`
 				: isSummary
@@ -191,41 +180,6 @@ export default function CardContainer(
 		}
 	}
 
-	// function handleSort(
-	// 	sortKind: "priority" | "taskStatus" | "timestamp",
-	// 	direction: "asc" | "desc"
-	// ) {
-	// 	if (dataKind === "ticket") {
-	// 		const { sortedData } = sortData(
-	// 			cards as FetchedTicketData[],
-	// 			sortKind,
-	// 			direction
-	// 		)!;
-	// 		setCards(sortedData as T[]);
-	// 		//setSortMeta(sortCategories);
-	// 	} else if (dataKind === "project") {
-	// 		const { sortedData } = sortData(
-	// 			cards as Project[],
-	// 			sortKind,
-	// 			direction
-	// 		);
-	// 	}
-	// }
-
-	// function getSortLabel(cardDataArr: typeof cards) {
-	// 	if (sortMeta) {
-	// 		const labels = cardDataArr.map((cardData) => {
-	// 			const targetProperty = cardData[sortMeta.property as keyof T];
-	// 			const sortLabel =
-	// 				sortMeta.categories.find(
-	// 					(category) => category === targetProperty
-	// 				) || "Uncategorized";
-	// 			return sortLabel;
-	// 		});
-	// 		return labels;
-	// 	}
-	// }
-
 	function deleteFilterTag(id: number) {
 		setFilters((prev) => prev.filter((_tag, index) => index !== id));
 	}
@@ -321,7 +275,6 @@ export default function CardContainer(
 			</div>
 			{!hideContainer && (
 				<>
-					{/* <span>{sortMeta && getSortLabel(cards)}</span> */}
 					<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto ">
 						<CardSelector
 							{...{
