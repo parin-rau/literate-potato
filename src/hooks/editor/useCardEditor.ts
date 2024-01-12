@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import {
 	EditorData,
 	FetchedTicketData,
@@ -854,15 +854,6 @@ export function useCardEditor(props: Props) {
 		[editor]
 	);
 
-	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent<HTMLFormElement>) => {
-			if (e.code === "Enter" && e.ctrlKey === false) {
-				e.preventDefault();
-			}
-		},
-		[]
-	);
-
 	const handleSubmit = useCallback(
 		async (e: React.FormEvent) => {
 			e.preventDefault();
@@ -894,6 +885,22 @@ export function useCardEditor(props: Props) {
 		]
 	);
 
+	const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
+
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLFormElement>) => {
+			if (e.code === "Enter" && e.ctrlKey === false) {
+				descriptionRef.current === document.activeElement
+					? e.stopPropagation()
+					: e.preventDefault();
+			}
+			// if (e.code === "Enter" && e.shiftKey === true) {
+			// 	handleSubmit(e);
+			// }
+		},
+		[]
+	);
+
 	return {
 		handlers: {
 			handleSubmit,
@@ -912,6 +919,9 @@ export function useCardEditor(props: Props) {
 			expand,
 			setExpand,
 			setDeletedSubtaskIds,
+		},
+		ref: {
+			descriptionRef,
 		},
 	};
 }

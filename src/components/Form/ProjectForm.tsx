@@ -12,6 +12,7 @@ type Props = {
 		>
 	) => void;
 	isNewItem: boolean;
+	descriptionRef: React.MutableRefObject<HTMLTextAreaElement | null>;
 };
 
 type DropdownItem = {
@@ -20,7 +21,7 @@ type DropdownItem = {
 };
 
 export default function ProjectForm(props: Props) {
-	const { editor, handleChange, isNewItem } = props;
+	const { editor, handleChange, isNewItem, descriptionRef } = props;
 	const [groupList, setGroupList] = useState<DropdownItem[]>([]);
 	const { protectedFetch } = useProtectedFetch();
 	const { pathname } = useLocation();
@@ -83,6 +84,7 @@ export default function ProjectForm(props: Props) {
 			/> */}
 			<textarea
 				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
+				ref={descriptionRef}
 				name="description"
 				rows={2}
 				value={editor.description}
@@ -108,7 +110,7 @@ export default function ProjectForm(props: Props) {
 				>
 					Submit
 				</button>
-				<i className="text-sm">Shift + Enter</i>
+				{/* <i className="text-sm">Shift + Enter</i> */}
 			</div>
 		</>
 	);

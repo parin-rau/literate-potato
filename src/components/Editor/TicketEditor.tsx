@@ -6,7 +6,7 @@ import { useCardEditor, Props } from "../../hooks/editor/useCardEditor";
 export default function TicketEditor(props: Props) {
 	const { dataKind, previousData, setEditing } = props;
 
-	const { handlers, state } = useCardEditor(props);
+	const { handlers, state, ref } = useCardEditor(props);
 	const {
 		handleSubmit,
 		handleExpand,
@@ -26,6 +26,8 @@ export default function TicketEditor(props: Props) {
 		setExpand,
 		setDeletedSubtaskIds,
 	} = state;
+
+	const { descriptionRef } = ref;
 
 	const isNewItem = !previousData ? true : false;
 
@@ -112,6 +114,7 @@ export default function TicketEditor(props: Props) {
 							handleChange,
 							setDeletedSubtaskIds,
 							isNewItem,
+							descriptionRef,
 						}}
 					/>
 				)}
@@ -121,6 +124,7 @@ export default function TicketEditor(props: Props) {
 							editor: editor as ProjectEditor,
 							handleChange,
 							isNewItem,
+							descriptionRef,
 						}}
 					/>
 				)}

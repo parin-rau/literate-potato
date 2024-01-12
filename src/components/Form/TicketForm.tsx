@@ -17,6 +17,7 @@ type Props = {
 	setEditor: React.Dispatch<React.SetStateAction<EditorData>>;
 	setDeletedSubtaskIds: React.Dispatch<React.SetStateAction<string[]>>;
 	isNewItem: boolean;
+	descriptionRef: React.MutableRefObject<HTMLTextAreaElement | null>;
 };
 
 type DropdownItem = {
@@ -25,8 +26,14 @@ type DropdownItem = {
 };
 
 export default function TicketForm(props: Props) {
-	const { editor, handleChange, setEditor, setDeletedSubtaskIds, isNewItem } =
-		props;
+	const {
+		editor,
+		handleChange,
+		setEditor,
+		setDeletedSubtaskIds,
+		isNewItem,
+		descriptionRef,
+	} = props;
 	const [groupList, setGroupList] = useState<DropdownItem[]>([]);
 	const [projectList, setProjectList] = useState<DropdownItem[]>([
 		{ value: "", label: "Select a group first" },
@@ -199,6 +206,7 @@ export default function TicketForm(props: Props) {
 
 			<textarea
 				className="text-sm sm:text-base rounded-md border px-2 shadow-sm bg-inherit border-inherit"
+				ref={descriptionRef}
 				name="description"
 				rows={2}
 				value={editor.description}
@@ -256,7 +264,7 @@ export default function TicketForm(props: Props) {
 				>
 					Submit
 				</button>
-				<i className="text-sm">Shift + Enter</i>
+				{/* <i className="text-sm">Shift + Enter</i> */}
 			</div>
 		</>
 	);
