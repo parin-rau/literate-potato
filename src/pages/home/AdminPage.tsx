@@ -23,7 +23,7 @@ export default function AdminPage() {
 	return (
 		<div className="flex flex-col gap-4 pt-20 px-2">
 			<div className="sm:container sm:mx-auto flex flex-col gap-6">
-				<h1 className="font-bold text-4xl">Home</h1>
+				<h1 className="font-bold text-4xl">Admin Dashboard</h1>
 				<Statistics {...{ setStatsLoading }} />
 				{!statsLoading ? (
 					<CardContainer
