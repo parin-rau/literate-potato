@@ -15,7 +15,7 @@ export default function CalendarContainer({
 	filterKind,
 	filterId,
 }: Props) {
-	const { handlers, state, url } = useCalendar(filterKind, filterId);
+	const { handlers, state } = useCalendar(filterKind, filterId);
 
 	const { calendar, isHidden } = state;
 	const {
@@ -35,7 +35,7 @@ export default function CalendarContainer({
 			{!isHidden && (
 				<>
 					<hr className="border-slate-300 dark:border-neutral-700 mx-4" />
-					<h2>URL: {url}</h2>
+					{/* <h2>URL: {url}</h2> */}
 					<CalendarHeader
 						{...{
 							handleMonthChange,

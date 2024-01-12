@@ -41,6 +41,7 @@ export default function TicketHomePage() {
 								containerTitle: "Tasks",
 								dataKind: "ticket",
 								setCardsLoading,
+								hideEditor: true,
 							}}
 						/>
 
