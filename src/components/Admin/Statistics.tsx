@@ -1,19 +1,8 @@
 import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
-//import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
 import { useState } from "react";
 import { titleCap } from "../../utility/charCaseFunctions";
 import CollapseToggle from "../Nav/CollapseToggle";
 import { LoadingSkeletonCard } from "../Nav/Loading";
-
-/*
-
-Wrap entire container in collapsable 
-
-*/
-
-type Props = {
-	setStatsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 type Stat = {
 	count: { label: string; count: number }[];
@@ -35,7 +24,7 @@ function StatCard({ label, stat }: CProps) {
 	);
 }
 
-export default function Statistics({ setStatsLoading }: Props) {
+export default function Statistics() {
 	const [isOpen, setOpen] = useState(false);
 	const [isLoading, setLoading] = useState(true);
 	const [data, setData] = useState<Stat | null>(null);
@@ -49,7 +38,6 @@ export default function Statistics({ setStatsLoading }: Props) {
 				const resData: Stat = await res.json();
 				setData(resData);
 				setLoading(false);
-				setStatsLoading(false);
 			}
 		};
 
@@ -57,12 +45,6 @@ export default function Statistics({ setStatsLoading }: Props) {
 		if (!isOpen) await retrieve();
 		setOpen((prev) => !prev);
 	};
-
-	//const { data, isLoading } = useInitialFetch<Stat>(url);
-
-	// useEffect(() => {
-	// 	if (!isLoading) setStatsLoading(false);
-	// }, [isLoading, setStatsLoading]);
 
 	return (
 		<div className="flex flex-col gap-3 rounded-lg bg-slate-100 dark:bg-neutral-900 p-2 font-semibold text-2xl">
