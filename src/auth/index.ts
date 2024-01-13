@@ -15,7 +15,7 @@ app.use(
 			"https://literate-potato.onrender.com/register",
 			"http://literate-potato.onrender.com/register",
 		],
-		credentials: true,
+		//credentials: true,
 	})
 );
 app.use(parseCookies);
