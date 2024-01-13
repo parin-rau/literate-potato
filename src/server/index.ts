@@ -21,8 +21,8 @@ app.use(
 	cors({
 		origin: [
 			"http://localhost:5173",
-			"https://literate-potato.onrender.com/register",
-			"http://literate-potato.onrender.com/register",
+			"https://literate-potato.onrender.com",
+			"http://literate-potato.onrender.com",
 		],
 		//credentials: true,
 	})
