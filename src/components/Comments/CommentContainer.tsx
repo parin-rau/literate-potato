@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
-import { Comment } from "../../types";
+import { Comment, GenericMenuOption } from "../../types";
 import CommentEditor from "../Editor/CommentEditor";
 import { useProtectedFetch } from "../../hooks/utility/useProtectedFetch";
 import MenuDropdown from "../Nav/MenuDropdown";
@@ -35,8 +35,8 @@ function CommentCard({ comment: c, deleteComment, setComments }: CardProps) {
 	};
 
 	const options = [
-		{ name: "Delete", fn: deleteComment },
-		{ name: "Edit", fn: editComment },
+		{ label: "Delete", fn: deleteComment },
+		{ label: "Edit", fn: editComment },
 	];
 
 	const resetReaction = async () => {
@@ -134,7 +134,10 @@ function CommentCard({ comment: c, deleteComment, setComments }: CardProps) {
 					</div>
 				</div>
 				{isAuthor && (
-					<MenuDropdown options={options} cardId={c.commentId} />
+					<MenuDropdown
+						options={options as GenericMenuOption[]}
+						cardId={c.commentId}
+					/>
 				)}
 			</div>
 			<span>{c.content}</span>

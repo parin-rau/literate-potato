@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useEffect, useState } from "react";
 import CardContainer from "../../components/Card/CardContainer";
 import ProjectCard from "../../components/Card/ProjectCard";
-import { FetchedTicketData, Project, uncategorizedProject } from "../../types";
+import { Project, uncategorizedProject } from "../../types";
 import { useNavigate, useParams } from "react-router-dom";
 import { useInitialFetch } from "../../hooks/utility/useInitialFetch";
 import { usePageTitle } from "../../hooks/utility/usePageTitle";
@@ -66,7 +66,7 @@ export default function ProjectPage() {
 										/>
 									</div>
 								)}
-								<CardContainer<FetchedTicketData>
+								<CardContainer
 									dataKind="ticket"
 									containerTitle="Tasks"
 									projectTitle={project[0].title}

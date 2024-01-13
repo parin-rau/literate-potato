@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Group } from "../../types";
+import { GenericMenuOption, Group } from "../../types";
 import MenuDropdown from "../Nav/MenuDropdown";
 import GroupEditor from "./GroupEditor";
 import CountLabel from "../Display/CountLabel";
@@ -81,12 +81,12 @@ export default function GroupCard(props: Props) {
 
 	const moreOptions = [
 		isManager
-			? { name: "Delete", fn: deleteGroup }
+			? { label: "Delete", fn: deleteGroup }
 			: {
-					name: "Leave Group",
+					label: "Leave Group",
 					fn: () => leaveGroup(data.groupId, user.current!.userId),
 			  },
-		{ name: "Edit", fn: editGroup },
+		{ label: "Edit", fn: editGroup },
 	];
 	const profileLink =
 		user.current?.userId === data.manager.userId
@@ -109,7 +109,10 @@ export default function GroupCard(props: Props) {
 					>
 						{data.title}
 					</Link>
-					<MenuDropdown options={moreOptions} cardId={data.groupId} />
+					<MenuDropdown
+						options={moreOptions as GenericMenuOption[]}
+						cardId={data.groupId}
+					/>
 				</div>
 			)}
 			<div
@@ -135,7 +138,7 @@ export default function GroupCard(props: Props) {
 									{data.title}
 								</Link>
 								<MenuDropdown
-									options={moreOptions}
+									options={moreOptions as GenericMenuOption[]}
 									cardId={data.groupId}
 								/>
 							</div>
@@ -212,8 +215,12 @@ export default function GroupCard(props: Props) {
 					<GroupEditor
 						{...{
 							setEditing,
-							setGroup,
-							setGroups,
+							setGroup: setGroup as React.Dispatch<
+								React.SetStateAction<Group>
+							>,
+							setGroups: setGroups as React.Dispatch<
+								React.SetStateAction<Group[]>
+							>,
 							previousData: data,
 						}}
 					/>

@@ -4,8 +4,14 @@ type KeyValues = Record<string, Value>;
 export interface SortableObj extends KeyValues {}
 export type Sortable = KeyValues | string | number;
 //export type GenericFn = (..._args: unknown[]) => void;
-export type GenericFn = (..._args: (unknown | unknown[])[]) => void;
+export type GenericFn =
+	| ((..._args: (unknown | unknown[])[]) => void)
+	| ((..._args: unknown[]) => void);
 export type GenericAsyncFn<T> = (..._args: unknown[]) => Promise<T>;
+export type GenericMenuOption = {
+	label: string;
+	fn: GenericFn | GenericAsyncFn<void>;
+};
 
 export interface Project {
 	title: string;

@@ -17,10 +17,6 @@ type Props =
 	| {
 			options: {
 				label: string;
-				//arrowDirection?: "up" | "down";
-				// fn: ((
-				// 	_arr: SortableObj[]
-				// ) => void) | ((_arr: FetchedTicketData[]) => void) | ((_arr: Project[]) => void)
 				fn: GenericFn | GenericAsyncFn<void>;
 			}[];
 			cardId?: never;
