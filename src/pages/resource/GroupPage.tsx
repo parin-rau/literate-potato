@@ -13,7 +13,7 @@ export default function GroupPage() {
 
 	const { group, message, state, cardSetters, memberSetters } =
 		useSingleGroup(id!);
-	const { setGroup, ...restCardSetters } = cardSetters;
+	const { setGroups, ...restCardSetters } = cardSetters;
 	const { isLoading } = state;
 
 	const noGroupFound =
@@ -40,9 +40,10 @@ export default function GroupPage() {
 					{...{
 						data: group,
 						...state,
-						setGroup,
+						setGroups,
 						...restCardSetters,
 						...memberSetters,
+						singleGroupSetter: true,
 					}}
 				/>
 			</ProjectHomePage>

@@ -44,10 +44,11 @@ export default function GroupCategory(props: Props) {
 				<div className="grid grid-cols-1 @3xl/cards:grid-cols-2 @7xl/cards:grid-cols-3 place-items-stretch sm:container mx-auto gap-2">
 					{groups.map((g) => (
 						<GroupCard
-							key={g.groupId}
 							{...{
+								key: g.groupId,
 								data: g,
 								...cardProps,
+								singleGroupSetter: false,
 							}}
 						/>
 					))}

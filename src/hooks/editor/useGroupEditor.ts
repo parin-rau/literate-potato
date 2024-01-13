@@ -9,12 +9,14 @@ type Props = {
 	setEditing?: React.Dispatch<React.SetStateAction<boolean>>;
 } & (
 	| {
+			singleGroupSetter: false;
 			setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
-			setGroup?: never;
+			//setGroup?: never;
 	  }
 	| {
-			setGroups?: never;
-			setGroup: React.Dispatch<React.SetStateAction<Group>>;
+			singleGroupSetter: true;
+			//setGroups?: never;
+			setGroups: React.Dispatch<React.SetStateAction<Group>>;
 	  }
 );
 
@@ -32,7 +34,7 @@ const init: Group = {
 };
 
 export function useGroupEditor(props: Props) {
-	const { setGroup, setGroups, previousData, setEditing } = props;
+	const { singleGroupSetter, setGroups, previousData, setEditing } = props;
 	const { protectedFetch } = useProtectedFetch();
 	const { user } = useAuth();
 	const [form, setForm] = useState<Group>(previousData ? previousData : init);
@@ -96,13 +98,21 @@ export function useGroupEditor(props: Props) {
 		});
 
 		if (res.ok) {
-			setGroups && setGroups((prev) => [...prev, newGroup]);
+			!singleGroupSetter && setGroups((prev) => [...prev, newGroup]);
 
 			setForm(init);
 			!pinned && setExpand(false);
 			setEditing && setEditing(false);
 		}
-	}, [form, user, protectedFetch, setGroups, pinned, setEditing]);
+	}, [
+		form,
+		user,
+		protectedFetch,
+		singleGroupSetter,
+		setGroups,
+		pinned,
+		setEditing,
+	]);
 
 	const editGroup = useCallback(
 		async (id: string) => {
@@ -112,17 +122,18 @@ export function useGroupEditor(props: Props) {
 				{ method: "PATCH", body: JSON.stringify(patchData) }
 			);
 			if (res.ok) {
-				setGroup && setGroup((prev) => ({ ...prev, ...form }));
-				setGroups &&
-					setGroups((prev) =>
-						prev.map((g: Group) =>
-							g.groupId === id ? { ...g, ...form } : g
-						)
-					);
+				singleGroupSetter
+					? setGroups((prev) => ({ ...prev, ...form }))
+					: setGroups &&
+					  setGroups((prev) =>
+							prev.map((g: Group) =>
+								g.groupId === id ? { ...g, ...form } : g
+							)
+					  );
 				setEditing && setEditing(false);
 			}
 		},
-		[form, protectedFetch, setGroup, setGroups, setEditing]
+		[form, protectedFetch, singleGroupSetter, setGroups, setEditing]
 	);
 
 	const handleSubmit = useCallback(

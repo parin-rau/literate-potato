@@ -10,7 +10,7 @@ import ToggleButton from "../Nav/ToggleButton";
 import CollapseIcon from "../Svg/CollapseIcon";
 import MemberContainer from "./MemberContainer";
 
-type Props = {
+type PropsMulti = {
 	data: Group;
 	leaveGroup: (_gId: string, _uId: string) => void;
 	acceptRequest: (_gId: string, _uId: string) => void;
@@ -18,25 +18,31 @@ type Props = {
 	deleteGroup: (_id: string) => void;
 	editGroup: (_id: string) => void;
 	requestGroup?: (_gId: string, _uId: string) => void;
-} & (
-	| {
-			setGroup?: never;
-			setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
-			//requestGroup: (_gId: string, _uId: string) => void;
-	  }
-	| {
-			setGroup: React.Dispatch<React.SetStateAction<Group>>;
-			setGroups?: never;
-			//requestGroup?: never;
-	  }
-);
+	singleGroupSetter: false;
+	setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
+};
+
+type PropsSingle = {
+	data: Group;
+	leaveGroup: (_gId: string, _uId: string) => void;
+	acceptRequest: (_gId: string, _uId: string) => void;
+	denyRequest: (_gId: string, _uId: string) => void;
+	deleteGroup: (_id: string) => void;
+	editGroup: (_id: string) => void;
+	requestGroup?: (_gId: string, _uId: string) => void;
+	singleGroupSetter: true;
+	setGroups: React.Dispatch<React.SetStateAction<Group>>;
+};
+
+type Props = PropsSingle | PropsMulti;
 
 export default function GroupCard(props: Props) {
 	const { user } = useAuth();
 	const {
 		data,
 		deleteGroup,
-		setGroup,
+		//setGroup,
+		singleGroupSetter,
 		setGroups,
 		leaveGroup,
 		requestGroup,
@@ -212,15 +218,12 @@ export default function GroupCard(props: Props) {
 						)}
 					</>
 				) : (
+					// @ts-expect-error singleGroupSetter true/false coincides with correct typing of setGroups
 					<GroupEditor
 						{...{
 							setEditing,
-							setGroup: setGroup as React.Dispatch<
-								React.SetStateAction<Group>
-							>,
-							setGroups: setGroups as React.Dispatch<
-								React.SetStateAction<Group[]>
-							>,
+							setGroups,
+							singleGroupSetter,
 							previousData: data,
 						}}
 					/>

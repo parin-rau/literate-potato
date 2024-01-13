@@ -13,7 +13,12 @@ export default function GroupContainer() {
 			<h1 className="font-bold text-4xl">Groups Home</h1>
 			<div className="@container/cards  flex flex-col p-2 gap-4 rounded-lg dark:bg-neutral-900">
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-					<GroupEditor {...{ setGroups: cardSetters.setGroups }} />
+					<GroupEditor
+						{...{
+							singleGroupSetter: false,
+							setGroups: cardSetters.setGroups,
+						}}
+					/>
 					<GroupRequest
 						{...{ requestGroup: memberSetters.requestGroup }}
 					/>

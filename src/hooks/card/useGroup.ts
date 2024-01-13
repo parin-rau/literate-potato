@@ -158,6 +158,7 @@ export function useGroup() {
 	}, [groups, joinedGroups, managedGroups, requestedGroups]);
 
 	return {
+		singleGroupSetter: false,
 		groups,
 		state: {
 			isLoading,
@@ -192,7 +193,7 @@ export function useSingleGroup(propGroupId: string) {
 
 	const {
 		data: group,
-		setData: setGroup,
+		setData: setGroups,
 		isLoading,
 		message,
 	} = useInitialFetch<Group>(url);
@@ -219,7 +220,7 @@ export function useSingleGroup(propGroupId: string) {
 			const res = await protectedFetch(url, { method: "PATCH" });
 
 			if (res.ok) {
-				setGroup((prev) => ({
+				setGroups((prev) => ({
 					...prev,
 					requestUserIds: prev.requestUserIds.filter(
 						(i) => i !== userId
@@ -228,7 +229,7 @@ export function useSingleGroup(propGroupId: string) {
 				}));
 			}
 		},
-		[protectedFetch, setGroup]
+		[protectedFetch, setGroups]
 	);
 
 	const denyRequest = useCallback(
@@ -236,7 +237,7 @@ export function useSingleGroup(propGroupId: string) {
 			const url = `/api/group/${groupId}/user/${userId}/deny`;
 			const res = await protectedFetch(url, { method: "PATCH" });
 			if (res.ok) {
-				setGroup((prev) => ({
+				setGroups((prev) => ({
 					...prev,
 					requestUserIds: prev.requestUserIds.filter(
 						(i) => i !== userId
@@ -244,7 +245,7 @@ export function useSingleGroup(propGroupId: string) {
 				}));
 			}
 		},
-		[protectedFetch, setGroup]
+		[protectedFetch, setGroups]
 	);
 
 	const leaveGroup = useCallback(
@@ -252,16 +253,17 @@ export function useSingleGroup(propGroupId: string) {
 			const url = `/api/group/${groupId}/user/${userId}/leave`;
 			const res = await protectedFetch(url, { method: "PATCH" });
 			if (res.ok) {
-				setGroup((prev) => ({
+				setGroups((prev) => ({
 					...prev,
 					userIds: prev.userIds.filter((i) => i !== userId),
 				}));
 			}
 		},
-		[protectedFetch, setGroup]
+		[protectedFetch, setGroups]
 	);
 
 	return {
+		singleGroupSetter: true,
 		group,
 		message,
 		state: {
@@ -270,7 +272,7 @@ export function useSingleGroup(propGroupId: string) {
 		},
 		cardSetters: {
 			setEditing,
-			setGroup,
+			setGroups,
 			editGroup,
 		},
 		memberSetters: {
