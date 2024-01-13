@@ -11,9 +11,9 @@ app.use(express.json());
 app.use(
 	cors({
 		origin: [
-			"http://localhost:5173",
-			"https://literate-potato.onrender.com",
-			"http://literate-potato.onrender.com",
+			"http://localhost:5173/",
+			"https://literate-potato.onrender.com/",
+			"http://literate-potato.onrender.com/",
 		],
 		//credentials: true,
 	})
