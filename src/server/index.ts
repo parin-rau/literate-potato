@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import cors from "cors";
 import { verifyToken } from "./middleware/verifyToken";
 import { parseCookies } from "./middleware/parseCookies";
 import { projectsRouter } from "./routes/projects";
@@ -16,6 +17,16 @@ const PORT = 3002;
 const app = express();
 
 app.use(express.json());
+app.use(
+	cors({
+		origin: [
+			"http://localhost:5173",
+			"https://literate-potato.onrender.com/register",
+			"http://literate-potato.onrender.com/register",
+		],
+		credentials: true,
+	})
+);
 app.use(parseCookies);
 app.use(verifyToken);
 
