@@ -10,7 +10,10 @@ const options = {
 	},
 };
 
-const MONGODB_URL = process.env.VITE_LOCAL_MONGO_URL;
+const MONGODB_URL =
+	process.env.ENV === "PROD"
+		? process.env.PROD_MONGO_URL
+		: process.env.LOCAL_MONGO_URL;
 
 export async function connectToDatabase() {
 	if (!MONGODB_URL) {
