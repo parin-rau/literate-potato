@@ -15,7 +15,7 @@ app.use(
 			"https://literate-potato.onrender.com",
 			"http://literate-potato.onrender.com",
 		],
-		//credentials: true,
+		credentials: true,
 	})
 );
 app.use(parseCookies);
